@@ -1,0 +1,75 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  wallet    String   @unique
+  username  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  friends      Friend[]           @relation("UserFriends")
+  friendOf     Friend[]           @relation("FriendUser")
+  splits       Split[]            @relation("SplitCreator")
+  participants SplitParticipant[]
+
+  @@map("users")
+}
+
+model Friend {
+  id        String   @id @default(uuid())
+  userId    String
+  friendId  String
+  createdAt DateTime @default(now())
+
+  // Relations
+  user   User @relation("UserFriends", fields: [userId], references: [id], onDelete: Cascade)
+  friend User @relation("FriendUser", fields: [friendId], references: [id], onDelete: Cascade)
+
+  // Ensure unique friendship pairs
+  @@unique([userId, friendId])
+  @@map("friends")
+}
+
+model Split {
+  id          String   @id @default(uuid())
+  title       String
+  creatorId   String
+  totalAmount Float
+  perShare    Float
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  creator      User                @relation("SplitCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  participants SplitParticipant[]
+
+  @@map("splits")
+}
+
+model SplitParticipant {
+  id      String  @id @default(uuid())
+  splitId String
+  userId  String
+  paid    Boolean @default(false)
+  paidAt  DateTime?
+
+  // Relations
+  split Split @relation(fields: [splitId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Ensure unique participant per split
+  @@unique([splitId, userId])
+  @@map("split_participants")
+}
