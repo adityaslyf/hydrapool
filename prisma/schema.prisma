@@ -11,12 +11,16 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  wallet    String   @unique
-  username  String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                String   @id @default(uuid())
+  email             String   @unique
+  wallet            String   @unique
+  username          String?
+  displayName       String?  @map("display_name")
+  bio               String?
+  profilePictureUrl String?  @map("profile_picture_url")
+  status            String   @default("active")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
 
   // Relations
   friends      Friend[]           @relation("UserFriends")
@@ -28,10 +32,13 @@ model User {
 }
 
 model Friend {
-  id        String   @id @default(uuid())
-  userId    String
-  friendId  String
-  createdAt DateTime @default(now())
+  id          String    @id @default(uuid())
+  userId      String    @map("user_id")
+  friendId    String    @map("friend_id")
+  status      String    @default("pending")
+  requestedAt DateTime  @default(now()) @map("requested_at")
+  acceptedAt  DateTime? @map("accepted_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
 
   // Relations
   user   User @relation("UserFriends", fields: [userId], references: [id], onDelete: Cascade)
@@ -45,11 +52,14 @@ model Friend {
 model Split {
   id          String   @id @default(uuid())
   title       String
-  creatorId   String
-  totalAmount Float
-  perShare    Float
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  description String?
+  creatorId   String   @map("creator_id")
+  totalAmount Float    @map("total_amount")
+  perShare    Float    @map("per_share")
+  status      String   @default("active")
+  currency    String   @default("USDC")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
   // Relations
   creator      User                @relation("SplitCreator", fields: [creatorId], references: [id], onDelete: Cascade)
@@ -59,11 +69,14 @@ model Split {
 }
 
 model SplitParticipant {
-  id      String  @id @default(uuid())
-  splitId String
-  userId  String
-  paid    Boolean @default(false)
-  paidAt  DateTime?
+  id                   String    @id @default(uuid())
+  splitId              String    @map("split_id")
+  userId               String    @map("user_id")
+  amountOwed           Float?    @map("amount_owed")
+  paid                 Boolean   @default(false)
+  paidAt               DateTime? @map("paid_at")
+  paymentTransactionId String?   @map("payment_transaction_id")
+  paymentStatus        String    @default("pending") @map("payment_status")
 
   // Relations
   split Split @relation(fields: [splitId], references: [id], onDelete: Cascade)

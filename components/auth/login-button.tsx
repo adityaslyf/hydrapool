@@ -2,7 +2,13 @@
 
 import { useLogin, usePrivy } from '@privy-io/react-auth';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 
 export function LoginButton() {
   const { login } = useLogin();
@@ -34,17 +40,12 @@ export function LoginButton() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <Button
-          onClick={login}
-          className="w-full"
-          size="lg"
-        >
+        <Button onClick={login} className="w-full" size="lg">
           Sign In
         </Button>
         <p className="text-xs text-muted-foreground text-center">
-          Sign in with email, social accounts, or connect your wallet. 
-          <br />
-          A Solana wallet will be created for you automatically.
+          Sign in with email, social accounts, or connect your wallet.
+          <br />A Solana wallet will be created for you automatically.
         </p>
       </CardContent>
     </Card>

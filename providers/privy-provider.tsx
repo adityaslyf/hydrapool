@@ -26,7 +26,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         solanaClusters: [
           {
             name: 'devnet',
-            rpcUrl: process.env.NEXT_PUBLIC_SOLANA_RPC_URL || 'https://api.devnet.solana.com',
+            rpcUrl:
+              process.env.NEXT_PUBLIC_SOLANA_RPC_URL ||
+              'https://api.devnet.solana.com',
           },
         ],
         loginMethods: ['email', 'google'],

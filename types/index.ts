@@ -18,14 +18,42 @@ export type SplitParticipantWithUser = SplitParticipant & {
 // Form types
 export interface CreateSplitFormData {
   title: string;
+  description?: string;
   totalAmount: number;
   participantIds: string[];
+  currency?: string;
 }
 
 export interface AddFriendFormData {
   email?: string;
   wallet?: string;
   username?: string;
+}
+
+export interface UpdateUserProfileFormData {
+  displayName?: string;
+  bio?: string;
+  username?: string;
+  profilePictureUrl?: string;
+}
+
+// Friend request types
+export type FriendStatus = 'pending' | 'accepted' | 'blocked';
+
+export interface FriendRequest {
+  id: string;
+  userId: string;
+  friendId: string;
+  status: FriendStatus;
+  requestedAt: Date;
+  acceptedAt?: Date;
+  user: User;
+  friend: User;
+}
+
+export interface FriendRequestAction {
+  requestId: string;
+  action: 'accept' | 'decline' | 'block';
 }
 
 // Solana types

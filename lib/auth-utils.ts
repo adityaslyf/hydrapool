@@ -30,8 +30,10 @@ export async function createUser(data: CreateUserData): Promise<User> {
 
 export async function getUserByEmail(email: string): Promise<User | null> {
   try {
-    const response = await fetch(`/api/auth/user?email=${encodeURIComponent(email)}`);
-    
+    const response = await fetch(
+      `/api/auth/user?email=${encodeURIComponent(email)}`,
+    );
+
     if (!response.ok) {
       throw new Error('Failed to fetch user');
     }
@@ -46,8 +48,10 @@ export async function getUserByEmail(email: string): Promise<User | null> {
 
 export async function getUserByWallet(wallet: string): Promise<User | null> {
   try {
-    const response = await fetch(`/api/auth/user?wallet=${encodeURIComponent(wallet)}`);
-    
+    const response = await fetch(
+      `/api/auth/user?wallet=${encodeURIComponent(wallet)}`,
+    );
+
     if (!response.ok) {
       throw new Error('Failed to fetch user');
     }
@@ -63,7 +67,7 @@ export async function getUserByWallet(wallet: string): Promise<User | null> {
 export async function getUserById(id: string): Promise<User | null> {
   try {
     const response = await fetch(`/api/auth/user?id=${encodeURIComponent(id)}`);
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch user');
     }
@@ -76,7 +80,10 @@ export async function getUserById(id: string): Promise<User | null> {
   }
 }
 
-export async function updateUser(id: string, data: Partial<User>): Promise<User | null> {
+export async function updateUser(
+  id: string,
+  data: Partial<User>,
+): Promise<User | null> {
   try {
     const response = await fetch('/api/auth/user', {
       method: 'PUT',

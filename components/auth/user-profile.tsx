@@ -2,18 +2,24 @@
 
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { LogOut, Wallet, Mail } from 'lucide-react';
 
 export function UserProfile() {
-  const { 
-    authenticated, 
-    ready, 
-    logout, 
+  const {
+    authenticated,
+    ready,
+    logout,
 
-    user, 
-    walletAddress, 
-    privyUser 
+    user,
+    walletAddress,
+    privyUser,
   } = useAuth();
 
   if (!ready || !authenticated || !privyUser) {
@@ -22,9 +28,12 @@ export function UserProfile() {
 
   // Get email from Google account or primary email
   const googleAccount = privyUser.linkedAccounts.find(
-    (account) => account.type === 'google_oauth'
+    (account) => account.type === 'google_oauth',
   );
-  const email = privyUser.email?.address || (googleAccount as { email?: string })?.email || 'No email';
+  const email =
+    privyUser.email?.address ||
+    (googleAccount as { email?: string })?.email ||
+    'No email';
   const displayWalletAddress = walletAddress || 'No wallet connected';
 
   return (
@@ -58,7 +67,10 @@ export function UserProfile() {
               <div className="flex items-center gap-2">
                 <p className="text-sm font-medium">Solana Wallet</p>
                 {walletAddress && (
-                  <div className="h-2 w-2 bg-green-500 rounded-full" title="Wallet connected" />
+                  <div
+                    className="h-2 w-2 bg-green-500 rounded-full"
+                    title="Wallet connected"
+                  />
                 )}
               </div>
               <p className="text-xs text-muted-foreground font-mono truncate">
@@ -89,11 +101,7 @@ export function UserProfile() {
           )}
         </div>
 
-        <Button
-          onClick={logout}
-          variant="outline"
-          className="w-full"
-        >
+        <Button onClick={logout} variant="outline" className="w-full">
           <LogOut className="h-4 w-4 mr-2" />
           Sign Out
         </Button>

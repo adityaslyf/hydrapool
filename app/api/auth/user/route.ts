@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     if (!email && !wallet && !id) {
       return NextResponse.json(
         { error: 'Email, wallet, or id parameter is required' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -29,14 +29,12 @@ export async function GET(request: NextRequest) {
     const { data: user, error } = await query.single();
 
     if (error) {
-      if (error.code === 'PGRST116') { // Not found
+      if (error.code === 'PGRST116') {
+        // Not found
         return NextResponse.json({ user: null });
       }
       console.error('Supabase error:', error);
-      return NextResponse.json(
-        { error: 'Database error' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Database error' }, { status: 500 });
     }
 
     return NextResponse.json({ user });
@@ -44,7 +42,7 @@ export async function GET(request: NextRequest) {
     console.error('Error fetching user:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -56,10 +54,7 @@ export async function POST(request: NextRequest) {
     const { email, wallet, username } = body;
 
     if (!email) {
-      return NextResponse.json(
-        { error: 'Email is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Email is required' }, { status: 400 });
     }
 
     // Check if user already exists by email
@@ -71,7 +66,11 @@ export async function POST(request: NextRequest) {
 
     if (existingUser) {
       // If user exists and we have a real wallet, update it
-      if (wallet && !wallet.startsWith('pending_') && existingUser.wallet?.startsWith('pending_')) {
+      if (
+        wallet &&
+        !wallet.startsWith('pending_') &&
+        existingUser.wallet?.startsWith('pending_')
+      ) {
         const { data: updatedUser, error: updateError } = await supabase
           .from('users')
           .update({ wallet })
@@ -101,10 +100,7 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error('Supabase insert error:', error);
-      return NextResponse.json(
-        { error: 'Database error' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Database error' }, { status: 500 });
     }
 
     return NextResponse.json({ user }, { status: 201 });
@@ -112,7 +108,7 @@ export async function POST(request: NextRequest) {
     console.error('Error creating user:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -126,7 +122,7 @@ export async function PUT(request: NextRequest) {
     if (!id) {
       return NextResponse.json(
         { error: 'User ID is required' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -144,10 +140,7 @@ export async function PUT(request: NextRequest) {
 
     if (error) {
       console.error('Supabase update error:', error);
-      return NextResponse.json(
-        { error: 'Database error' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Database error' }, { status: 500 });
     }
 
     return NextResponse.json({ user });
@@ -155,7 +148,7 @@ export async function PUT(request: NextRequest) {
     console.error('Error updating user:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
