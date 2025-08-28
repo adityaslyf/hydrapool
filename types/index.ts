@@ -1,5 +1,8 @@
 import { User, Friend, Split, SplitParticipant } from '@prisma/client';
 
+// Re-export basic types
+export type { User, Friend, Split, SplitParticipant };
+
 // Extended types with relations
 export type UserWithFriends = User & {
   friends: (Friend & { friend: User })[];
