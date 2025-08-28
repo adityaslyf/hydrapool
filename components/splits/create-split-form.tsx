@@ -1,7 +1,13 @@
 'use client';
 
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useCallback } from 'react';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,6 +15,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Plus, DollarSign, Users, Loader2, Check } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useFriends } from '@/hooks/use-friends';
+import { FriendSelector } from './friend-selector';
 import type { CreateSplitFormData } from '@/types';
 
 interface CreateSplitFormProps {
@@ -16,10 +23,13 @@ interface CreateSplitFormProps {
   onCancel?: () => void;
 }
 
-export function CreateSplitForm({ onSplitCreated, onCancel }: CreateSplitFormProps) {
+export function CreateSplitForm({
+  onSplitCreated,
+  onCancel,
+}: CreateSplitFormProps) {
   const { user: currentUser } = useAuth();
   const { checkExistingRelation } = useFriends();
-  
+
   const [formData, setFormData] = useState<CreateSplitFormData>({
     title: '',
     description: '',
@@ -27,20 +37,27 @@ export function CreateSplitForm({ onSplitCreated, onCancel }: CreateSplitFormPro
     participantIds: [],
     currency: 'USDC',
   });
-  
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const handleInputChange = (field: keyof CreateSplitFormData, value: string | number | string[]) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const handleInputChange = useCallback((
+    field: keyof CreateSplitFormData,
+    value: string | number | string[],
+  ) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
     setError(null);
     setSuccess(false);
-  };
+  }, []);
+
+  const handleParticipantChange = useCallback((friendIds: string[]) => {
+    handleInputChange('participantIds', friendIds);
+  }, [handleInputChange]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!currentUser?.id) {
       setError('You must be logged in to create a split');
       return;
@@ -65,25 +82,35 @@ export function CreateSplitForm({ onSplitCreated, onCancel }: CreateSplitFormPro
       setLoading(true);
       setError(null);
 
+      const requestData = {
+        ...formData,
+        creatorId: currentUser.id,
+      };
+
+      console.log('🔍 CreateSplitForm: Submitting split data:', requestData);
+      console.log('🔍 CreateSplitForm: Current user:', currentUser);
+
       const response = await fetch('/api/splits', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          ...formData,
-          creatorId: currentUser.id,
-        }),
+        body: JSON.stringify(requestData),
       });
+
+      console.log('🔍 CreateSplitForm: Response status:', response.status);
+      console.log('🔍 CreateSplitForm: Response ok:', response.ok);
 
       if (!response.ok) {
         const errorData = await response.json();
+        console.error('🚨 CreateSplitForm: Error response:', errorData);
         throw new Error(errorData.error || 'Failed to create split');
       }
 
       const data = await response.json();
+      console.log('✅ CreateSplitForm: Success response:', data);
       setSuccess(true);
-      
+
       // Reset form
       setFormData({
         title: '',
@@ -97,8 +124,8 @@ export function CreateSplitForm({ onSplitCreated, onCancel }: CreateSplitFormPro
       setTimeout(() => {
         onSplitCreated?.(data.split.id);
       }, 1000);
-
     } catch (err) {
+      console.error('🚨 CreateSplitForm: Caught error:', err);
       setError(err instanceof Error ? err.message : 'Failed to create split');
     } finally {
       setLoading(false);
@@ -106,8 +133,9 @@ export function CreateSplitForm({ onSplitCreated, onCancel }: CreateSplitFormPro
   };
 
   const calculatePerPerson = () => {
-    if (formData.totalAmount <= 0 || formData.participantIds.length === 0) return 0;
-    return formData.totalAmount / (formData.participantIds.length + 1); // +1 for creator
+    if (formData.totalAmount <= 0) return 0;
+    const totalParticipants = formData.participantIds.length + 1; // +1 for creator
+    return totalParticipants > 0 ? formData.totalAmount / totalParticipants : 0;
   };
 
   const perPersonAmount = calculatePerPerson();
@@ -170,7 +198,12 @@ export function CreateSplitForm({ onSplitCreated, onCancel }: CreateSplitFormPro
                 step="0.01"
                 min="0.01"
                 value={formData.totalAmount || ''}
-                onChange={(e) => handleInputChange('totalAmount', parseFloat(e.target.value) || 0)}
+                onChange={(e) =>
+                  handleInputChange(
+                    'totalAmount',
+                    parseFloat(e.target.value) || 0,
+                  )
+                }
                 placeholder="0.00"
                 required
                 disabled={loading}
@@ -200,19 +233,12 @@ export function CreateSplitForm({ onSplitCreated, onCancel }: CreateSplitFormPro
             </p>
           </div>
 
-          {/* Friend Selection Placeholder */}
-          <div className="space-y-2">
-            <Label>Friends to Split With</Label>
-            <div className="p-4 border border-dashed border-muted-foreground/25 rounded-lg text-center">
-              <Users className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-              <p className="text-muted-foreground mb-2">
-                Friend selection coming in Phase 4B
-              </p>
-              <p className="text-xs text-muted-foreground">
-                You'll be able to select friends from your friends list
-              </p>
-            </div>
-          </div>
+          {/* Friend Selection */}
+          <FriendSelector
+            selectedFriends={formData.participantIds}
+            onSelectionChange={handleParticipantChange}
+            disabled={loading}
+          />
 
           {/* Split Calculation Preview */}
           {formData.totalAmount > 0 && (
@@ -221,11 +247,13 @@ export function CreateSplitForm({ onSplitCreated, onCancel }: CreateSplitFormPro
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span>Total Amount:</span>
-                  <span className="font-mono">{formData.totalAmount} {formData.currency}</span>
+                  <span className="font-mono">
+                    {formData.totalAmount} {formData.currency}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span>Participants:</span>
-                  <span>You + {formData.participantIds.length} friends</span>
+                  <span>You + {formData.participantIds.length} friend{formData.participantIds.length !== 1 ? 's' : ''}</span>
                 </div>
                 <div className="flex justify-between font-medium">
                   <span>Per Person:</span>
@@ -233,6 +261,11 @@ export function CreateSplitForm({ onSplitCreated, onCancel }: CreateSplitFormPro
                     {perPersonAmount.toFixed(2)} {formData.currency}
                   </span>
                 </div>
+                {formData.participantIds.length === 0 && (
+                  <div className="text-amber-600 text-xs bg-amber-50 p-2 rounded border border-amber-200">
+                    ⚠️ Please select at least one friend to split with
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -269,7 +302,12 @@ export function CreateSplitForm({ onSplitCreated, onCancel }: CreateSplitFormPro
             )}
             <Button
               type="submit"
-              disabled={loading || !formData.title.trim() || formData.totalAmount <= 0}
+              disabled={
+                loading || 
+                !formData.title.trim() || 
+                formData.totalAmount <= 0 ||
+                formData.participantIds.length === 0
+              }
               className="flex-1"
             >
               {loading ? (

@@ -1,7 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CreateSplitForm } from '@/components/splits/create-split-form';
 import { ArrowLeft, Plus, CreditCard } from 'lucide-react';
@@ -68,7 +74,9 @@ export default function CreateSplitPage() {
               <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
                 <CreditCard className="h-8 w-8 text-primary" />
               </div>
-              <CardTitle className="text-2xl">Ready to Split Expenses?</CardTitle>
+              <CardTitle className="text-2xl">
+                Ready to Split Expenses?
+              </CardTitle>
               <CardDescription className="text-lg">
                 Create a new split to share costs with your friends
               </CardDescription>
@@ -80,11 +88,12 @@ export default function CreateSplitPage() {
                   <div>
                     <h3 className="font-medium">Split Title</h3>
                     <p className="text-sm text-muted-foreground">
-                      Give your split a descriptive name like "Dinner at Olive Garden"
+                      Give your split a descriptive name like "Dinner at Olive
+                      Garden"
                     </p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
                   <div>
@@ -94,17 +103,17 @@ export default function CreateSplitPage() {
                     </p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
                   <div>
-                    <h3 className="font-medium">Friend Selection</h3>
+                    <h3 className="font-medium">Friend Selection ✅</h3>
                     <p className="text-sm text-muted-foreground">
-                      Choose friends from your friends list to split with
+                      Select friends from your friends list with search and multi-select
                     </p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
                   <div>
@@ -116,8 +125,8 @@ export default function CreateSplitPage() {
                 </div>
               </div>
 
-              <Button 
-                onClick={() => setShowForm(true)} 
+              <Button
+                onClick={() => setShowForm(true)}
                 size="lg"
                 className="w-full max-w-xs"
               >
@@ -126,8 +135,17 @@ export default function CreateSplitPage() {
               </Button>
 
               <div className="text-xs text-muted-foreground">
-                <p>💡 <strong>Tip:</strong> Make sure you have friends added before creating splits</p>
-                <p>You can add friends from the <Link href="/users" className="text-primary hover:underline">Users</Link> page</p>
+                <p>
+                  💡 <strong>Tip:</strong> Make sure you have friends added
+                  before creating splits
+                </p>
+                <p>
+                  You can add friends from the{' '}
+                  <Link href="/users" className="text-primary hover:underline">
+                    Users
+                  </Link>{' '}
+                  page
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -141,11 +159,7 @@ export default function CreateSplitPage() {
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
-          <Button 
-            variant="ghost" 
-            size="sm"
-            onClick={() => setShowForm(false)}
-          >
+          <Button variant="ghost" size="sm" onClick={() => setShowForm(false)}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Overview
           </Button>
@@ -156,7 +170,7 @@ export default function CreateSplitPage() {
         </div>
 
         {/* Split Creation Form */}
-        <CreateSplitForm 
+        <CreateSplitForm
           onSplitCreated={handleSplitCreated}
           onCancel={() => setShowForm(false)}
         />

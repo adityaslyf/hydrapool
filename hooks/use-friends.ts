@@ -12,6 +12,7 @@ interface UseFriendsReturn {
     friendId: string,
   ) => Promise<'none' | 'pending_sent' | 'pending_received' | 'friends'>;
   checkExistingRelation: (friendId: string) => Promise<FriendRequest | null>;
+  fetchFriends: () => Promise<any[]>;
   loading: boolean;
 }
 
@@ -106,10 +107,31 @@ export function useFriends(): UseFriendsReturn {
     [checkExistingRelation],
   );
 
+  const fetchFriends = useCallback(async (): Promise<any[]> => {
+    if (!user?.id) return [];
+
+    try {
+      const response = await fetch(`/api/friends?userId=${user.id}&type=all`);
+      if (!response.ok) return [];
+
+      const data = await response.json();
+      const relations = data.relations || [];
+      
+      // Filter for accepted friends only
+      const acceptedFriends = relations.filter((relation: any) => relation.status === 'accepted');
+      
+      return acceptedFriends;
+    } catch (error) {
+      console.error('Error fetching friends:', error);
+      return [];
+    }
+  }, [user?.id]);
+
   return {
     sendFriendRequest,
     getFriendStatus,
     checkExistingRelation,
+    fetchFriends,
     loading,
   };
 }
