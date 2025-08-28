@@ -18,6 +18,7 @@ export async function POST(request: NextRequest) {
       currency,
       creatorId,
       participantIds,
+      participantAmounts, // New field for custom amounts
     } = body;
 
     console.log('🔍 /api/splits POST: Extracted fields:', {
@@ -27,6 +28,7 @@ export async function POST(request: NextRequest) {
       currency,
       creatorId,
       participantIds,
+      participantAmounts,
     });
 
     if (!title || !totalAmount || !creatorId) {
@@ -83,13 +85,13 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ /api/splits POST: Split created successfully:', split);
 
-    // Create participant records
+    // Create participant records using calculated amounts
     const participants = [
       // Creator (paid = true since they're creating it)
       {
         split_id: split.id,
         user_id: creatorId,
-        amount_owed: perPersonAmount,
+        amount_owed: participantAmounts?.[creatorId] || perPersonAmount, // Use custom amount or fallback
         paid: true,
         payment_status: 'confirmed', // Use 'confirmed' instead of 'paid'
       },
@@ -97,7 +99,7 @@ export async function POST(request: NextRequest) {
       ...participantIds.map((participantId: string) => ({
         split_id: split.id,
         user_id: participantId,
-        amount_owed: perPersonAmount,
+        amount_owed: participantAmounts?.[participantId] || perPersonAmount, // Use custom amount or fallback
         paid: false,
         payment_status: 'pending',
       })),

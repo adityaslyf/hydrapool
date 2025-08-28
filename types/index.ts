@@ -25,6 +25,18 @@ export interface CreateSplitFormData {
   totalAmount: number;
   participantIds: string[];
   currency?: string;
+  splitType?: 'equal' | 'custom';
+  customAmounts?: Record<string, number>; // userId -> amount
+}
+
+export interface SplitCalculation {
+  totalAmount: number;
+  totalParticipants: number;
+  splitType: 'equal' | 'custom';
+  participantAmounts: Record<string, number>;
+  creatorAmount: number;
+  isValid: boolean;
+  remainingAmount?: number;
 }
 
 export interface AddFriendFormData {
