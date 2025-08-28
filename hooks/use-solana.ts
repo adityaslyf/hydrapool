@@ -2,13 +2,16 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
-import { useSolanaWallets, useSendTransaction } from '@privy-io/react-auth/solana';
+import {
+  useSolanaWallets,
+  useSendTransaction,
+} from '@privy-io/react-auth/solana';
 import { PublicKey, Transaction } from '@solana/web3.js';
-import type { 
-  SolanaWalletInfo, 
-  PaymentRequest, 
-  PaymentResponse, 
-  SolanaTransaction 
+import type {
+  SolanaWalletInfo,
+  PaymentRequest,
+  PaymentResponse,
+  SolanaTransaction,
 } from '@/types';
 import {
   getSolBalance,
@@ -36,7 +39,7 @@ export function useSolana(): UseSolanaReturn {
   const [walletInfo, setWalletInfo] = useState<SolanaWalletInfo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Add refs to prevent excessive calls
   const lastFetchTime = useRef<number>(0);
   const isCurrentlyFetching = useRef<boolean>(false);
@@ -65,8 +68,9 @@ export function useSolana(): UseSolanaReturn {
     // Check if we should skip due to caching or ongoing fetch
     const now = Date.now();
     if (
-      isCurrentlyFetching.current || 
-      (now - lastFetchTime.current < CACHE_DURATION && walletInfo?.address === walletAddress)
+      isCurrentlyFetching.current ||
+      (now - lastFetchTime.current < CACHE_DURATION &&
+        walletInfo?.address === walletAddress)
     ) {
       return;
     }
@@ -87,22 +91,27 @@ export function useSolana(): UseSolanaReturn {
         usdcBalance,
         isConnected: true,
       });
-      
+
       lastFetchTime.current = now;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch wallet balances';
+      const errorMessage =
+        err instanceof Error ? err.message : 'Failed to fetch wallet balances';
       setError(errorMessage);
       // Preserve existing balances on error
-      setWalletInfo((prev: SolanaWalletInfo | null) => prev ? {
-        ...prev,
-        address: walletAddress,
-        isConnected: true,
-      } : {
-        address: walletAddress,
-        balance: undefined,
-        usdcBalance: undefined,
-        isConnected: true,
-      });
+      setWalletInfo((prev: SolanaWalletInfo | null) =>
+        prev
+          ? {
+              ...prev,
+              address: walletAddress,
+              isConnected: true,
+            }
+          : {
+              address: walletAddress,
+              balance: undefined,
+              usdcBalance: undefined,
+              isConnected: true,
+            },
+      );
     } finally {
       setIsLoading(false);
       isCurrentlyFetching.current = false;
@@ -110,107 +119,111 @@ export function useSolana(): UseSolanaReturn {
   }, [getWalletAddress, walletInfo?.address, CACHE_DURATION]);
 
   // Send USDC payment
-  const sendPayment = useCallback(async (request: PaymentRequest): Promise<PaymentResponse> => {
-    const walletAddress = getWalletAddress();
-    if (!walletAddress) {
-      return {
-        success: false,
-        error: 'Wallet not connected',
-      };
-    }
-
-    if (!isValidSolanaAddress(request.recipient)) {
-      return {
-        success: false,
-        error: 'Invalid recipient address',
-      };
-    }
-
-    if (request.amount <= 0) {
-      return {
-        success: false,
-        error: 'Invalid amount',
-      };
-    }
-
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      // Check USDC balance
-      const currentBalance = await getUsdcBalance(walletAddress);
-      if (currentBalance < request.amount) {
+  const sendPayment = useCallback(
+    async (request: PaymentRequest): Promise<PaymentResponse> => {
+      const walletAddress = getWalletAddress();
+      if (!walletAddress) {
         return {
           success: false,
-          error: `Insufficient USDC balance. You have ${currentBalance.toFixed(2)} USDC but need ${request.amount.toFixed(2)} USDC`,
+          error: 'Wallet not connected',
         };
       }
 
-      // Create the transaction
-      const transaction = await createUsdcTransferTransaction(
-        walletAddress,
-        request.recipient,
-        request.amount
-      );
-
-      // Send transaction using Privy's Solana-specific method
-      const connection = createSolanaConnection();
-      const result = await sendTransaction({
-        transaction,
-        connection,
-      });
-
-      if (!result || !result.signature) {
+      if (!isValidSolanaAddress(request.recipient)) {
         return {
           success: false,
-          error: 'Transaction failed - no signature returned',
+          error: 'Invalid recipient address',
         };
       }
 
-      // Create transaction record
-      const solanaTransaction: SolanaTransaction = {
-        signature: result.signature,
-        status: 'pending',
-        amount: request.amount,
-        from: walletAddress,
-        to: request.recipient,
-        currency: request.currency,
-        timestamp: new Date(),
-        splitId: request.splitId,
-        participantId: request.participantId,
-      };
+      if (request.amount <= 0) {
+        return {
+          success: false,
+          error: 'Invalid amount',
+        };
+      }
 
-      // Confirm transaction in background
-      setTimeout(async () => {
-        try {
-          await confirmTransaction(result.signature);
-        } catch (err) {
-          // Silent confirmation error handling
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        // Check USDC balance
+        const currentBalance = await getUsdcBalance(walletAddress);
+        if (currentBalance < request.amount) {
+          return {
+            success: false,
+            error: `Insufficient USDC balance. You have ${currentBalance.toFixed(2)} USDC but need ${request.amount.toFixed(2)} USDC`,
+          };
         }
-      }, 1000);
 
-      // Refresh balances after successful transaction
-      setTimeout(() => {
-        refreshBalances();
-      }, 2000);
+        // Create the transaction
+        const transaction = await createUsdcTransferTransaction(
+          walletAddress,
+          request.recipient,
+          request.amount,
+        );
 
-      return {
-        success: true,
-        signature: result.signature,
-        transaction: solanaTransaction,
-      };
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Payment failed';
-      return {
-        success: false,
-        error: errorMessage,
-      };
-    } finally {
-      setIsLoading(false);
-    }
-  }, [getWalletAddress, sendTransaction, refreshBalances]);
+        // Send transaction using Privy's Solana-specific method
+        const connection = createSolanaConnection();
+        const result = await sendTransaction({
+          transaction,
+          connection,
+        });
 
-    // Initialize wallet info when wallets change - simplified with Privy Solana hooks
+        if (!result || !result.signature) {
+          return {
+            success: false,
+            error: 'Transaction failed - no signature returned',
+          };
+        }
+
+        // Create transaction record
+        const solanaTransaction: SolanaTransaction = {
+          signature: result.signature,
+          status: 'pending',
+          amount: request.amount,
+          from: walletAddress,
+          to: request.recipient,
+          currency: request.currency,
+          timestamp: new Date(),
+          splitId: request.splitId,
+          participantId: request.participantId,
+        };
+
+        // Confirm transaction in background
+        setTimeout(async () => {
+          try {
+            await confirmTransaction(result.signature);
+          } catch (err) {
+            // Silent confirmation error handling
+          }
+        }, 1000);
+
+        // Refresh balances after successful transaction
+        setTimeout(() => {
+          refreshBalances();
+        }, 2000);
+
+        return {
+          success: true,
+          signature: result.signature,
+          transaction: solanaTransaction,
+        };
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : 'Payment failed';
+        return {
+          success: false,
+          error: errorMessage,
+        };
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [getWalletAddress, sendTransaction, refreshBalances],
+  );
+
+  // Initialize wallet info when wallets change - simplified with Privy Solana hooks
   useEffect(() => {
     if (wallets.length === 0) {
       setWalletInfo(null);

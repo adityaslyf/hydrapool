@@ -180,7 +180,9 @@ export default function SplitDetailPage() {
         if (updateResponse.ok) {
           // Refresh the split data
           await fetchSplit();
-          alert(`Payment successful! Transaction: ${result.signature.slice(0, 20)}...`);
+          alert(
+            `Payment successful! Transaction: ${result.signature.slice(0, 20)}...`,
+          );
         } else {
           throw new Error('Failed to update payment status');
         }
@@ -188,7 +190,8 @@ export default function SplitDetailPage() {
         throw new Error(result.error || 'Payment failed');
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Payment failed';
+      const errorMessage =
+        err instanceof Error ? err.message : 'Payment failed';
       setError(errorMessage);
       alert(`Payment failed: ${errorMessage}`);
     } finally {
@@ -266,11 +269,20 @@ export default function SplitDetailPage() {
         </div>
 
         {/* Wallet Info for Payment */}
-        {getCurrentUserParticipation() && !getCurrentUserParticipation()?.paid && (
-          <div className="mb-6">
-            <WalletInfo compact={true} />
-          </div>
-        )}
+        {getCurrentUserParticipation() &&
+          !getCurrentUserParticipation()?.paid && (
+            <Card className="mb-6">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Your Wallet</CardTitle>
+                <CardDescription>
+                  Check your balance before making payment
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <WalletInfo compact={false} />
+              </CardContent>
+            </Card>
+          )}
 
         {/* Split Info */}
         <Card>
@@ -358,23 +370,37 @@ export default function SplitDetailPage() {
                     currentUserParticipation.paid,
                   )}
                   {!currentUserParticipation.paid && (
-                    <Button
-                      onClick={handlePayment}
-                      disabled={paymentLoading}
-                      className="bg-primary hover:bg-primary/90"
-                    >
-                      {paymentLoading ? (
-                        <div className="flex items-center gap-2">
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                          Processing...
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2">
-                          <DollarSign className="h-4 w-4" />
-                          Pay My Share
-                        </div>
-                      )}
-                    </Button>
+                    <div className="space-y-3">
+                      <Button
+                        onClick={handlePayment}
+                        disabled={paymentLoading || !walletInfo?.isConnected}
+                        className="bg-primary hover:bg-primary/90 w-full sm:w-auto"
+                        size="lg"
+                      >
+                        {paymentLoading ? (
+                          <div className="flex items-center gap-2">
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                            Processing Payment...
+                          </div>
+                        ) : !walletInfo?.isConnected ? (
+                          <div className="flex items-center gap-2">
+                            <DollarSign className="h-4 w-4" />
+                            Wallet Not Connected
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <DollarSign className="h-4 w-4" />
+                            Pay {currentUserParticipation.amount_owed.toFixed(2)} {split.currency}
+                          </div>
+                        )}
+                      </Button>
+                      
+                      {/* Payment Details */}
+                      <div className="text-xs text-muted-foreground">
+                        <div>Payment will be sent to: {split.creator?.username || split.creator?.email?.split('@')[0] || 'Split Creator'}</div>
+                        <div>Transaction fee: ~$0.01 SOL</div>
+                      </div>
+                    </div>
                   )}
                 </div>
               </div>

@@ -282,8 +282,16 @@ export function SplitsList({
                     )}
                   </div>
 
-                  <div className="flex items-center gap-2 ml-4">
-                    <Button variant="outline" size="sm" asChild>
+                  <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2 ml-4">
+                    {userShare && !userShare.paid && !isCreator && (
+                      <Button size="sm" asChild className="w-full sm:w-auto">
+                        <Link href={`/split/${split.id}`}>
+                          <DollarSign className="h-4 w-4 mr-2" />
+                          Pay Now
+                        </Link>
+                      </Button>
+                    )}
+                    <Button variant="outline" size="sm" asChild className="w-full sm:w-auto">
                       <Link href={`/split/${split.id}`}>
                         <Eye className="h-4 w-4 mr-2" />
                         View
