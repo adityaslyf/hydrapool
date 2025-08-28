@@ -4,7 +4,16 @@ import { useState, useEffect, useCallback } from 'react';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Search, User, Mail, Wallet, UserPlus, Loader2, Check, Clock } from 'lucide-react';
+import {
+  Search,
+  User,
+  Mail,
+  Wallet,
+  UserPlus,
+  Loader2,
+  Check,
+  Clock,
+} from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useFriends } from '@/hooks/use-friends';
 import type { User as UserType } from '@/types';
@@ -28,13 +37,19 @@ export function UserSearch({
   excludeCurrentUser = true,
 }: UserSearchProps) {
   const { user: currentUser } = useAuth();
-  const { sendFriendRequest, getFriendStatus, loading: friendsLoading } = useFriends();
+  const {
+    sendFriendRequest,
+    getFriendStatus,
+    loading: friendsLoading,
+  } = useFriends();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<UserType[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showResults, setShowResults] = useState(false);
-  const [friendStatuses, setFriendStatuses] = useState<Record<string, 'none' | 'pending_sent' | 'pending_received' | 'friends'>>({});
+  const [friendStatuses, setFriendStatuses] = useState<
+    Record<string, 'none' | 'pending_sent' | 'pending_received' | 'friends'>
+  >({});
   const [requestingFriend, setRequestingFriend] = useState<string | null>(null);
 
   const searchUsers = useCallback(
@@ -67,29 +82,32 @@ export function UserSearch({
           );
         }
 
-                 setResults(filteredUsers);
-         setShowResults(true);
+        setResults(filteredUsers);
+        setShowResults(true);
 
-         // Check friend status for each user
-         if (filteredUsers.length > 0 && showAddButton) {
-           const statuses: Record<string, 'none' | 'pending_sent' | 'pending_received' | 'friends'> = {};
-           await Promise.all(
-             filteredUsers.map(async (user) => {
-               const status = await getFriendStatus(user.id);
-               statuses[user.id] = status;
-             }),
-           );
-           setFriendStatuses(statuses);
-         }
-       } catch (err) {
-         setError(err instanceof Error ? err.message : 'Search failed');
-         setResults([]);
-       } finally {
-         setLoading(false);
-       }
-     },
-     [currentUser, excludeCurrentUser, showAddButton, getFriendStatus],
-   );
+        // Check friend status for each user
+        if (filteredUsers.length > 0 && showAddButton) {
+          const statuses: Record<
+            string,
+            'none' | 'pending_sent' | 'pending_received' | 'friends'
+          > = {};
+          await Promise.all(
+            filteredUsers.map(async (user) => {
+              const status = await getFriendStatus(user.id);
+              statuses[user.id] = status;
+            }),
+          );
+          setFriendStatuses(statuses);
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Search failed');
+        setResults([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [currentUser, excludeCurrentUser, showAddButton, getFriendStatus],
+  );
 
   // Debounced search
   useEffect(() => {
@@ -108,23 +126,23 @@ export function UserSearch({
 
   const handleAddFriend = async (user: UserType, e: React.MouseEvent) => {
     e.stopPropagation();
-    
+
     if (!currentUser?.id || requestingFriend === user.id) return;
 
     setRequestingFriend(user.id);
-    
+
     const result = await sendFriendRequest(user.id);
-    
+
     if (result.success) {
       // Update the friend status immediately
-      setFriendStatuses(prev => ({
+      setFriendStatuses((prev) => ({
         ...prev,
-        [user.id]: 'pending_sent'
+        [user.id]: 'pending_sent',
       }));
     } else {
       setError(result.error || 'Failed to send friend request');
     }
-    
+
     setRequestingFriend(null);
   };
 
@@ -214,12 +232,12 @@ export function UserSearch({
                   </div>
                 </div>
 
-{showAddButton && (
+                {showAddButton && (
                   <div className="flex items-center">
                     {(() => {
                       const status = friendStatuses[user.id] || 'none';
                       const isRequesting = requestingFriend === user.id;
-                      
+
                       if (status === 'friends') {
                         return (
                           <div className="flex items-center gap-1 text-green-600 text-xs">
@@ -228,7 +246,7 @@ export function UserSearch({
                           </div>
                         );
                       }
-                      
+
                       if (status === 'pending_sent') {
                         return (
                           <div className="flex items-center gap-1 text-orange-600 text-xs">
@@ -237,7 +255,7 @@ export function UserSearch({
                           </div>
                         );
                       }
-                      
+
                       if (status === 'pending_received') {
                         return (
                           <div className="flex items-center gap-1 text-blue-600 text-xs">
@@ -246,7 +264,7 @@ export function UserSearch({
                           </div>
                         );
                       }
-                      
+
                       return (
                         <Button
                           size="sm"

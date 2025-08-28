@@ -1,7 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { UserPlus, Check, X, Clock, Users, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
@@ -24,8 +30,10 @@ export function FriendRequests({ type, onRequestUpdate }: FriendRequestsProps) {
 
     try {
       setLoading(true);
-      const response = await fetch(`/api/friends?userId=${user.id}&type=${type}`);
-      
+      const response = await fetch(
+        `/api/friends?userId=${user.id}&type=${type}`,
+      );
+
       if (!response.ok) {
         throw new Error('Failed to fetch friend requests');
       }
@@ -43,7 +51,10 @@ export function FriendRequests({ type, onRequestUpdate }: FriendRequestsProps) {
     fetchRequests();
   }, [user?.id, type]);
 
-  const handleRequestAction = async (requestId: string, action: FriendRequestAction) => {
+  const handleRequestAction = async (
+    requestId: string,
+    action: FriendRequestAction,
+  ) => {
     if (!user?.id) return;
 
     try {
@@ -70,14 +81,18 @@ export function FriendRequests({ type, onRequestUpdate }: FriendRequestsProps) {
       await fetchRequests();
       onRequestUpdate?.();
     } catch (err) {
-      setError(err instanceof Error ? err.message : `Failed to ${action} request`);
+      setError(
+        err instanceof Error ? err.message : `Failed to ${action} request`,
+      );
     } finally {
       setActionLoading(null);
     }
   };
 
   const getUserDisplayName = (otherUser: FriendRequest['otherUser']) => {
-    return otherUser.username || otherUser.email?.split('@')[0] || 'Unknown User';
+    return (
+      otherUser.username || otherUser.email?.split('@')[0] || 'Unknown User'
+    );
   };
 
   const formatWalletAddress = (address?: string) => {
@@ -123,10 +138,9 @@ export function FriendRequests({ type, onRequestUpdate }: FriendRequestsProps) {
           )}
         </CardTitle>
         <CardDescription>
-          {type === 'pending' 
+          {type === 'pending'
             ? 'People who want to be your friend'
-            : 'Friend requests you sent'
-          }
+            : 'Friend requests you sent'}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -140,10 +154,9 @@ export function FriendRequests({ type, onRequestUpdate }: FriendRequestsProps) {
           <div className="text-center py-8">
             <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <p className="text-muted-foreground">
-              {type === 'pending' 
+              {type === 'pending'
                 ? 'No pending friend requests'
-                : 'No sent requests'
-              }
+                : 'No sent requests'}
             </p>
           </div>
         ) : (
@@ -156,10 +169,12 @@ export function FriendRequests({ type, onRequestUpdate }: FriendRequestsProps) {
                 <div className="flex items-center gap-3">
                   <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center">
                     <span className="text-primary-foreground text-sm font-medium">
-                      {getUserDisplayName(request.otherUser).charAt(0).toUpperCase()}
+                      {getUserDisplayName(request.otherUser)
+                        .charAt(0)
+                        .toUpperCase()}
                     </span>
                   </div>
-                  
+
                   <div>
                     <p className="font-medium text-sm">
                       {getUserDisplayName(request.otherUser)}
@@ -173,8 +188,10 @@ export function FriendRequests({ type, onRequestUpdate }: FriendRequestsProps) {
                       )}
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
-                      {type === 'pending' ? 'Wants to be your friend' : 'Request sent'} • {' '}
-                      {new Date(request.requestedAt).toLocaleDateString()}
+                      {type === 'pending'
+                        ? 'Wants to be your friend'
+                        : 'Request sent'}{' '}
+                      • {new Date(request.requestedAt).toLocaleDateString()}
                     </p>
                   </div>
                 </div>

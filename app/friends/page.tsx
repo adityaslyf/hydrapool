@@ -1,9 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { FriendRequests } from '@/components/friends/friend-requests';
+import { FriendsList } from '@/components/friends/friends-list';
 import { Users, ArrowLeft, UserPlus, Search } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import Link from 'next/link';
@@ -13,7 +20,7 @@ export default function FriendsPage() {
   const [refreshKey, setRefreshKey] = useState(0);
 
   const handleRequestUpdate = () => {
-    setRefreshKey(prev => prev + 1);
+    setRefreshKey((prev) => prev + 1);
   };
 
   if (!ready) {
@@ -30,7 +37,9 @@ export default function FriendsPage() {
         <Card className="w-full max-w-md mx-auto">
           <CardHeader>
             <CardTitle>Authentication Required</CardTitle>
-            <CardDescription>Please log in to manage your friends</CardDescription>
+            <CardDescription>
+              Please log in to manage your friends
+            </CardDescription>
           </CardHeader>
         </Card>
       </div>
@@ -67,45 +76,22 @@ export default function FriendsPage() {
         {/* Friend Requests Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Incoming Friend Requests */}
-          <FriendRequests 
+          <FriendRequests
             key={`pending-${refreshKey}`}
-            type="pending" 
+            type="pending"
             onRequestUpdate={handleRequestUpdate}
           />
-          
+
           {/* Sent Friend Requests */}
-          <FriendRequests 
+          <FriendRequests
             key={`sent-${refreshKey}`}
-            type="sent" 
+            type="sent"
             onRequestUpdate={handleRequestUpdate}
           />
         </div>
 
-        {/* Friends List (Placeholder for Phase 3D) */}
-        <Card className="opacity-50">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5" />
-              My Friends
-            </CardTitle>
-            <CardDescription>
-              Your accepted friends will appear here
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center py-8">
-              <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <p className="text-muted-foreground mb-4">
-                Friends list management coming in Phase 3D
-              </p>
-              <Button disabled variant="outline">
-                <Users className="h-4 w-4 mr-2" />
-                View Friends
-                <span className="ml-2 text-xs">(Phase 3D)</span>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Friends List */}
+        <FriendsList onFriendRemoved={handleRequestUpdate} />
 
         {/* Help Section */}
         <Card className="mt-6 bg-muted/50">
@@ -114,15 +100,21 @@ export default function FriendsPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
               <div>
                 <strong>1. Find Users</strong>
-                <p className="text-muted-foreground">Search for users by email, username, or wallet address.</p>
+                <p className="text-muted-foreground">
+                  Search for users by email, username, or wallet address.
+                </p>
               </div>
               <div>
                 <strong>2. Send Request</strong>
-                <p className="text-muted-foreground">Click the + button to send a friend request.</p>
+                <p className="text-muted-foreground">
+                  Click the + button to send a friend request.
+                </p>
               </div>
               <div>
                 <strong>3. Accept/Decline</strong>
-                <p className="text-muted-foreground">Manage incoming requests with ✓ (accept) or ✗ (decline).</p>
+                <p className="text-muted-foreground">
+                  Manage incoming requests with ✓ (accept) or ✗ (decline).
+                </p>
               </div>
             </div>
           </CardContent>

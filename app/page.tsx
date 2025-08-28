@@ -118,22 +118,34 @@ export default function Home() {
                     </Button>
                   </CardContent>
                 </Card>
-
-
               </div>
 
               {/* Feature Status */}
               <div className="mt-8 text-center">
                 <Card className="bg-muted/50">
                   <CardContent className="pt-6">
-                    <h3 className="font-semibold mb-2">🚀 Development Progress</h3>
+                    <h3 className="font-semibold mb-2">
+                      🚀 Development Progress
+                    </h3>
                     <div className="flex flex-wrap justify-center gap-2 text-sm">
-                      <span className="px-2 py-1 bg-green-100 text-green-700 rounded">✅ Authentication</span>
-                      <span className="px-2 py-1 bg-green-100 text-green-700 rounded">✅ User Search</span>
-                      <span className="px-2 py-1 bg-green-100 text-green-700 rounded">✅ Friend Requests</span>
-                      <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded">🔄 Friends List</span>
-                      <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded">⏳ Split Creation</span>
-                      <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded">⏳ Payments</span>
+                      <span className="px-2 py-1 bg-green-100 text-green-700 rounded">
+                        ✅ Authentication
+                      </span>
+                      <span className="px-2 py-1 bg-green-100 text-green-700 rounded">
+                        ✅ User Search
+                      </span>
+                      <span className="px-2 py-1 bg-green-100 text-green-700 rounded">
+                        ✅ Friend Requests
+                      </span>
+                      <span className="px-2 py-1 bg-green-100 text-green-700 rounded">
+                        ✅ Friends List
+                      </span>
+                      <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded">
+                        ⏳ Split Creation
+                      </span>
+                      <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded">
+                        ⏳ Payments
+                      </span>
                     </div>
                   </CardContent>
                 </Card>

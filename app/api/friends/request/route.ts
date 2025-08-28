@@ -26,7 +26,9 @@ export async function POST(request: NextRequest) {
     const { data: existingRequest } = await supabase
       .from('friends')
       .select('*')
-      .or(`and(user_id.eq.${userId},friend_id.eq.${friendId}),and(user_id.eq.${friendId},friend_id.eq.${userId})`)
+      .or(
+        `and(user_id.eq.${userId},friend_id.eq.${friendId}),and(user_id.eq.${friendId},friend_id.eq.${userId})`,
+      )
       .single();
 
     if (existingRequest) {
@@ -71,7 +73,11 @@ export async function PUT(request: NextRequest) {
   try {
     const supabase = createServerClient();
     const body = await request.json();
-    const { requestId, action, userId }: { requestId: string; action: string; userId: string } = body;
+    const {
+      requestId,
+      action,
+      userId,
+    }: { requestId: string; action: string; userId: string } = body;
 
     if (!requestId || !action || !userId) {
       return NextResponse.json(

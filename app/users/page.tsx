@@ -10,7 +10,14 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { UserSearch } from '@/components/users/user-search';
-import { Users, ArrowLeft, UserPlus, Check, Clock, Loader2 } from 'lucide-react';
+import {
+  Users,
+  ArrowLeft,
+  UserPlus,
+  Check,
+  Clock,
+  Loader2,
+} from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useFriends } from '@/hooks/use-friends';
 import Link from 'next/link';
@@ -19,8 +26,14 @@ import type { User as UserType } from '@/types';
 // AddFriendButton Component
 function AddFriendButton({ user }: { user: UserType }) {
   const { user: currentUser } = useAuth();
-  const { sendFriendRequest, getFriendStatus, loading: friendsLoading } = useFriends();
-  const [friendStatus, setFriendStatus] = useState<'none' | 'pending_sent' | 'pending_received' | 'friends'>('none');
+  const {
+    sendFriendRequest,
+    getFriendStatus,
+    loading: friendsLoading,
+  } = useFriends();
+  const [friendStatus, setFriendStatus] = useState<
+    'none' | 'pending_sent' | 'pending_received' | 'friends'
+  >('none');
   const [requestingFriend, setRequestingFriend] = useState(false);
 
   // Check friend status when user changes
@@ -35,16 +48,17 @@ function AddFriendButton({ user }: { user: UserType }) {
 
     setRequestingFriend(true);
     const result = await sendFriendRequest(user.id);
-    
+
     if (result.success) {
       setFriendStatus('pending_sent');
     }
-    
+
     setRequestingFriend(false);
   };
 
   const formatWalletAddress = (address?: string) => {
-    if (!address || address.startsWith('pending_')) return 'No wallet connected';
+    if (!address || address.startsWith('pending_'))
+      return 'No wallet connected';
     return `${address.slice(0, 8)}...${address.slice(-8)}`;
   };
 
@@ -76,8 +90,8 @@ function AddFriendButton({ user }: { user: UserType }) {
   }
 
   return (
-    <Button 
-      className="w-full" 
+    <Button
+      className="w-full"
       onClick={handleAddFriend}
       disabled={requestingFriend || friendsLoading}
     >
