@@ -1,0 +1,16 @@
+# Generated PWA files
+/public/sw.js
+/public/workbox-*.js
+
+# Build output
+/.next/
+/out/
+
+# Dependencies
+/node_modules/
+
+# Environment files
+.env
+.env.local
+.env.production
+.env.test

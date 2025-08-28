@@ -1,13 +1,23 @@
-import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+'use client';
+
+import { LoginButton } from '@/components/auth/login-button';
+import { UserProfile } from '@/components/auth/user-profile';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function Home() {
+  const { authenticated, ready, loading } = useAuth();
+
+  if (!ready || loading) {
+    return (
+      <main className="min-h-screen bg-background p-4 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading HydraPool...</p>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-background p-4">
       <div className="container mx-auto max-w-4xl">
@@ -20,50 +30,16 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>🔐 Secure Authentication</CardTitle>
-              <CardDescription>
-                Login with email or social accounts and get a Solana wallet
-                automatically
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button className="w-full" disabled>
-                Coming Soon
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>👥 Friends System</CardTitle>
-              <CardDescription>
-                Add friends and easily split expenses with your social circle
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button className="w-full" disabled>
-                Coming Soon
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>💰 USDC Payments</CardTitle>
-              <CardDescription>
-                Fast and secure payments using Solana USDC cryptocurrency
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button className="w-full" disabled>
-                Coming Soon
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Authentication Section */}
+        {!authenticated ? (
+          <div className="mb-12 flex justify-center">
+            <LoginButton />
+          </div>
+        ) : (
+          <div className="mb-12 flex justify-center">
+            <UserProfile />
+          </div>
+        )}
       </div>
     </main>
   );

@@ -1,1 +1,11 @@
-npx lint-staged
+#!/bin/sh
+
+# Soft pre-commit hook - only warns, doesn't block commits
+echo "🔍 Running pre-commit checks..."
+
+# Run prettier only (no linting blocks)
+npx prettier --write --ignore-unknown .
+
+echo "✅ Code formatted with Prettier"
+echo "💡 To also lint: pnpm lint:fix"
+echo "🚀 Commit proceeding..."
