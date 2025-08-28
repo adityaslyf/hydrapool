@@ -30,12 +30,7 @@ export interface AddFriendFormData {
   username?: string;
 }
 
-export interface UpdateUserProfileFormData {
-  displayName?: string;
-  bio?: string;
-  username?: string;
-  profilePictureUrl?: string;
-}
+
 
 // Friend request types
 export type FriendStatus = 'pending' | 'accepted' | 'blocked';

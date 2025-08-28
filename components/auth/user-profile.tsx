@@ -1,5 +1,4 @@
 'use client';
-
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import {
@@ -9,14 +8,15 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { LogOut, Wallet, Mail } from 'lucide-react';
+import { LogOut, Wallet, Mail, User as UserIcon } from 'lucide-react';
+
 
 export function UserProfile() {
+  
   const {
     authenticated,
     ready,
     logout,
-
     user,
     walletAddress,
     privyUser,
@@ -36,23 +36,43 @@ export function UserProfile() {
     'No email';
   const displayWalletAddress = walletAddress || 'No wallet connected';
 
+  const displayName = user?.displayName || user?.username || email.split('@')[0];
+
   return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground text-sm font-medium">
-              {email.charAt(0).toUpperCase()}
-            </span>
+    <>
+      <Card className="w-full max-w-md mx-auto">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center">
+                <span className="text-primary-foreground text-sm font-medium">
+                  {displayName.charAt(0).toUpperCase()}
+                </span>
+              </div>
+              Welcome back, {displayName}!
+            </CardTitle>
           </div>
-          Welcome back!
-        </CardTitle>
-        <CardDescription>
-          Your HydraPool account and Solana wallet
-        </CardDescription>
-      </CardHeader>
+          <CardDescription>
+            Your HydraPool account and Solana wallet
+          </CardDescription>
+
+        </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-3">
+          {/* Profile Information */}
+          <div className="flex items-center gap-3 p-3 rounded-lg border">
+            <UserIcon className="h-4 w-4 text-muted-foreground" />
+            <div className="flex-1">
+              <p className="text-sm font-medium">Profile</p>
+              <div className="text-xs text-muted-foreground space-y-1">
+                <div>Username: {user?.username || 'Not set'}</div>
+                {user?.displayName && (
+                  <div>Display Name: {user.displayName}</div>
+                )}
+              </div>
+            </div>
+          </div>
+
           <div className="flex items-center gap-3 p-3 rounded-lg border">
             <Mail className="h-4 w-4 text-muted-foreground" />
             <div>
@@ -88,17 +108,6 @@ export function UserProfile() {
               )}
             </div>
           </div>
-
-          {user && (
-            <div className="flex items-center gap-3 p-3 rounded-lg border bg-muted/50">
-              <div>
-                <p className="text-sm font-medium">Database Status</p>
-                <p className="text-xs text-muted-foreground">
-                  ✅ Saved to database • Username: {user.username}
-                </p>
-              </div>
-            </div>
-          )}
         </div>
 
         <Button onClick={logout} variant="outline" className="w-full">
@@ -107,5 +116,8 @@ export function UserProfile() {
         </Button>
       </CardContent>
     </Card>
+
+
+    </>
   );
 }
