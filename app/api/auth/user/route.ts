@@ -39,7 +39,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ user });
   } catch (error) {
-
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 },
@@ -79,7 +78,6 @@ export async function POST(request: NextRequest) {
           .single();
 
         if (updateError) {
-
           return NextResponse.json({ user: existingUser });
         }
         return NextResponse.json({ user: updatedUser });
@@ -99,13 +97,11 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-
       return NextResponse.json({ error: 'Database error' }, { status: 500 });
     }
 
     return NextResponse.json({ user }, { status: 201 });
   } catch (error) {
-
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 },
@@ -139,13 +135,11 @@ export async function PUT(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error('Supabase update error:', error);
       return NextResponse.json({ error: 'Database error' }, { status: 500 });
     }
 
     return NextResponse.json({ user });
   } catch (error) {
-
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 },

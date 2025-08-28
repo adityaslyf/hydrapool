@@ -27,7 +27,6 @@ export async function GET(request: NextRequest) {
       .limit(limit);
 
     if (error) {
-
       return NextResponse.json(
         { error: 'Database search error' },
         { status: 500 },
@@ -49,7 +48,6 @@ export async function GET(request: NextRequest) {
       total: transformedUsers.length,
     });
   } catch (error) {
-
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 },

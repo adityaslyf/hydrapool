@@ -76,7 +76,7 @@ export function useAuth() {
             setLoading(false);
             return;
           } catch (error) {
-            console.error('Error updating user with wallet:', error);
+            // Silent error handling
           }
         }
 
@@ -95,7 +95,7 @@ export function useAuth() {
               });
               setDbUser(newUser);
             } catch (error) {
-              console.error('Error creating user without wallet:', error);
+              // Silent error handling
             }
           }
           setLoading(false);
@@ -119,7 +119,7 @@ export function useAuth() {
           setDbUser(newUser);
         }
       } catch (error) {
-        console.error('Error syncing user with database:', error);
+        // Silent error handling
       } finally {
         setLoading(false);
       }

@@ -23,7 +23,9 @@ import {
   Copy,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
-import type { SplitWithParticipants, User } from '@/types';
+import { useSolana } from '@/hooks/use-solana';
+import type { SplitWithParticipants, User, PaymentRequest } from '@/types';
+import { WalletInfo } from '@/components/solana/wallet-info';
 
 interface SplitParticipantWithUser {
   id: string;
@@ -44,6 +46,7 @@ export default function SplitDetailPage() {
   const params = useParams();
   const router = useRouter();
   const { user: currentUser } = useAuth();
+  const { sendPayment, walletInfo, isWalletConnected } = useSolana();
   const [split, setSplit] = useState<SplitDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -133,16 +136,61 @@ export default function SplitDetailPage() {
 
   const handlePayment = async () => {
     const participation = getCurrentUserParticipation();
-    if (!participation || participation.paid) return;
+    if (!participation || participation.paid || !split) return;
+
+    if (!isWalletConnected()) {
+      alert('Please ensure your Solana wallet is connected.');
+      return;
+    }
 
     try {
       setPaymentLoading(true);
-      // TODO: Implement Solana payment logic
-      
-      // For now, just show a placeholder
-      alert(`Payment of ${participation.amount_owed} ${split?.currency || 'USDC'} will be implemented in the next phase!`);
+      setError(null);
+
+      // Find the creator's wallet address
+      const creatorWallet = split.creator?.wallet;
+      if (!creatorWallet) {
+        throw new Error('Creator wallet address not found');
+      }
+
+      const paymentRequest: PaymentRequest = {
+        amount: participation.amount_owed,
+        recipient: creatorWallet,
+        splitId: split.id,
+        participantId: participation.id,
+        currency: split.currency || 'USDC',
+      };
+
+      const result = await sendPayment(paymentRequest);
+
+      if (result.success && result.signature) {
+        // Update the split participant status in the database
+        const updateResponse = await fetch(`/api/splits/${split.id}/payment`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            participantId: participation.id,
+            transactionSignature: result.signature,
+            amount: participation.amount_owed,
+          }),
+        });
+
+        if (updateResponse.ok) {
+          // Refresh the split data
+          await fetchSplit();
+          alert(`Payment successful! Transaction: ${result.signature.slice(0, 20)}...`);
+        } else {
+          throw new Error('Failed to update payment status');
+        }
+      } else {
+        throw new Error(result.error || 'Payment failed');
+      }
     } catch (err) {
-      // Handle payment error
+      const errorMessage = err instanceof Error ? err.message : 'Payment failed';
+      setError(errorMessage);
+      alert(`Payment failed: ${errorMessage}`);
     } finally {
       setPaymentLoading(false);
     }
@@ -151,7 +199,7 @@ export default function SplitDetailPage() {
   const copyShareLink = () => {
     const url = window.location.href;
     navigator.clipboard.writeText(url);
-    // TODO: Add toast notification
+
     alert('Split link copied to clipboard!');
   };
 
@@ -217,6 +265,13 @@ export default function SplitDetailPage() {
           </Button>
         </div>
 
+        {/* Wallet Info for Payment */}
+        {getCurrentUserParticipation() && !getCurrentUserParticipation()?.paid && (
+          <div className="mb-6">
+            <WalletInfo compact={true} />
+          </div>
+        )}
+
         {/* Split Info */}
         <Card>
           <CardHeader>
@@ -259,9 +314,7 @@ export default function SplitDetailPage() {
               </div>
               <div className="text-center p-4 bg-muted/50 rounded-lg">
                 <CheckCircle className="h-6 w-6 mx-auto mb-2 text-green-600" />
-                <div className="font-bold text-lg">
-                  {totalPaid.toFixed(2)}
-                </div>
+                <div className="font-bold text-lg">{totalPaid.toFixed(2)}</div>
                 <div className="text-sm text-muted-foreground">
                   Paid {split.currency}
                 </div>
@@ -381,7 +434,8 @@ export default function SplitDetailPage() {
                       </div>
                       {participant.paid_at && (
                         <div className="text-xs text-muted-foreground">
-                          Paid {new Date(participant.paid_at).toLocaleDateString()}
+                          Paid{' '}
+                          {new Date(participant.paid_at).toLocaleDateString()}
                         </div>
                       )}
                     </div>

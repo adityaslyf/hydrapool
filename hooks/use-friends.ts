@@ -81,7 +81,6 @@ export function useFriends(): UseFriendsReturn {
           null
         );
       } catch (error) {
-        console.error('Error checking friend relation:', error);
         return null;
       }
     },
@@ -124,7 +123,6 @@ export function useFriends(): UseFriendsReturn {
 
       return acceptedFriends;
     } catch (error) {
-      console.error('Error fetching friends:', error);
       return [];
     }
   }, [user?.id]);

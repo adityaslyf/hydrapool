@@ -20,7 +20,8 @@ export async function GET(
     // Fetch the split with creator information
     const { data: split, error: splitError } = await supabase
       .from('splits')
-      .select(`
+      .select(
+        `
         *,
         creator:users!creator_id (
           id,
@@ -29,15 +30,13 @@ export async function GET(
           wallet,
           created_at
         )
-      `)
+      `,
+      )
       .eq('id', id)
       .single();
 
     if (splitError) {
-      return NextResponse.json(
-        { error: 'Split not found' },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: 'Split not found' }, { status: 404 });
     }
 
     if (!split) {
@@ -47,7 +46,8 @@ export async function GET(
     // Fetch participants with user information
     const { data: participants, error: participantsError } = await supabase
       .from('split_participants')
-      .select(`
+      .select(
+        `
         *,
         user:users!user_id (
           id,
@@ -56,7 +56,8 @@ export async function GET(
           wallet,
           created_at
         )
-      `)
+      `,
+      )
       .eq('split_id', id)
       .order('amount_owed', { ascending: false });
 

@@ -23,7 +23,6 @@ export async function createUser(data: CreateUserData): Promise<User> {
     const result = await response.json();
     return result.user;
   } catch (error) {
-    console.error('Error creating user:', error);
     throw new Error('Failed to create user');
   }
 }
@@ -41,7 +40,6 @@ export async function getUserByEmail(email: string): Promise<User | null> {
     const result = await response.json();
     return result.user; // API now returns { user: null } when not found
   } catch (error) {
-    console.error('Error getting user by email:', error);
     return null;
   }
 }
@@ -59,7 +57,6 @@ export async function getUserByWallet(wallet: string): Promise<User | null> {
     const result = await response.json();
     return result.user; // API now returns { user: null } when not found
   } catch (error) {
-    console.error('Error getting user by wallet:', error);
     return null;
   }
 }
@@ -75,7 +72,6 @@ export async function getUserById(id: string): Promise<User | null> {
     const result = await response.json();
     return result.user; // API now returns { user: null } when not found
   } catch (error) {
-    console.error('Error getting user by id:', error);
     return null;
   }
 }
@@ -100,7 +96,6 @@ export async function updateUser(
     const result = await response.json();
     return result.user;
   } catch (error) {
-    console.error('Error updating user:', error);
     return null;
   }
 }

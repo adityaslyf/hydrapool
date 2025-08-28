@@ -18,9 +18,14 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     <PrivyProvider
       appId={privyAppId}
       config={{
+        // Enable Solana wallets only
+        wallets: {
+          solana: true,
+        },
         embeddedWallets: {
+          createOnLogin: 'all-users',
           solana: {
-            createOnLogin: 'users-without-wallets',
+            createOnLogin: 'all-users',
           },
         },
         solanaClusters: [
@@ -35,6 +40,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         appearance: {
           theme: 'light',
           accentColor: '#676FFF',
+          walletChainType: 'solana-only',
         },
       }}
     >

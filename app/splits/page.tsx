@@ -8,12 +8,22 @@ import { SplitsList } from '@/components/splits/splits-list';
 import { ArrowLeft, Plus } from 'lucide-react';
 
 export default function SplitsPage() {
-  const [activeTab, setActiveTab] = useState<'all' | 'created' | 'participating'>('all');
+  const [activeTab, setActiveTab] = useState<
+    'all' | 'created' | 'participating'
+  >('all');
 
   const tabs = [
     { id: 'all' as const, label: 'All Splits', description: 'All your splits' },
-    { id: 'created' as const, label: 'Created', description: 'Splits you created' },
-    { id: 'participating' as const, label: 'Joined', description: 'Splits you joined' },
+    {
+      id: 'created' as const,
+      label: 'Created',
+      description: 'Splits you created',
+    },
+    {
+      id: 'participating' as const,
+      label: 'Joined',
+      description: 'Splits you joined',
+    },
   ];
 
   return (
@@ -57,10 +67,7 @@ export default function SplitsPage() {
 
         {/* Content */}
         <div>
-          <SplitsList 
-            type={activeTab} 
-            showCreateButton={false}
-          />
+          <SplitsList type={activeTab} showCreateButton={false} />
         </div>
       </div>
     </div>

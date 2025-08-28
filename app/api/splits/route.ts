@@ -17,8 +17,6 @@ export async function POST(request: NextRequest) {
       participantAmounts, // New field for custom amounts
     } = body;
 
-
-
     if (!title || !totalAmount || !creatorId) {
       return NextResponse.json(
         { error: 'Title, total amount, and creator ID are required' },
@@ -37,8 +35,6 @@ export async function POST(request: NextRequest) {
     const totalParticipants = participantIds.length + 1; // +1 for creator
     const perPersonAmount = totalAmount / totalParticipants;
 
-
-
     // Create the split
     const splitData = {
       title,
@@ -49,8 +45,6 @@ export async function POST(request: NextRequest) {
       creator_id: creatorId,
       status: 'active',
     };
-
-
 
     const { data: split, error: splitError } = await supabase
       .from('splits')
@@ -84,8 +78,6 @@ export async function POST(request: NextRequest) {
         payment_status: 'pending',
       })),
     ];
-
-
 
     const { error: participantsError } = await supabase
       .from('split_participants')
@@ -134,7 +126,8 @@ export async function GET(request: NextRequest) {
       // Get splits created by this user
       const { data: createdSplits, error: createdError } = await supabase
         .from('splits')
-        .select(`
+        .select(
+          `
           *,
           creator:users!creator_id (
             id,
@@ -159,7 +152,8 @@ export async function GET(request: NextRequest) {
               created_at
             )
           )
-        `)
+        `,
+        )
         .eq('creator_id', userId)
         .order('created_at', { ascending: false });
 
@@ -173,9 +167,11 @@ export async function GET(request: NextRequest) {
       splits = createdSplits || [];
     } else if (type === 'participating') {
       // Get splits where user is a participant
-      const { data: participantSplits, error: participantError } = await supabase
-        .from('split_participants')
-        .select(`
+      const { data: participantSplits, error: participantError } =
+        await supabase
+          .from('split_participants')
+          .select(
+            `
           split:splits!split_id (
             *,
             creator:users!creator_id (
@@ -202,9 +198,10 @@ export async function GET(request: NextRequest) {
               )
             )
           )
-        `)
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false });
+        `,
+          )
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false });
 
       if (participantError) {
         return NextResponse.json(
@@ -214,14 +211,17 @@ export async function GET(request: NextRequest) {
       }
 
       // Extract the split data from the nested structure
-      splits = (participantSplits || []).map((p: any) => p.split).filter(Boolean);
+      splits = (participantSplits || [])
+        .map((p: any) => p.split)
+        .filter(Boolean);
     } else {
       // Get all splits for this user (both created and participating)
-      
+
       // First get created splits
       const { data: createdSplits, error: createdError } = await supabase
         .from('splits')
-        .select(`
+        .select(
+          `
           *,
           creator:users!creator_id (
             id,
@@ -246,13 +246,16 @@ export async function GET(request: NextRequest) {
               created_at
             )
           )
-        `)
+        `,
+        )
         .eq('creator_id', userId);
 
       // Then get participating splits
-      const { data: participantSplits, error: participantError } = await supabase
-        .from('split_participants')
-        .select(`
+      const { data: participantSplits, error: participantError } =
+        await supabase
+          .from('split_participants')
+          .select(
+            `
           split:splits!split_id (
             *,
             creator:users!creator_id (
@@ -279,9 +282,10 @@ export async function GET(request: NextRequest) {
               )
             )
           )
-        `)
-        .eq('user_id', userId)
-        .neq('splits.creator_id', userId); // Exclude splits where user is creator to avoid duplicates
+        `,
+          )
+          .eq('user_id', userId)
+          .neq('splits.creator_id', userId); // Exclude splits where user is creator to avoid duplicates
 
       if (createdError || participantError) {
         return NextResponse.json(
@@ -292,20 +296,25 @@ export async function GET(request: NextRequest) {
 
       // Combine and deduplicate
       const allCreated = createdSplits || [];
-      const allParticipating = (participantSplits || []).map((p: any) => p.split).filter(Boolean);
-      
+      const allParticipating = (participantSplits || [])
+        .map((p: any) => p.split)
+        .filter(Boolean);
+
       // Merge arrays and remove duplicates by ID
       const splitMap = new Map();
-      [...allCreated, ...allParticipating].forEach(split => {
+      [...allCreated, ...allParticipating].forEach((split) => {
         if (split && split.id) {
           splitMap.set(split.id, split);
         }
       });
-      
+
       splits = Array.from(splitMap.values());
-      
+
       // Sort by created_at desc
-      splits.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      splits.sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      );
     }
 
     return NextResponse.json({

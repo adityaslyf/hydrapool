@@ -39,6 +39,41 @@ export interface SplitCalculation {
   remainingAmount?: number;
 }
 
+// Solana Types
+export interface SolanaTransaction {
+  signature?: string;
+  status: 'pending' | 'confirmed' | 'failed';
+  amount: number;
+  from: string;
+  to: string;
+  currency: string;
+  timestamp: Date;
+  splitId?: string;
+  participantId?: string;
+}
+
+export interface SolanaWalletInfo {
+  address: string;
+  balance: number | undefined; // undefined means not loaded yet
+  usdcBalance: number | undefined; // undefined means not loaded yet
+  isConnected: boolean;
+}
+
+export interface PaymentRequest {
+  amount: number;
+  recipient: string;
+  splitId: string;
+  participantId: string;
+  currency: string;
+}
+
+export interface PaymentResponse {
+  success: boolean;
+  signature?: string;
+  error?: string;
+  transaction?: SolanaTransaction;
+}
+
 export interface AddFriendFormData {
   email?: string;
   wallet?: string;

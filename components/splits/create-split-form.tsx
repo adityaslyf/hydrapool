@@ -169,8 +169,6 @@ export function CreateSplitForm({
         participantAmounts: splitCalculation.participantAmounts, // Send calculated amounts
       };
 
-
-
       const response = await fetch('/api/splits', {
         method: 'POST',
         headers: {

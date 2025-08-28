@@ -12,7 +12,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, Plus, CreditCard, BarChart3 } from 'lucide-react';
+import { Users, Plus, CreditCard, BarChart3, Coins } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Home() {
@@ -58,7 +58,7 @@ export default function Home() {
                 <h2 className="text-2xl font-semibold text-center mb-6">
                   Dashboard
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   {/* Find Users */}
                   <Card className="hover:shadow-lg transition-shadow">
                     <CardHeader className="pb-3">
@@ -117,6 +117,27 @@ export default function Home() {
                         <Button className="w-full" variant="outline">
                           <Plus className="h-4 w-4 mr-2" />
                           New Split
+                        </Button>
+                      </Link>
+                    </CardContent>
+                  </Card>
+
+                  {/* Solana Demo */}
+                  <Card className="hover:shadow-lg transition-shadow">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="flex items-center gap-2 text-lg">
+                        <Coins className="h-5 w-5" />
+                        Solana Demo
+                      </CardTitle>
+                      <CardDescription>
+                        Test USDC payments on Devnet
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Link href="/solana-demo">
+                        <Button className="w-full" variant="outline">
+                          <Coins className="h-4 w-4 mr-2" />
+                          Test Payments
                         </Button>
                       </Link>
                     </CardContent>
