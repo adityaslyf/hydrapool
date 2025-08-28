@@ -13,7 +13,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Plus, DollarSign, Users, Loader2, Check, Calculator } from 'lucide-react';
+import {
+  Plus,
+  DollarSign,
+  Users,
+  Loader2,
+  Check,
+  Calculator,
+} from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useFriends } from '@/hooks/use-friends';
 import { FriendSelector } from './friend-selector';
@@ -53,33 +60,39 @@ export function CreateSplitForm({
 
     const loadFriends = async () => {
       try {
-        const response = await fetch(`/api/friends?userId=${currentUser.id}&type=all`);
+        const response = await fetch(
+          `/api/friends?userId=${currentUser.id}&type=all`,
+        );
         if (!response.ok) return;
 
         const data = await response.json();
         const relations = data.relations || [];
-        
+
         // Filter for accepted friends and extract user data
-        const acceptedFriends = relations.filter((relation: any) => relation.status === 'accepted');
-        const friendsData = acceptedFriends.map((relation: any) => relation.otherUser);
-        
+        const acceptedFriends = relations.filter(
+          (relation: any) => relation.status === 'accepted',
+        );
+        const friendsData = acceptedFriends.map(
+          (relation: any) => relation.otherUser,
+        );
+
         setFriends(friendsData);
       } catch (err) {
-        console.error('Error loading friends for custom amounts:', err);
+        // Silently handle error
       }
     };
 
     loadFriends();
   }, [currentUser?.id]);
 
-  const handleInputChange = useCallback((
-    field: keyof CreateSplitFormData,
-    value: string | number | string[],
-  ) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    setError(null);
-    setSuccess(false);
-  }, []);
+  const handleInputChange = useCallback(
+    (field: keyof CreateSplitFormData, value: string | number | string[]) => {
+      setFormData((prev) => ({ ...prev, [field]: value }));
+      setError(null);
+      setSuccess(false);
+    },
+    [],
+  );
 
   // Split calculation hook
   const splitCalculation = useSplitCalculation({
@@ -90,20 +103,23 @@ export function CreateSplitForm({
     customAmounts: formData.customAmounts || {},
   });
 
-  const handleParticipantChange = useCallback((friendIds: string[]) => {
-    handleInputChange('participantIds', friendIds);
-    // Reset custom amounts when participants change and we're in custom mode
-    if (formData.splitType === 'custom') {
-      setFormData(prev => ({
-        ...prev,
-        participantIds: friendIds,
-        customAmounts: {}, // Reset custom amounts
-      }));
-    }
-  }, [handleInputChange, formData.splitType]);
+  const handleParticipantChange = useCallback(
+    (friendIds: string[]) => {
+      handleInputChange('participantIds', friendIds);
+      // Reset custom amounts when participants change and we're in custom mode
+      if (formData.splitType === 'custom') {
+        setFormData((prev) => ({
+          ...prev,
+          participantIds: friendIds,
+          customAmounts: {}, // Reset custom amounts
+        }));
+      }
+    },
+    [handleInputChange, formData.splitType],
+  );
 
   const handleCustomAmountChange = (userId: string, amount: number) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       customAmounts: {
         ...prev.customAmounts,
@@ -137,7 +153,9 @@ export function CreateSplitForm({
 
     // Validate custom amounts if in custom mode
     if (formData.splitType === 'custom' && !splitCalculation.isValid) {
-      setError(`Custom amounts don't add up to total. Remaining: ${splitCalculation.remainingAmount?.toFixed(2)} ${formData.currency}`);
+      setError(
+        `Custom amounts don't add up to total. Remaining: ${splitCalculation.remainingAmount?.toFixed(2)} ${formData.currency}`,
+      );
       return;
     }
 
@@ -151,8 +169,7 @@ export function CreateSplitForm({
         participantAmounts: splitCalculation.participantAmounts, // Send calculated amounts
       };
 
-      console.log('🔍 CreateSplitForm: Submitting split data:', requestData);
-      console.log('🔍 CreateSplitForm: Current user:', currentUser);
+
 
       const response = await fetch('/api/splits', {
         method: 'POST',
@@ -162,17 +179,12 @@ export function CreateSplitForm({
         body: JSON.stringify(requestData),
       });
 
-      console.log('🔍 CreateSplitForm: Response status:', response.status);
-      console.log('🔍 CreateSplitForm: Response ok:', response.ok);
-
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('🚨 CreateSplitForm: Error response:', errorData);
         throw new Error(errorData.error || 'Failed to create split');
       }
 
       const data = await response.json();
-      console.log('✅ CreateSplitForm: Success response:', data);
       setSuccess(true);
 
       // Reset form
@@ -191,7 +203,6 @@ export function CreateSplitForm({
         onSplitCreated?.(data.split.id);
       }, 1000);
     } catch (err) {
-      console.error('🚨 CreateSplitForm: Caught error:', err);
       setError(err instanceof Error ? err.message : 'Failed to create split');
     } finally {
       setLoading(false);
@@ -208,7 +219,7 @@ export function CreateSplitForm({
 
   // Helper to get friend by ID
   const getFriendById = (friendId: string) => {
-    return friends.find(f => f.id === friendId);
+    return friends.find((f) => f.id === friendId);
   };
 
   // Helper to get display name
@@ -325,7 +336,9 @@ export function CreateSplitForm({
               </Button>
               <Button
                 type="button"
-                variant={formData.splitType === 'custom' ? 'default' : 'outline'}
+                variant={
+                  formData.splitType === 'custom' ? 'default' : 'outline'
+                }
                 onClick={() => handleInputChange('splitType', 'custom')}
                 disabled={loading}
                 className="flex-1"
@@ -335,10 +348,9 @@ export function CreateSplitForm({
               </Button>
             </div>
             <p className="text-xs text-muted-foreground">
-              {formData.splitType === 'equal' 
+              {formData.splitType === 'equal'
                 ? 'Amount will be split equally among all participants'
-                : 'Set custom amounts for each participant'
-              }
+                : 'Set custom amounts for each participant'}
             </p>
           </div>
 
@@ -350,55 +362,30 @@ export function CreateSplitForm({
           />
 
           {/* Custom Amounts Section - Only show if custom mode and participants selected */}
-          {formData.splitType === 'custom' && formData.participantIds.length > 0 && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Calculator className="h-5 w-5 text-primary" />
-                <Label className="text-base font-medium">Custom Amount Distribution</Label>
-              </div>
-              
-              <div className="space-y-3 p-4 bg-muted/50 rounded-lg">
-                {/* Creator Amount */}
-                {currentUser && (
-                  <div className="flex items-center gap-3">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="secondary">Creator</Badge>
-                        <span className="font-medium">{getDisplayName(currentUser)}</span>
-                      </div>
-                      <p className="text-sm text-muted-foreground">Your share of the split</p>
-                    </div>
-                    <div className="w-32">
-                      <div className="relative">
-                        <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                        <Input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          value={formData.customAmounts?.[currentUser.id] || ''}
-                          onChange={(e) => handleCustomAmountChange(currentUser.id, parseFloat(e.target.value) || 0)}
-                          placeholder="0.00"
-                          disabled={loading}
-                          className="pl-10 text-center"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
+          {formData.splitType === 'custom' &&
+            formData.participantIds.length > 0 && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Calculator className="h-5 w-5 text-primary" />
+                  <Label className="text-base font-medium">
+                    Custom Amount Distribution
+                  </Label>
+                </div>
 
-                {/* Friend Amounts */}
-                {formData.participantIds.map((friendId) => {
-                  const friend = getFriendById(friendId);
-                  if (!friend) return null;
-                  
-                  return (
-                    <div key={friendId} className="flex items-center gap-3">
+                <div className="space-y-3 p-4 bg-muted/50 rounded-lg">
+                  {/* Creator Amount */}
+                  {currentUser && (
+                    <div className="flex items-center gap-3">
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <Badge variant="outline">Friend</Badge>
-                          <span className="font-medium">{getDisplayName(friend)}</span>
+                          <Badge variant="secondary">Creator</Badge>
+                          <span className="font-medium">
+                            {getDisplayName(currentUser)}
+                          </span>
                         </div>
-                        <p className="text-sm text-muted-foreground">{friend.email}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Your share of the split
+                        </p>
                       </div>
                       <div className="w-32">
                         <div className="relative">
@@ -407,8 +394,15 @@ export function CreateSplitForm({
                             type="number"
                             step="0.01"
                             min="0"
-                            value={formData.customAmounts?.[friendId] || ''}
-                            onChange={(e) => handleCustomAmountChange(friendId, parseFloat(e.target.value) || 0)}
+                            value={
+                              formData.customAmounts?.[currentUser.id] || ''
+                            }
+                            onChange={(e) =>
+                              handleCustomAmountChange(
+                                currentUser.id,
+                                parseFloat(e.target.value) || 0,
+                              )
+                            }
                             placeholder="0.00"
                             disabled={loading}
                             className="pl-10 text-center"
@@ -416,38 +410,85 @@ export function CreateSplitForm({
                         </div>
                       </div>
                     </div>
-                  );
-                })}
+                  )}
 
-                {/* Validation Message */}
-                {formData.totalAmount > 0 && (
-                  <div className={`p-3 rounded-lg border text-sm ${
-                    splitCalculation.isValid 
-                      ? 'bg-green-50 border-green-200 text-green-700'
-                      : 'bg-red-50 border-red-200 text-red-700'
-                  }`}>
-                    {splitCalculation.isValid ? (
-                      <div className="flex items-center gap-2">
-                        <Check className="h-4 w-4" />
-                        Custom amounts add up perfectly!
+                  {/* Friend Amounts */}
+                  {formData.participantIds.map((friendId) => {
+                    const friend = getFriendById(friendId);
+                    if (!friend) return null;
+
+                    return (
+                      <div key={friendId} className="flex items-center gap-3">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline">Friend</Badge>
+                            <span className="font-medium">
+                              {getDisplayName(friend)}
+                            </span>
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            {friend.email}
+                          </p>
+                        </div>
+                        <div className="w-32">
+                          <div className="relative">
+                            <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                            <Input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              value={formData.customAmounts?.[friendId] || ''}
+                              onChange={(e) =>
+                                handleCustomAmountChange(
+                                  friendId,
+                                  parseFloat(e.target.value) || 0,
+                                )
+                              }
+                              placeholder="0.00"
+                              disabled={loading}
+                              className="pl-10 text-center"
+                            />
+                          </div>
+                        </div>
                       </div>
-                    ) : (
-                      <div>
-                        <p className="font-medium">Amounts don't match total:</p>
-                        <p>
-                          Remaining: {splitCalculation.remainingAmount?.toFixed(2)} {formData.currency}
-                          {splitCalculation.remainingAmount && splitCalculation.remainingAmount > 0 
-                            ? ' (need to add more)' 
-                            : ' (too much allocated)'
-                          }
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                )}
+                    );
+                  })}
+
+                  {/* Validation Message */}
+                  {formData.totalAmount > 0 && (
+                    <div
+                      className={`p-3 rounded-lg border text-sm ${
+                        splitCalculation.isValid
+                          ? 'bg-green-50 border-green-200 text-green-700'
+                          : 'bg-red-50 border-red-200 text-red-700'
+                      }`}
+                    >
+                      {splitCalculation.isValid ? (
+                        <div className="flex items-center gap-2">
+                          <Check className="h-4 w-4" />
+                          Custom amounts add up perfectly!
+                        </div>
+                      ) : (
+                        <div>
+                          <p className="font-medium">
+                            Amounts don't match total:
+                          </p>
+                          <p>
+                            Remaining:{' '}
+                            {splitCalculation.remainingAmount?.toFixed(2)}{' '}
+                            {formData.currency}
+                            {splitCalculation.remainingAmount &&
+                            splitCalculation.remainingAmount > 0
+                              ? ' (need to add more)'
+                              : ' (too much allocated)'}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
           {/* Enhanced Split Calculation Preview */}
           {formData.totalAmount > 0 && (
@@ -456,7 +497,7 @@ export function CreateSplitForm({
                 <Calculator className="h-4 w-4 text-primary" />
                 <h4 className="font-medium">Split Summary</h4>
               </div>
-              
+
               <div className="space-y-3 text-sm">
                 {/* Basic Info */}
                 <div className="grid grid-cols-2 gap-4">
@@ -468,72 +509,98 @@ export function CreateSplitForm({
                   </div>
                   <div className="flex justify-between">
                     <span>Participants:</span>
-                    <span>You + {formData.participantIds.length} friend{formData.participantIds.length !== 1 ? 's' : ''}</span>
+                    <span>
+                      You + {formData.participantIds.length} friend
+                      {formData.participantIds.length !== 1 ? 's' : ''}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Split Type:</span>
-                    <Badge variant={formData.splitType === 'equal' ? 'default' : 'secondary'}>
+                    <Badge
+                      variant={
+                        formData.splitType === 'equal' ? 'default' : 'secondary'
+                      }
+                    >
                       {formData.splitType === 'equal' ? 'Equal' : 'Custom'}
                     </Badge>
                   </div>
                   <div className="flex justify-between">
                     <span>Status:</span>
-                    <Badge variant={splitCalculation.isValid ? 'default' : 'destructive'}>
+                    <Badge
+                      variant={
+                        splitCalculation.isValid ? 'default' : 'destructive'
+                      }
+                    >
                       {splitCalculation.isValid ? 'Valid' : 'Invalid'}
                     </Badge>
                   </div>
                 </div>
 
                 {/* Individual Amounts */}
-                {formData.participantIds.length > 0 && splitCalculation.isValid && (
-                  <div className="border-t pt-3">
-                    <p className="font-medium mb-2">Individual Amounts:</p>
-                    <div className="space-y-1">
-                      {/* Creator */}
-                      {currentUser && (
-                        <div className="flex justify-between">
-                          <span>
-                            <Badge variant="secondary" className="mr-2">You</Badge>
-                            {getDisplayName(currentUser)}
-                          </span>
-                          <span className="font-mono">
-                            {splitCalculation.participantAmounts[currentUser.id]?.toFixed(2) || '0.00'} {formData.currency}
-                          </span>
-                        </div>
-                      )}
-                      
-                      {/* Friends */}
-                      {formData.participantIds.map((friendId) => {
-                        const friend = getFriendById(friendId);
-                        if (!friend) return null;
-                        
-                        return (
-                          <div key={friendId} className="flex justify-between">
+                {formData.participantIds.length > 0 &&
+                  splitCalculation.isValid && (
+                    <div className="border-t pt-3">
+                      <p className="font-medium mb-2">Individual Amounts:</p>
+                      <div className="space-y-1">
+                        {/* Creator */}
+                        {currentUser && (
+                          <div className="flex justify-between">
                             <span>
-                              <Badge variant="outline" className="mr-2">Friend</Badge>
-                              {getDisplayName(friend)}
+                              <Badge variant="secondary" className="mr-2">
+                                You
+                              </Badge>
+                              {getDisplayName(currentUser)}
                             </span>
                             <span className="font-mono">
-                              {splitCalculation.participantAmounts[friendId]?.toFixed(2) || '0.00'} {formData.currency}
+                              {splitCalculation.participantAmounts[
+                                currentUser.id
+                              ]?.toFixed(2) || '0.00'}{' '}
+                              {formData.currency}
                             </span>
                           </div>
-                        );
-                      })}
+                        )}
+
+                        {/* Friends */}
+                        {formData.participantIds.map((friendId) => {
+                          const friend = getFriendById(friendId);
+                          if (!friend) return null;
+
+                          return (
+                            <div
+                              key={friendId}
+                              className="flex justify-between"
+                            >
+                              <span>
+                                <Badge variant="outline" className="mr-2">
+                                  Friend
+                                </Badge>
+                                {getDisplayName(friend)}
+                              </span>
+                              <span className="font-mono">
+                                {splitCalculation.participantAmounts[
+                                  friendId
+                                ]?.toFixed(2) || '0.00'}{' '}
+                                {formData.currency}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
                 {/* Equal Split Info */}
-                {formData.splitType === 'equal' && formData.participantIds.length > 0 && (
-                  <div className="border-t pt-3">
-                    <div className="flex justify-between font-medium text-primary">
-                      <span>Per Person (Equal):</span>
-                      <span className="font-mono">
-                        {perPersonAmount.toFixed(2)} {formData.currency}
-                      </span>
+                {formData.splitType === 'equal' &&
+                  formData.participantIds.length > 0 && (
+                    <div className="border-t pt-3">
+                      <div className="flex justify-between font-medium text-primary">
+                        <span>Per Person (Equal):</span>
+                        <span className="font-mono">
+                          {perPersonAmount.toFixed(2)} {formData.currency}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
                 {/* Warnings */}
                 {formData.participantIds.length === 0 && (
@@ -542,11 +609,13 @@ export function CreateSplitForm({
                   </div>
                 )}
 
-                {formData.splitType === 'custom' && !splitCalculation.isValid && formData.participantIds.length > 0 && (
-                  <div className="text-red-600 text-xs bg-red-50 p-3 rounded border border-red-200">
-                    ❌ Custom amounts don't add up to total amount
-                  </div>
-                )}
+                {formData.splitType === 'custom' &&
+                  !splitCalculation.isValid &&
+                  formData.participantIds.length > 0 && (
+                    <div className="text-red-600 text-xs bg-red-50 p-3 rounded border border-red-200">
+                      ❌ Custom amounts don't add up to total amount
+                    </div>
+                  )}
               </div>
             </div>
           )}
@@ -584,8 +653,8 @@ export function CreateSplitForm({
             <Button
               type="submit"
               disabled={
-                loading || 
-                !formData.title.trim() || 
+                loading ||
+                !formData.title.trim() ||
                 formData.totalAmount <= 0 ||
                 formData.participantIds.length === 0
               }

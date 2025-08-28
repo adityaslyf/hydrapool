@@ -116,10 +116,12 @@ export function useFriends(): UseFriendsReturn {
 
       const data = await response.json();
       const relations = data.relations || [];
-      
+
       // Filter for accepted friends only
-      const acceptedFriends = relations.filter((relation: any) => relation.status === 'accepted');
-      
+      const acceptedFriends = relations.filter(
+        (relation: any) => relation.status === 'accepted',
+      );
+
       return acceptedFriends;
     } catch (error) {
       console.error('Error fetching friends:', error);

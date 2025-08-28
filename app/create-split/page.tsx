@@ -109,7 +109,8 @@ export default function CreateSplitPage() {
                   <div>
                     <h3 className="font-medium">Friend Selection ✅</h3>
                     <p className="text-sm text-muted-foreground">
-                      Select friends from your friends list with search and multi-select
+                      Select friends from your friends list with search and
+                      multi-select
                     </p>
                   </div>
                 </div>

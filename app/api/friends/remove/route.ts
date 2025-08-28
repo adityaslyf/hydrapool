@@ -38,7 +38,6 @@ export async function DELETE(request: NextRequest) {
       .eq('id', relationId);
 
     if (deleteError) {
-      console.error('Supabase delete error:', deleteError);
       return NextResponse.json(
         { error: 'Failed to remove friend' },
         { status: 500 },
@@ -50,7 +49,6 @@ export async function DELETE(request: NextRequest) {
       message: 'Friend removed successfully',
     });
   } catch (error) {
-    console.error('Error removing friend:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 },

@@ -51,7 +51,6 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error('Supabase insert error:', error);
       return NextResponse.json(
         { error: 'Failed to send friend request' },
         { status: 500 },
@@ -60,7 +59,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ friendRequest });
   } catch (error) {
-    console.error('Error sending friend request:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 },
@@ -126,7 +124,6 @@ export async function PUT(request: NextRequest) {
       .single();
 
     if (updateError) {
-      console.error('Supabase update error:', updateError);
       return NextResponse.json(
         { error: 'Failed to update friend request' },
         { status: 500 },
@@ -135,7 +132,6 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json({ friendRequest: updatedRequest });
   } catch (error) {
-    console.error('Error updating friend request:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 },

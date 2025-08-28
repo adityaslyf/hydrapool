@@ -53,7 +53,6 @@ export async function GET(request: NextRequest) {
     const { data: relations, error } = await query;
 
     if (error) {
-      console.error('Supabase query error:', error);
       return NextResponse.json(
         { error: 'Database query error' },
         { status: 500 },
@@ -89,7 +88,6 @@ export async function GET(request: NextRequest) {
       count: transformedData.length,
     });
   } catch (error) {
-    console.error('Error fetching friends:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 },

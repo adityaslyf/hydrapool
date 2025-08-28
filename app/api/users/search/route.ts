@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
       .limit(limit);
 
     if (error) {
-      console.error('Supabase search error:', error);
+
       return NextResponse.json(
         { error: 'Database search error' },
         { status: 500 },
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
       total: transformedUsers.length,
     });
   } catch (error) {
-    console.error('Error searching users:', error);
+
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 },

@@ -2,6 +2,7 @@
 
 import { LoginButton } from '@/components/auth/login-button';
 import { UserProfile } from '@/components/auth/user-profile';
+import { SplitsList } from '@/components/splits/splits-list';
 import { useAuth } from '@/hooks/use-auth';
 import {
   Card,
@@ -52,73 +53,80 @@ export default function Home() {
             </div>
 
             {/* Dashboard Section */}
-            <div className="max-w-4xl mx-auto">
-              <h2 className="text-2xl font-semibold text-center mb-6">
-                Dashboard
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {/* Find Users */}
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <Users className="h-5 w-5" />
-                      Find Users
-                    </CardTitle>
-                    <CardDescription>
-                      Search for users to add as friends
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Link href="/users">
-                      <Button className="w-full" variant="outline">
-                        <Users className="h-4 w-4 mr-2" />
-                        Search Users
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
+            <div className="max-w-4xl mx-auto space-y-8">
+              <div>
+                <h2 className="text-2xl font-semibold text-center mb-6">
+                  Dashboard
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {/* Find Users */}
+                  <Card className="hover:shadow-lg transition-shadow">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="flex items-center gap-2 text-lg">
+                        <Users className="h-5 w-5" />
+                        Find Users
+                      </CardTitle>
+                      <CardDescription>
+                        Search for users to add as friends
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Link href="/users">
+                        <Button className="w-full" variant="outline">
+                          <Users className="h-4 w-4 mr-2" />
+                          Search Users
+                        </Button>
+                      </Link>
+                    </CardContent>
+                  </Card>
 
-                {/* Friends */}
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <Users className="h-5 w-5" />
-                      Friends
-                    </CardTitle>
-                    <CardDescription>
-                      Manage friend requests and friends
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Link href="/friends">
-                      <Button className="w-full" variant="outline">
-                        <Users className="h-4 w-4 mr-2" />
-                        Manage Friends
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
+                  {/* Friends */}
+                  <Card className="hover:shadow-lg transition-shadow">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="flex items-center gap-2 text-lg">
+                        <Users className="h-5 w-5" />
+                        Friends
+                      </CardTitle>
+                      <CardDescription>
+                        Manage friend requests and friends
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Link href="/friends">
+                        <Button className="w-full" variant="outline">
+                          <Users className="h-4 w-4 mr-2" />
+                          Manage Friends
+                        </Button>
+                      </Link>
+                    </CardContent>
+                  </Card>
 
-                {/* Create Split */}
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <Plus className="h-5 w-5" />
-                      Create Split
-                    </CardTitle>
-                    <CardDescription>
-                      Split expenses with friends
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Link href="/create-split">
-                      <Button className="w-full" variant="outline">
-                        <Plus className="h-4 w-4 mr-2" />
-                        New Split
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
+                  {/* Create Split */}
+                  <Card className="hover:shadow-lg transition-shadow">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="flex items-center gap-2 text-lg">
+                        <Plus className="h-5 w-5" />
+                        Create Split
+                      </CardTitle>
+                      <CardDescription>
+                        Split expenses with friends
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Link href="/create-split">
+                        <Button className="w-full" variant="outline">
+                          <Plus className="h-4 w-4 mr-2" />
+                          New Split
+                        </Button>
+                      </Link>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+
+              {/* Recent Splits */}
+              <div>
+                <SplitsList type="all" limit={5} showCreateButton={false} />
               </div>
             </div>
           </>
