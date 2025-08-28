@@ -1,7 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { UserMinus, Users, Loader2, Mail, Wallet } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
@@ -23,8 +29,10 @@ export function FriendsList({ onFriendRemoved }: FriendsListProps) {
 
     try {
       setLoading(true);
-      const response = await fetch(`/api/friends?userId=${currentUser.id}&type=friends`);
-      
+      const response = await fetch(
+        `/api/friends?userId=${currentUser.id}&type=friends`,
+      );
+
       if (!response.ok) {
         throw new Error('Failed to fetch friends');
       }
@@ -50,7 +58,9 @@ export function FriendsList({ onFriendRemoved }: FriendsListProps) {
       setError(null);
 
       // Find the friend relation to get the relation ID
-      const friendRelation = friends.find(friend => friend.otherUser.id === friendId);
+      const friendRelation = friends.find(
+        (friend) => friend.otherUser.id === friendId,
+      );
       if (!friendRelation) return;
 
       const response = await fetch('/api/friends/remove', {
@@ -69,7 +79,9 @@ export function FriendsList({ onFriendRemoved }: FriendsListProps) {
       }
 
       // Remove friend from local state
-      setFriends(prev => prev.filter(friend => friend.otherUser.id !== friendId));
+      setFriends((prev) =>
+        prev.filter((friend) => friend.otherUser.id !== friendId),
+      );
       onFriendRemoved?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to remove friend');
@@ -79,7 +91,9 @@ export function FriendsList({ onFriendRemoved }: FriendsListProps) {
   };
 
   const getUserDisplayName = (otherUser: FriendRequest['otherUser']) => {
-    return otherUser.username || otherUser.email?.split('@')[0] || 'Unknown User';
+    return (
+      otherUser.username || otherUser.email?.split('@')[0] || 'Unknown User'
+    );
   };
 
   const formatWalletAddress = (address?: string) => {
@@ -146,21 +160,25 @@ export function FriendsList({ onFriendRemoved }: FriendsListProps) {
                 <div className="flex items-center gap-3">
                   <div className="h-12 w-12 rounded-full bg-primary flex items-center justify-center">
                     <span className="text-primary-foreground text-sm font-medium">
-                      {getUserDisplayName(friend.otherUser).charAt(0).toUpperCase()}
+                      {getUserDisplayName(friend.otherUser)
+                        .charAt(0)
+                        .toUpperCase()}
                     </span>
                   </div>
-                  
+
                   <div>
                     <h3 className="font-semibold text-sm">
                       {getUserDisplayName(friend.otherUser)}
                     </h3>
-                    
+
                     <div className="flex items-center gap-4 text-xs text-muted-foreground mt-1">
                       <div className="flex items-center gap-1">
                         <Mail className="h-3 w-3" />
-                        <span className="truncate max-w-[120px]">{friend.otherUser.email}</span>
+                        <span className="truncate max-w-[120px]">
+                          {friend.otherUser.email}
+                        </span>
                       </div>
-                      
+
                       {friend.otherUser.wallet && (
                         <div className="flex items-center gap-1">
                           <Wallet className="h-3 w-3" />
@@ -170,15 +188,16 @@ export function FriendsList({ onFriendRemoved }: FriendsListProps) {
                         </div>
                       )}
                     </div>
-                    
+
                     {friend.otherUser.username && (
                       <p className="text-xs text-muted-foreground mt-1">
                         @{friend.otherUser.username}
                       </p>
                     )}
-                    
+
                     <p className="text-xs text-muted-foreground mt-1">
-                      Friends since {new Date(friend.acceptedAt || '').toLocaleDateString()}
+                      Friends since{' '}
+                      {new Date(friend.acceptedAt || '').toLocaleDateString()}
                     </p>
                   </div>
                 </div>

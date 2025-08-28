@@ -45,9 +45,9 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true,
-      message: 'Friend removed successfully' 
+      message: 'Friend removed successfully',
     });
   } catch (error) {
     console.error('Error removing friend:', error);

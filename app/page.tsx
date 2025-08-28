@@ -100,7 +100,7 @@ export default function Home() {
                 </Card>
 
                 {/* Create Split */}
-                <Card className="hover:shadow-lg transition-shadow opacity-50">
+                <Card className="hover:shadow-lg transition-shadow">
                   <CardHeader className="pb-3">
                     <CardTitle className="flex items-center gap-2 text-lg">
                       <Plus className="h-5 w-5" />
@@ -111,11 +111,12 @@ export default function Home() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <Button className="w-full" variant="outline" disabled>
-                      <Plus className="h-4 w-4 mr-2" />
-                      New Split
-                      <span className="ml-2 text-xs">(Phase 4)</span>
-                    </Button>
+                    <Link href="/create-split">
+                      <Button className="w-full" variant="outline">
+                        <Plus className="h-4 w-4 mr-2" />
+                        New Split
+                      </Button>
+                    </Link>
                   </CardContent>
                 </Card>
               </div>
@@ -140,8 +141,8 @@ export default function Home() {
                       <span className="px-2 py-1 bg-green-100 text-green-700 rounded">
                         ✅ Friends List
                       </span>
-                      <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded">
-                        ⏳ Split Creation
+                      <span className="px-2 py-1 bg-green-100 text-green-700 rounded">
+                        ✅ Split Creation
                       </span>
                       <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded">
                         ⏳ Payments
