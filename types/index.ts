@@ -33,25 +33,31 @@ export interface AddFriendFormData {
   username?: string;
 }
 
-
-
 // Friend request types
-export type FriendStatus = 'pending' | 'accepted' | 'blocked';
+export type FriendStatus = 'pending' | 'accepted' | 'declined';
 
 export interface FriendRequest {
   id: string;
-  userId: string;
-  friendId: string;
+  requesterId: string;
+  recipientId: string;
   status: FriendStatus;
-  requestedAt: Date;
-  acceptedAt?: Date;
-  user: User;
-  friend: User;
+  requestedAt: string;
+  acceptedAt?: string;
+  isRequester: boolean;
+  otherUser: {
+    id: string;
+    email: string;
+    username?: string;
+    wallet?: string;
+  };
 }
 
-export interface FriendRequestAction {
+export type FriendRequestAction = 'accept' | 'decline';
+
+export interface FriendRequestActionData {
   requestId: string;
-  action: 'accept' | 'decline' | 'block';
+  action: FriendRequestAction;
+  userId: string;
 }
 
 // Solana types

@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     if (!query || query.trim().length < 2) {
       return NextResponse.json(
         { error: 'Search query must be at least 2 characters' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -21,35 +21,38 @@ export async function GET(request: NextRequest) {
     const { data: users, error } = await supabase
       .from('users')
       .select('id, email, username, wallet, created_at')
-      .or(`email.ilike.%${searchTerm}%,username.ilike.%${searchTerm}%,wallet.ilike.%${searchTerm}%`)
+      .or(
+        `email.ilike.%${searchTerm}%,username.ilike.%${searchTerm}%,wallet.ilike.%${searchTerm}%`,
+      )
       .limit(limit);
 
     if (error) {
       console.error('Supabase search error:', error);
       return NextResponse.json(
         { error: 'Database search error' },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
     // Transform the results to match our frontend types
-    const transformedUsers = users?.map(user => ({
-      id: user.id,
-      email: user.email,
-      username: user.username,
-      wallet: user.wallet,
-      createdAt: user.created_at,
-    })) || [];
+    const transformedUsers =
+      users?.map((user) => ({
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        wallet: user.wallet,
+        createdAt: user.created_at,
+      })) || [];
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       users: transformedUsers,
-      total: transformedUsers.length 
+      total: transformedUsers.length,
     });
   } catch (error) {
     console.error('Error searching users:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

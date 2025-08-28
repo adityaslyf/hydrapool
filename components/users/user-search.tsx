@@ -4,8 +4,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Search, User, Mail, Wallet, UserPlus, Loader2 } from 'lucide-react';
+import { Search, User, Mail, Wallet, UserPlus, Loader2, Check, Clock } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
+import { useFriends } from '@/hooks/use-friends';
 import type { User as UserType } from '@/types';
 
 interface UserSearchProps {
@@ -20,53 +21,75 @@ interface SearchResult {
   total: number;
 }
 
-export function UserSearch({ 
-  onUserSelect, 
-  placeholder = "Search users by email, username, or wallet...",
+export function UserSearch({
+  onUserSelect,
+  placeholder = 'Search users by email, username, or wallet...',
   showAddButton = false,
-  excludeCurrentUser = true 
+  excludeCurrentUser = true,
 }: UserSearchProps) {
   const { user: currentUser } = useAuth();
+  const { sendFriendRequest, getFriendStatus, loading: friendsLoading } = useFriends();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<UserType[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showResults, setShowResults] = useState(false);
+  const [friendStatuses, setFriendStatuses] = useState<Record<string, 'none' | 'pending_sent' | 'pending_received' | 'friends'>>({});
+  const [requestingFriend, setRequestingFriend] = useState<string | null>(null);
 
-  const searchUsers = useCallback(async (searchQuery: string) => {
-    if (!searchQuery || searchQuery.trim().length < 2) {
-      setResults([]);
-      setShowResults(false);
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch(`/api/users/search?q=${encodeURIComponent(searchQuery)}&limit=10`);
-      
-      if (!response.ok) {
-        throw new Error('Search failed');
+  const searchUsers = useCallback(
+    async (searchQuery: string) => {
+      if (!searchQuery || searchQuery.trim().length < 2) {
+        setResults([]);
+        setShowResults(false);
+        return;
       }
 
-      const data: SearchResult = await response.json();
-      
-      // Filter out current user if excludeCurrentUser is true
-      let filteredUsers = data.users;
-      if (excludeCurrentUser && currentUser) {
-        filteredUsers = data.users.filter(user => user.id !== currentUser.id);
-      }
+      setLoading(true);
+      setError(null);
 
-      setResults(filteredUsers);
-      setShowResults(true);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Search failed');
-      setResults([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [currentUser, excludeCurrentUser]);
+      try {
+        const response = await fetch(
+          `/api/users/search?q=${encodeURIComponent(searchQuery)}&limit=10`,
+        );
+
+        if (!response.ok) {
+          throw new Error('Search failed');
+        }
+
+        const data: SearchResult = await response.json();
+
+        // Filter out current user if excludeCurrentUser is true
+        let filteredUsers = data.users;
+        if (excludeCurrentUser && currentUser) {
+          filteredUsers = data.users.filter(
+            (user) => user.id !== currentUser.id,
+          );
+        }
+
+                 setResults(filteredUsers);
+         setShowResults(true);
+
+         // Check friend status for each user
+         if (filteredUsers.length > 0 && showAddButton) {
+           const statuses: Record<string, 'none' | 'pending_sent' | 'pending_received' | 'friends'> = {};
+           await Promise.all(
+             filteredUsers.map(async (user) => {
+               const status = await getFriendStatus(user.id);
+               statuses[user.id] = status;
+             }),
+           );
+           setFriendStatuses(statuses);
+         }
+       } catch (err) {
+         setError(err instanceof Error ? err.message : 'Search failed');
+         setResults([]);
+       } finally {
+         setLoading(false);
+       }
+     },
+     [currentUser, excludeCurrentUser, showAddButton, getFriendStatus],
+   );
 
   // Debounced search
   useEffect(() => {
@@ -81,6 +104,28 @@ export function UserSearch({
     onUserSelect?.(user);
     setShowResults(false);
     setQuery('');
+  };
+
+  const handleAddFriend = async (user: UserType, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (!currentUser?.id || requestingFriend === user.id) return;
+
+    setRequestingFriend(user.id);
+    
+    const result = await sendFriendRequest(user.id);
+    
+    if (result.success) {
+      // Update the friend status immediately
+      setFriendStatuses(prev => ({
+        ...prev,
+        [user.id]: 'pending_sent'
+      }));
+    } else {
+      setError(result.error || 'Failed to send friend request');
+    }
+    
+    setRequestingFriend(null);
   };
 
   const formatWalletAddress = (address: string) => {
@@ -137,18 +182,20 @@ export function UserSearch({
                       {getUserDisplayName(user).charAt(0).toUpperCase()}
                     </span>
                   </div>
-                  
+
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-sm truncate">
                       {getUserDisplayName(user)}
                     </p>
-                    
+
                     <div className="flex items-center gap-4 text-xs text-muted-foreground mt-1">
                       <div className="flex items-center gap-1">
                         <Mail className="h-3 w-3" />
-                        <span className="truncate max-w-[120px]">{user.email}</span>
+                        <span className="truncate max-w-[120px]">
+                          {user.email}
+                        </span>
                       </div>
-                      
+
                       {user.wallet && (
                         <div className="flex items-center gap-1">
                           <Wallet className="h-3 w-3" />
@@ -158,7 +205,7 @@ export function UserSearch({
                         </div>
                       )}
                     </div>
-                    
+
                     {user.username && (
                       <p className="text-xs text-muted-foreground mt-1">
                         @{user.username}
@@ -167,17 +214,55 @@ export function UserSearch({
                   </div>
                 </div>
 
-                {showAddButton && (
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleUserClick(user);
-                    }}
-                  >
-                    <UserPlus className="h-4 w-4" />
-                  </Button>
+{showAddButton && (
+                  <div className="flex items-center">
+                    {(() => {
+                      const status = friendStatuses[user.id] || 'none';
+                      const isRequesting = requestingFriend === user.id;
+                      
+                      if (status === 'friends') {
+                        return (
+                          <div className="flex items-center gap-1 text-green-600 text-xs">
+                            <Check className="h-3 w-3" />
+                            Friends
+                          </div>
+                        );
+                      }
+                      
+                      if (status === 'pending_sent') {
+                        return (
+                          <div className="flex items-center gap-1 text-orange-600 text-xs">
+                            <Clock className="h-3 w-3" />
+                            Sent
+                          </div>
+                        );
+                      }
+                      
+                      if (status === 'pending_received') {
+                        return (
+                          <div className="flex items-center gap-1 text-blue-600 text-xs">
+                            <Clock className="h-3 w-3" />
+                            Pending
+                          </div>
+                        );
+                      }
+                      
+                      return (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={(e) => handleAddFriend(user, e)}
+                          disabled={isRequesting || friendsLoading}
+                        >
+                          {isRequesting ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <UserPlus className="h-4 w-4" />
+                          )}
+                        </Button>
+                      );
+                    })()}
+                  </div>
                 )}
               </div>
             ))}
@@ -187,8 +272,8 @@ export function UserSearch({
 
       {/* Backdrop to close results */}
       {showResults && (
-        <div 
-          className="fixed inset-0 z-40" 
+        <div
+          className="fixed inset-0 z-40"
           onClick={() => setShowResults(false)}
         />
       )}

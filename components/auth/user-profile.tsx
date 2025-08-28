@@ -50,16 +50,16 @@ export function UserProfile() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-3">
-                         {/* Profile Information */}
-             <div className="flex items-center gap-3 p-3 rounded-lg border">
-               <UserIcon className="h-4 w-4 text-muted-foreground" />
-               <div className="flex-1">
-                 <p className="text-sm font-medium">Profile</p>
-                 <div className="text-xs text-muted-foreground">
-                   Username: {user?.username || 'Not set'}
-                 </div>
-               </div>
-             </div>
+            {/* Profile Information */}
+            <div className="flex items-center gap-3 p-3 rounded-lg border">
+              <UserIcon className="h-4 w-4 text-muted-foreground" />
+              <div className="flex-1">
+                <p className="text-sm font-medium">Profile</p>
+                <div className="text-xs text-muted-foreground">
+                  Username: {user?.username || 'Not set'}
+                </div>
+              </div>
+            </div>
 
             <div className="flex items-center gap-3 p-3 rounded-lg border">
               <Mail className="h-4 w-4 text-muted-foreground" />

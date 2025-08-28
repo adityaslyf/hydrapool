@@ -3,7 +3,13 @@
 import { LoginButton } from '@/components/auth/login-button';
 import { UserProfile } from '@/components/auth/user-profile';
 import { useAuth } from '@/hooks/use-auth';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Users, Plus, CreditCard, BarChart3 } from 'lucide-react';
 import Link from 'next/link';
@@ -47,8 +53,10 @@ export default function Home() {
 
             {/* Dashboard Section */}
             <div className="max-w-4xl mx-auto">
-              <h2 className="text-2xl font-semibold text-center mb-6">Dashboard</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <h2 className="text-2xl font-semibold text-center mb-6">
+                Dashboard
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {/* Find Users */}
                 <Card className="hover:shadow-lg transition-shadow">
                   <CardHeader className="pb-3">
@@ -65,6 +73,27 @@ export default function Home() {
                       <Button className="w-full" variant="outline">
                         <Users className="h-4 w-4 mr-2" />
                         Search Users
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+
+                {/* Friends */}
+                <Card className="hover:shadow-lg transition-shadow">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <Users className="h-5 w-5" />
+                      Friends
+                    </CardTitle>
+                    <CardDescription>
+                      Manage friend requests and friends
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Link href="/friends">
+                      <Button className="w-full" variant="outline">
+                        <Users className="h-4 w-4 mr-2" />
+                        Manage Friends
                       </Button>
                     </Link>
                   </CardContent>
@@ -90,43 +119,22 @@ export default function Home() {
                   </CardContent>
                 </Card>
 
-                {/* My Splits */}
-                <Card className="hover:shadow-lg transition-shadow opacity-50">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <CreditCard className="h-5 w-5" />
-                      My Splits
-                    </CardTitle>
-                    <CardDescription>
-                      View and manage your splits
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Button className="w-full" variant="outline" disabled>
-                      <CreditCard className="h-4 w-4 mr-2" />
-                      View Splits
-                      <span className="ml-2 text-xs">(Phase 6)</span>
-                    </Button>
-                  </CardContent>
-                </Card>
 
-                {/* Analytics */}
-                <Card className="hover:shadow-lg transition-shadow opacity-50">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <BarChart3 className="h-5 w-5" />
-                      Analytics
-                    </CardTitle>
-                    <CardDescription>
-                      Track your expenses
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Button className="w-full" variant="outline" disabled>
-                      <BarChart3 className="h-4 w-4 mr-2" />
-                      View Stats
-                      <span className="ml-2 text-xs">(Future)</span>
-                    </Button>
+              </div>
+
+              {/* Feature Status */}
+              <div className="mt-8 text-center">
+                <Card className="bg-muted/50">
+                  <CardContent className="pt-6">
+                    <h3 className="font-semibold mb-2">🚀 Development Progress</h3>
+                    <div className="flex flex-wrap justify-center gap-2 text-sm">
+                      <span className="px-2 py-1 bg-green-100 text-green-700 rounded">✅ Authentication</span>
+                      <span className="px-2 py-1 bg-green-100 text-green-700 rounded">✅ User Search</span>
+                      <span className="px-2 py-1 bg-green-100 text-green-700 rounded">✅ Friend Requests</span>
+                      <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded">🔄 Friends List</span>
+                      <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded">⏳ Split Creation</span>
+                      <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded">⏳ Payments</span>
+                    </div>
                   </CardContent>
                 </Card>
               </div>
