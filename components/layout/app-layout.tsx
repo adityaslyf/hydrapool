@@ -18,7 +18,7 @@ export function AppLayout({ children, className }: AppLayoutProps) {
       <Header />
       
       <main className={cn(
-        'px-4 py-4',
+        'px-3 sm:px-4 py-3 sm:py-4 safe-area-inset-x',
         authenticated && 'pb-20 md:pb-6', // Extra padding for mobile nav
         className
       )}>

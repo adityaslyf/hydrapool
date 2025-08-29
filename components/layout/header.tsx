@@ -15,15 +15,19 @@ export function Header() {
   const { authenticated, ready, loading } = useAuth();
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-white">
-      <div className="px-4">
-        <div className="flex h-14 items-center justify-between">
+    <header className="sticky top-0 z-40 w-full border-b bg-white safe-area-inset-top">
+      <div className="px-3 sm:px-4 safe-area-inset-x">
+        <div className="flex h-14 sm:h-16 items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-black">
+          <Link 
+            href="/" 
+            className="flex items-center space-x-2 min-h-[44px] touch-manipulation"
+            aria-label="HydraPool - Go to dashboard"
+          >
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-black flex-shrink-0">
               <Waves className="h-4 w-4 text-white" />
             </div>
-            <span className="font-bold text-xl text-black">
+            <span className="font-bold text-lg sm:text-xl text-black">
               HydraPool
             </span>
           </Link>
@@ -32,15 +36,19 @@ export function Header() {
           {authenticated && <DesktopNavigation />}
 
           {/* Right Actions */}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1 sm:space-x-2">
             {ready && !loading && (
               <>
                 {authenticated ? (
                   <>
                     {/* Create Split Button */}
-                    <Button asChild size="sm" className="bg-black text-white hover:bg-gray-800">
-                      <Link href="/create-split">
-                        <Plus className="h-4 w-4 mr-1" />
+                    <Button 
+                      asChild 
+                      size="sm" 
+                      className="bg-black text-white hover:bg-gray-800 min-h-[44px] min-w-[44px] touch-manipulation"
+                    >
+                      <Link href="/create-split" aria-label="Create new split">
+                        <Plus className="h-4 w-4 sm:mr-1 flex-shrink-0" />
                         <span className="hidden sm:inline">New</span>
                       </Link>
                     </Button>
