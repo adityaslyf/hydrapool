@@ -1,23 +1,27 @@
 {
+  "version": 2,
   "framework": null,
-  "buildCommand": "pnpm run build:vercel",
-  "installCommand": "pnpm install",
-  "functions": {
-    "app/api/**/*.ts": {
-      "runtime": "nodejs18.x"
-    }
-  },
+"buildCommand": "npm run vercel-build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "outputDirectory": ".next",
   "env": {
     "SKIP_ENV_VALIDATION": "1",
     "DISABLE_ESLINT_PLUGIN": "true",
-    "ESLINT_NO_DEV_ERRORS": "true"
+    "ESLINT_NO_DEV_ERRORS": "true",
+    "NEXT_TELEMETRY_DISABLED": "1"
   },
   "build": {
     "env": {
-      "NEXT_TELEMETRY_DISABLED": "1",
-      "SKIP_ENV_VALIDATION": "1",
+      "SKIP_ENV_VALIDATION": "1", 
       "DISABLE_ESLINT_PLUGIN": "true",
-      "ESLINT_NO_DEV_ERRORS": "true"
+      "ESLINT_NO_DEV_ERRORS": "true",
+      "NEXT_TELEMETRY_DISABLED": "1"
+    }
+  },
+  "functions": {
+    "app/api/**/*.ts": {
+      "runtime": "nodejs18.x"
     }
   }
 }
