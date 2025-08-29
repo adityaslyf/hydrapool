@@ -1,6 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { useAuth } from '@/hooks/use-auth';
+import { AppLayout } from '@/components/layout/app-layout';
+import { SimpleLoginButton } from '@/components/auth/simple-login-button';
+import { UserSearch } from '@/components/users/user-search';
+import { FriendsList } from '@/components/friends/friends-list';
 import {
   Card,
   CardContent,
@@ -9,117 +14,164 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FriendRequests } from '@/components/friends/friend-requests';
-import { FriendsList } from '@/components/friends/friends-list';
-import { Users, ArrowLeft, UserPlus, Search } from 'lucide-react';
-import { useAuth } from '@/hooks/use-auth';
-import Link from 'next/link';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Users,
+  UserPlus,
+  Clock,
+  Send,
+  X
+} from 'lucide-react';
 
 export default function FriendsPage() {
-  const { authenticated, ready } = useAuth();
-  const [refreshKey, setRefreshKey] = useState(0);
+  const { authenticated, ready, loading } = useAuth();
+  const [activeTab, setActiveTab] = useState('all');
 
-  const handleRequestUpdate = () => {
-    setRefreshKey((prev) => prev + 1);
-  };
-
-  if (!ready) {
+  if (!ready || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
+      <AppLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading friends...</p>
+          </div>
+        </div>
+      </AppLayout>
     );
   }
 
   if (!authenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Card className="w-full max-w-md mx-auto">
-          <CardHeader>
-            <CardTitle>Authentication Required</CardTitle>
-            <CardDescription>
-              Please log in to manage your friends
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      </div>
+      <AppLayout>
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6">
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold text-black">Sign in to manage friends</h1>
+            <p className="text-gray-600">
+              Connect with friends to split expenses
+            </p>
+          </div>
+          <SimpleLoginButton />
+        </div>
+      </AppLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
+    <AppLayout>
+      <div className="max-w-2xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
-          <Link href="/">
-            <Button variant="ghost" size="sm">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Dashboard
-            </Button>
-          </Link>
-          <div className="flex items-center gap-2">
-            <Users className="h-6 w-6" />
-            <h1 className="text-2xl font-bold">Friends</h1>
-          </div>
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-black">Friends</h1>
+          <p className="text-gray-600">
+            Manage your connections
+          </p>
         </div>
 
-        {/* Quick Actions */}
-        <div className="mb-6 flex flex-wrap gap-4">
-          <Link href="/users">
-            <Button variant="outline" className="flex items-center gap-2">
-              <Search className="h-4 w-4" />
-              Find New Friends
-            </Button>
-          </Link>
-        </div>
-
-        {/* Friend Requests Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Incoming Friend Requests */}
-          <FriendRequests
-            key={`pending-${refreshKey}`}
-            type="pending"
-            onRequestUpdate={handleRequestUpdate}
-          />
-
-          {/* Sent Friend Requests */}
-          <FriendRequests
-            key={`sent-${refreshKey}`}
-            type="sent"
-            onRequestUpdate={handleRequestUpdate}
-          />
-        </div>
-
-        {/* Friends List */}
-        <FriendsList onFriendRemoved={handleRequestUpdate} />
-
-        {/* Help Section */}
-        <Card className="mt-6 bg-muted/50">
-          <CardContent className="pt-6">
-            <h3 className="font-semibold mb-2">🤝 How Friend Requests Work</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-              <div>
-                <strong>1. Find Users</strong>
-                <p className="text-muted-foreground">
-                  Search for users by email, username, or wallet address.
-                </p>
-              </div>
-              <div>
-                <strong>2. Send Request</strong>
-                <p className="text-muted-foreground">
-                  Click the + button to send a friend request.
-                </p>
-              </div>
-              <div>
-                <strong>3. Accept/Decline</strong>
-                <p className="text-muted-foreground">
-                  Manage incoming requests with ✓ (accept) or ✗ (decline).
-                </p>
-              </div>
-            </div>
+        {/* Add Friend Section */}
+        <Card className="border border-gray-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-black">
+              <UserPlus className="h-5 w-5" />
+              Add New Friend
+            </CardTitle>
+            <CardDescription className="text-gray-600">
+              Search for users by email or username
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <UserSearch
+              placeholder="Search users to add as friends..."
+              showAddButton={true}
+              onUserSelect={(user) => {
+                console.log('Selected user:', user);
+                // Handle friend request logic
+              }}
+            />
           </CardContent>
         </Card>
+
+        {/* Friends Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+          <TabsList className="grid w-full grid-cols-3 bg-gray-100">
+            <TabsTrigger value="all" className="flex items-center gap-2 text-black data-[state=active]:bg-white">
+              <Users className="h-4 w-4" />
+              All Friends
+            </TabsTrigger>
+            <TabsTrigger value="pending" className="flex items-center gap-2 text-black data-[state=active]:bg-white">
+              <Clock className="h-4 w-4" />
+              Pending
+            </TabsTrigger>
+            <TabsTrigger value="sent" className="flex items-center gap-2 text-black data-[state=active]:bg-white">
+              <Send className="h-4 w-4" />
+              Sent
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="all" className="space-y-4">
+            <Card className="border border-gray-200">
+              <CardHeader>
+                <CardTitle className="text-black">Your Friends</CardTitle>
+                <CardDescription className="text-gray-600">
+                  People you can create splits with
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <FriendsList type="friends" />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="pending" className="space-y-4">
+            <Card className="border border-gray-200">
+              <CardHeader>
+                <CardTitle className="text-black">Pending Requests</CardTitle>
+                <CardDescription className="text-gray-600">
+                  Friend requests waiting for your response
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <FriendsList type="pending" />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="sent" className="space-y-4">
+            <Card className="border border-gray-200">
+              <CardHeader>
+                <CardTitle className="text-black">Sent Requests</CardTitle>
+                <CardDescription className="text-gray-600">
+                  Friend requests you've sent to others
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <FriendsList type="sent" />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+
+        {/* Quick Stats */}
+        <div className="grid grid-cols-3 gap-4">
+          <Card className="border border-gray-200">
+            <CardContent className="p-4 text-center">
+              <div className="text-xl font-bold text-black">12</div>
+              <div className="text-sm text-gray-600">Friends</div>
+            </CardContent>
+          </Card>
+          <Card className="border border-gray-200">
+            <CardContent className="p-4 text-center">
+              <div className="text-xl font-bold text-black">8</div>
+              <div className="text-sm text-gray-600">Splits</div>
+            </CardContent>
+          </Card>
+          <Card className="border border-gray-200">
+            <CardContent className="p-4 text-center">
+              <div className="text-xl font-bold text-black">2</div>
+              <div className="text-sm text-gray-600">Pending</div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-    </div>
+    </AppLayout>
   );
 }

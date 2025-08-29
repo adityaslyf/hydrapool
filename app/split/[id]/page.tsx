@@ -390,14 +390,23 @@ export default function SplitDetailPage() {
                         ) : (
                           <div className="flex items-center gap-2">
                             <DollarSign className="h-4 w-4" />
-                            Pay {currentUserParticipation.amount_owed.toFixed(2)} {split.currency}
+                            Pay{' '}
+                            {currentUserParticipation.amount_owed.toFixed(
+                              2,
+                            )}{' '}
+                            {split.currency}
                           </div>
                         )}
                       </Button>
-                      
+
                       {/* Payment Details */}
                       <div className="text-xs text-muted-foreground">
-                        <div>Payment will be sent to: {split.creator?.username || split.creator?.email?.split('@')[0] || 'Split Creator'}</div>
+                        <div>
+                          Payment will be sent to:{' '}
+                          {split.creator?.username ||
+                            split.creator?.email?.split('@')[0] ||
+                            'Split Creator'}
+                        </div>
                         <div>Transaction fee: ~$0.01 SOL</div>
                       </div>
                     </div>

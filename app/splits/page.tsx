@@ -1,46 +1,58 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { useAuth } from '@/hooks/use-auth';
+import { AppLayout } from '@/components/layout/app-layout';
+import { SimpleLoginButton } from '@/components/auth/simple-login-button';
 import { SplitsList } from '@/components/splits/splits-list';
-import { ArrowLeft, Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
+import Link from 'next/link';
 
 export default function SplitsPage() {
-  const [activeTab, setActiveTab] = useState<
-    'all' | 'created' | 'participating'
-  >('all');
+  const { authenticated, ready, loading } = useAuth();
 
-  const tabs = [
-    { id: 'all' as const, label: 'All Splits', description: 'All your splits' },
-    {
-      id: 'created' as const,
-      label: 'Created',
-      description: 'Splits you created',
-    },
-    {
-      id: 'participating' as const,
-      label: 'Joined',
-      description: 'Splits you joined',
-    },
-  ];
+  if (!ready || loading) {
+    return (
+      <AppLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading splits...</p>
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
+
+  if (!authenticated) {
+    return (
+      <AppLayout>
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6">
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold text-black">Sign in to view splits</h1>
+            <p className="text-gray-600">
+              See all your expense splits and payments
+            </p>
+          </div>
+          <SimpleLoginButton />
+        </div>
+      </AppLayout>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-background p-4">
-      <div className="container mx-auto max-w-4xl space-y-6">
+    <AppLayout>
+      <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button variant="outline" asChild>
-              <Link href="/">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Dashboard
-              </Link>
-            </Button>
-            <h1 className="text-2xl font-bold">My Splits</h1>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-black">All Splits</h1>
+            <p className="text-gray-600">
+              Your expense splits and payment history
+            </p>
           </div>
-          <Button asChild>
+          
+          <Button asChild className="bg-black text-white hover:bg-gray-800">
             <Link href="/create-split">
               <Plus className="h-4 w-4 mr-2" />
               New Split
@@ -48,28 +60,9 @@ export default function SplitsPage() {
           </Button>
         </div>
 
-        {/* Tabs */}
-        <div className="flex gap-2 border-b">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
-                activeTab === tab.id
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-muted-foreground'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Content */}
-        <div>
-          <SplitsList type={activeTab} showCreateButton={false} />
-        </div>
+        {/* Splits List */}
+        <SplitsList type="all" showCreateButton={false} />
       </div>
-    </div>
+    </AppLayout>
   );
 }

@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import Providers from '@/providers/privy-provider';
+import { ServiceWorkerRegistration } from '@/components/pwa/service-worker';
+import { PWAInstallPrompt } from '@/components/pwa/install-prompt';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -37,8 +39,9 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
 
   icons: {
-    icon: '/icons/icon-192x192.png',
-    apple: '/icons/icon-192x192.png',
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: '/favicon.ico',
   },
   appleWebApp: {
     capable: true,
@@ -51,7 +54,10 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
-  themeColor: '#7c3aed',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#6366f1' },
+    { media: '(prefers-color-scheme: dark)', color: '#4f46e5' },
+  ],
 };
 
 export default function RootLayout({
@@ -63,8 +69,13 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        suppressHydrationWarning={true}
       >
-        <Providers>{children}</Providers>
+        <ServiceWorkerRegistration />
+        <Providers>
+          {children}
+          <PWAInstallPrompt />
+        </Providers>
       </body>
     </html>
   );

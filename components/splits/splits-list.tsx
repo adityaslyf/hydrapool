@@ -291,7 +291,12 @@ export function SplitsList({
                         </Link>
                       </Button>
                     )}
-                    <Button variant="outline" size="sm" asChild className="w-full sm:w-auto">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      asChild
+                      className="w-full sm:w-auto"
+                    >
                       <Link href={`/split/${split.id}`}>
                         <Eye className="h-4 w-4 mr-2" />
                         View

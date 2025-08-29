@@ -1,9 +1,10 @@
 'use client';
 
+import { AppLayout } from '@/components/layout/app-layout';
 import { LoginButton } from '@/components/auth/login-button';
-import { UserProfile } from '@/components/auth/user-profile';
 import { SplitsList } from '@/components/splits/splits-list';
 import { useAuth } from '@/hooks/use-auth';
+import { useSolana } from '@/hooks/use-solana';
 import {
   Card,
   CardContent,
@@ -12,128 +13,165 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, Plus, CreditCard, BarChart3 } from 'lucide-react';
+import { 
+  Users, 
+  Plus, 
+  CreditCard, 
+  BarChart3, 
+  Wallet
+} from 'lucide-react';
 import Link from 'next/link';
 
 export default function Home() {
-  const { authenticated, ready, loading } = useAuth();
+  const { authenticated, ready, loading, user } = useAuth();
+  const { walletInfo } = useSolana();
 
   if (!ready || loading) {
     return (
-      <main className="min-h-screen bg-background p-4 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading HydraPool...</p>
+      <AppLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading...</p>
+          </div>
         </div>
-      </main>
+      </AppLayout>
+    );
+  }
+
+  if (!authenticated) {
+    return (
+      <AppLayout>
+        <div className="text-center space-y-8 py-16 max-w-2xl mx-auto">
+          <div className="space-y-4">
+            <h1 className="text-4xl font-bold text-black">
+              Split Bills with Friends
+            </h1>
+            <p className="text-lg text-gray-600">
+              Easy expense splitting using Solana USDC. 
+              Fast payments, no hassle.
+            </p>
+          </div>
+          
+          <LoginButton />
+
+          <div className="grid md:grid-cols-3 gap-6 mt-16">
+            <div className="text-center p-6">
+              <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <CreditCard className="h-6 w-6 text-black" />
+              </div>
+              <h3 className="font-semibold mb-2">Instant Payments</h3>
+              <p className="text-sm text-gray-600">
+                Pay with USDC on Solana
+              </p>
+            </div>
+            
+            <div className="text-center p-6">
+              <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Users className="h-6 w-6 text-black" />
+              </div>
+              <h3 className="font-semibold mb-2">Add Friends</h3>
+              <p className="text-sm text-gray-600">
+                Connect and split expenses
+              </p>
+            </div>
+            
+            <div className="text-center p-6">
+              <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <BarChart3 className="h-6 w-6 text-black" />
+              </div>
+              <h3 className="font-semibold mb-2">Track Everything</h3>
+              <p className="text-sm text-gray-600">
+                See all your splits and payments
+              </p>
+            </div>
+          </div>
+        </div>
+      </AppLayout>
     );
   }
 
   return (
-    <main className="min-h-screen bg-background p-4">
-      <div className="container mx-auto max-w-4xl">
-        <div className="text-center py-8">
-          <h1 className="text-4xl font-bold text-foreground mb-4">
-            Welcome to HydraPool
+    <AppLayout>
+      <div className="max-w-4xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-black mb-1">
+            Hi {user?.username || user?.email?.split('@')[0] || 'there'}!
           </h1>
-          <p className="text-lg text-muted-foreground mb-8">
-            Split bills and expenses with friends using Solana USDC
+          <p className="text-gray-600">
+            Here's your expense overview
           </p>
         </div>
 
-        {/* Authentication Section */}
-        {!authenticated ? (
-          <div className="mb-12 flex justify-center">
-            <LoginButton />
-          </div>
-        ) : (
-          <>
-            <div className="mb-8 flex justify-center">
-              <UserProfile />
-            </div>
-
-            {/* Dashboard Section */}
-            <div className="max-w-4xl mx-auto space-y-8">
+        {/* Wallet Balance Card */}
+        <Card className="border border-gray-200">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-semibold text-center mb-6">
-                  Dashboard
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {/* Find Users */}
-                  <Card className="hover:shadow-lg transition-shadow">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="flex items-center gap-2 text-lg">
-                        <Users className="h-5 w-5" />
-                        Find Users
-                      </CardTitle>
-                      <CardDescription>
-                        Search for users to add as friends
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <Link href="/users">
-                        <Button className="w-full" variant="outline">
-                          <Users className="h-4 w-4 mr-2" />
-                          Search Users
-                        </Button>
-                      </Link>
-                    </CardContent>
-                  </Card>
+                <p className="text-sm text-gray-600 mb-1">Wallet Balance</p>
+                <p className="text-2xl font-bold text-black">
+                  {walletInfo?.usdcBalance !== undefined 
+                    ? `$${walletInfo.usdcBalance.toFixed(2)}` 
+                    : 'Loading...'}
+                </p>
+                <p className="text-sm text-gray-500">USDC</p>
+              </div>
+              <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                <Wallet className="h-6 w-6 text-black" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-                  {/* Friends */}
-                  <Card className="hover:shadow-lg transition-shadow">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="flex items-center gap-2 text-lg">
-                        <Users className="h-5 w-5" />
-                        Friends
-                      </CardTitle>
-                      <CardDescription>
-                        Manage friend requests and friends
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <Link href="/friends">
-                        <Button className="w-full" variant="outline">
-                          <Users className="h-4 w-4 mr-2" />
-                          Manage Friends
-                        </Button>
-                      </Link>
-                    </CardContent>
-                  </Card>
-
-                  {/* Create Split */}
-                  <Card className="hover:shadow-lg transition-shadow">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="flex items-center gap-2 text-lg">
-                        <Plus className="h-5 w-5" />
-                        Create Split
-                      </CardTitle>
-                      <CardDescription>
-                        Split expenses with friends
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <Link href="/create-split">
-                        <Button className="w-full" variant="outline">
-                          <Plus className="h-4 w-4 mr-2" />
-                          New Split
-                        </Button>
-                      </Link>
-                    </CardContent>
-                  </Card>
-
-
+        {/* Quick Actions */}
+        <div className="grid grid-cols-2 gap-4">
+          <Card className="border border-gray-200 hover:bg-gray-50 transition-colors">
+            <CardContent className="p-6">
+              <Link href="/create-split" className="block">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-semibold text-black mb-1">Create Split</h3>
+                    <p className="text-sm text-gray-600">New expense</p>
+                  </div>
+                  <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center">
+                    <Plus className="h-5 w-5 text-white" />
+                  </div>
                 </div>
-              </div>
+              </Link>
+            </CardContent>
+          </Card>
 
-              {/* Recent Splits */}
-              <div>
-                <SplitsList type="all" limit={5} showCreateButton={false} />
-              </div>
-            </div>
-          </>
-        )}
+          <Card className="border border-gray-200 hover:bg-gray-50 transition-colors">
+            <CardContent className="p-6">
+              <Link href="/friends" className="block">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-semibold text-black mb-1">Friends</h3>
+                    <p className="text-sm text-gray-600">Manage friends</p>
+                  </div>
+                  <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <Users className="h-5 w-5 text-black" />
+                  </div>
+                </div>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Recent Splits */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-black">Recent Splits</h2>
+            <Link href="/splits">
+              <Button variant="ghost" size="sm" className="text-gray-600 hover:text-black">
+                View All
+              </Button>
+            </Link>
+          </div>
+          <SplitsList type="all" limit={5} showCreateButton={false} />
+        </div>
       </div>
-    </main>
+    </AppLayout>
   );
 }
