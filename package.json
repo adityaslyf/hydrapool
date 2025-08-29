@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    
     "dev": "next dev",
     "build": "next build",
     "build:vercel": "DISABLE_ESLINT_PLUGIN=true ESLINT_NO_DEV_ERRORS=true next build",

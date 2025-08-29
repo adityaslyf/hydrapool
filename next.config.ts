@@ -25,7 +25,7 @@ const nextConfig: NextConfig = {
   webpack: (config: any) => {
     // Remove ESLint plugin
     config.plugins = config.plugins.filter(
-      (plugin: any) => plugin.constructor.name !== 'ESLintWebpackPlugin'
+      (plugin: any) => plugin.constructor.name !== 'ESLintWebpackPlugin',
     );
     return config;
   },
