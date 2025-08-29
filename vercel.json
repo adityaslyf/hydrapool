@@ -1,19 +1,22 @@
 {
-  "buildCommand": "pnpm build",
+  "version": 2,
+  "framework": null,
+  "buildCommand": "pnpm run vercel-build",
+  "devCommand": "pnpm run dev",
   "installCommand": "pnpm install",
-  "framework": "nextjs",
-  "functions": {
-    "app/api/**/*.ts": {
-      "runtime": "nodejs18.x"
-    }
-  },
+  "outputDirectory": ".next",
   "env": {
-    "SKIP_ENV_VALIDATION": "1"
+    "SKIP_ENV_VALIDATION": "1",
+    "DISABLE_ESLINT_PLUGIN": "true",
+    "ESLINT_NO_DEV_ERRORS": "true",
+    "NEXT_TELEMETRY_DISABLED": "1"
   },
   "build": {
     "env": {
-      "NEXT_TELEMETRY_DISABLED": "1",
-      "SKIP_ENV_VALIDATION": "1"
+      "SKIP_ENV_VALIDATION": "1",
+      "DISABLE_ESLINT_PLUGIN": "true",
+      "ESLINT_NO_DEV_ERRORS": "true",
+      "NEXT_TELEMETRY_DISABLED": "1"
     }
   }
 }
