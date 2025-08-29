@@ -24,7 +24,12 @@ export function UserProfile() {
   const displayName = user?.username || email.split('@')[0];
 
   return (
-    <Button asChild variant="ghost" size="sm" className="flex items-center gap-2">
+    <Button
+      asChild
+      variant="ghost"
+      size="sm"
+      className="flex items-center gap-2"
+    >
       <Link href="/profile">
         <div className="h-6 w-6 rounded-full bg-black flex items-center justify-center">
           <span className="text-white text-xs font-medium">

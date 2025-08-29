@@ -11,7 +11,8 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 export function PWAInstallPrompt() {
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [deferredPrompt, setDeferredPrompt] =
+    useState<BeforeInstallPromptEvent | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
 
   useEffect(() => {
@@ -31,7 +32,7 @@ export function PWAInstallPrompt() {
 
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
-    
+
     if (outcome === 'accepted') {
       setDeferredPrompt(null);
       setShowPrompt(false);
@@ -59,16 +60,16 @@ export function PWAInstallPrompt() {
               Add to your home screen for quick access and offline support
             </p>
             <div className="flex gap-2">
-              <Button 
-                onClick={handleInstall} 
-                size="sm" 
+              <Button
+                onClick={handleInstall}
+                size="sm"
                 className="bg-black text-white hover:bg-gray-800"
               >
                 Install
               </Button>
-              <Button 
-                onClick={handleDismiss} 
-                variant="ghost" 
+              <Button
+                onClick={handleDismiss}
+                variant="ghost"
                 size="sm"
                 className="text-gray-600 hover:text-black"
               >

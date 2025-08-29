@@ -3,15 +3,15 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { 
-  Home, 
-  Receipt, 
-  Users, 
-  User, 
+import {
+  Home,
+  Receipt,
+  Users,
+  User,
   Plus,
   Wallet,
   Menu,
-  X
+  X,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -21,26 +21,26 @@ const navigationItems = [
     name: 'Dashboard',
     href: '/',
     icon: Home,
-    description: 'Overview and recent activity'
+    description: 'Overview and recent activity',
   },
   {
     name: 'Splits',
     href: '/splits',
     icon: Receipt,
-    description: 'Manage your expense splits'
+    description: 'Manage your expense splits',
   },
   {
     name: 'Friends',
     href: '/friends',
     icon: Users,
-    description: 'Your friends and connections'
+    description: 'Your friends and connections',
   },
   {
     name: 'Profile',
     href: '/profile',
     icon: User,
-    description: 'Account settings and preferences'
-  }
+    description: 'Account settings and preferences',
+  },
 ];
 
 export function MobileNavigation() {
@@ -60,16 +60,16 @@ export function MobileNavigation() {
           {navigationItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
-            
+
             return (
               <Link
                 key={item.name}
                 href={item.href}
                 className={cn(
                   'flex flex-col items-center justify-center space-y-1 text-xs transition-colors',
-                  isActive 
-                    ? 'text-black bg-gray-50' 
-                    : 'text-gray-500 hover:text-black'
+                  isActive
+                    ? 'text-black bg-gray-50'
+                    : 'text-gray-500 hover:text-black',
                 )}
               >
                 <Icon className={cn('h-5 w-5', isActive && 'text-black')} />
@@ -96,7 +96,7 @@ export function DesktopNavigation() {
       {navigationItems.map((item) => {
         const Icon = item.icon;
         const isActive = pathname === item.href;
-        
+
         return (
           <Link
             key={item.name}
@@ -105,7 +105,7 @@ export function DesktopNavigation() {
               'flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors',
               isActive
                 ? 'bg-black text-white'
-                : 'text-gray-600 hover:text-black hover:bg-gray-100'
+                : 'text-gray-600 hover:text-black hover:bg-gray-100',
             )}
           >
             <Icon className="h-4 w-4" />
@@ -126,7 +126,7 @@ export function QuickActions() {
           New Split
         </Link>
       </Button>
-      
+
       <Button asChild size="sm" variant="outline" className="hidden sm:flex">
         <Link href="/wallet">
           <Wallet className="h-4 w-4 mr-2" />

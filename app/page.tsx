@@ -13,13 +13,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { 
-  Users, 
-  Plus, 
-  CreditCard, 
-  BarChart3, 
-  Wallet
-} from 'lucide-react';
+import { Users, Plus, CreditCard, BarChart3, Wallet } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Home() {
@@ -48,11 +42,11 @@ export default function Home() {
               Split Bills with Friends
             </h1>
             <p className="text-lg text-gray-600">
-              Easy expense splitting using Solana USDC. 
-              Fast payments, no hassle.
+              Easy expense splitting using Solana USDC. Fast payments, no
+              hassle.
             </p>
           </div>
-          
+
           <LoginButton />
 
           <div className="grid md:grid-cols-3 gap-6 mt-16">
@@ -61,11 +55,9 @@ export default function Home() {
                 <CreditCard className="h-6 w-6 text-black" />
               </div>
               <h3 className="font-semibold mb-2">Instant Payments</h3>
-              <p className="text-sm text-gray-600">
-                Pay with USDC on Solana
-              </p>
+              <p className="text-sm text-gray-600">Pay with USDC on Solana</p>
             </div>
-            
+
             <div className="text-center p-6">
               <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <Users className="h-6 w-6 text-black" />
@@ -75,7 +67,7 @@ export default function Home() {
                 Connect and split expenses
               </p>
             </div>
-            
+
             <div className="text-center p-6">
               <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <BarChart3 className="h-6 w-6 text-black" />
@@ -99,9 +91,7 @@ export default function Home() {
           <h1 className="text-2xl font-bold text-black mb-1">
             Hi {user?.username || user?.email?.split('@')[0] || 'there'}!
           </h1>
-          <p className="text-gray-600">
-            Here's your expense overview
-          </p>
+          <p className="text-gray-600">Here's your expense overview</p>
         </div>
 
         {/* Wallet Balance Card */}
@@ -111,8 +101,8 @@ export default function Home() {
               <div>
                 <p className="text-sm text-gray-600 mb-1">Wallet Balance</p>
                 <p className="text-2xl font-bold text-black">
-                  {walletInfo?.usdcBalance !== undefined 
-                    ? `$${walletInfo.usdcBalance.toFixed(2)}` 
+                  {walletInfo?.usdcBalance !== undefined
+                    ? `$${walletInfo.usdcBalance.toFixed(2)}`
                     : 'Loading...'}
                 </p>
                 <p className="text-sm text-gray-500">USDC</p>
@@ -131,7 +121,9 @@ export default function Home() {
               <Link href="/create-split" className="block">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-semibold text-black mb-1">Create Split</h3>
+                    <h3 className="font-semibold text-black mb-1">
+                      Create Split
+                    </h3>
                     <p className="text-sm text-gray-600">New expense</p>
                   </div>
                   <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center">
@@ -164,7 +156,11 @@ export default function Home() {
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-black">Recent Splits</h2>
             <Link href="/splits">
-              <Button variant="ghost" size="sm" className="text-gray-600 hover:text-black">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-gray-600 hover:text-black"
+              >
                 View All
               </Button>
             </Link>

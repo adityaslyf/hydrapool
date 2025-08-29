@@ -15,13 +15,7 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  Users,
-  UserPlus,
-  Clock,
-  Send,
-  X
-} from 'lucide-react';
+import { Users, UserPlus, Clock, Send, X } from 'lucide-react';
 
 export default function FriendsPage() {
   const { authenticated, ready, loading } = useAuth();
@@ -45,7 +39,9 @@ export default function FriendsPage() {
       <AppLayout>
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6">
           <div className="space-y-2">
-            <h1 className="text-2xl font-bold text-black">Sign in to manage friends</h1>
+            <h1 className="text-2xl font-bold text-black">
+              Sign in to manage friends
+            </h1>
             <p className="text-gray-600">
               Connect with friends to split expenses
             </p>
@@ -62,9 +58,7 @@ export default function FriendsPage() {
         {/* Header */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-black">Friends</h1>
-          <p className="text-gray-600">
-            Manage your connections
-          </p>
+          <p className="text-gray-600">Manage your connections</p>
         </div>
 
         {/* Add Friend Section */}
@@ -91,17 +85,30 @@ export default function FriendsPage() {
         </Card>
 
         {/* Friends Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="space-y-4"
+        >
           <TabsList className="grid w-full grid-cols-3 bg-gray-100">
-            <TabsTrigger value="all" className="flex items-center gap-2 text-black data-[state=active]:bg-white">
+            <TabsTrigger
+              value="all"
+              className="flex items-center gap-2 text-black data-[state=active]:bg-white"
+            >
               <Users className="h-4 w-4" />
               All Friends
             </TabsTrigger>
-            <TabsTrigger value="pending" className="flex items-center gap-2 text-black data-[state=active]:bg-white">
+            <TabsTrigger
+              value="pending"
+              className="flex items-center gap-2 text-black data-[state=active]:bg-white"
+            >
               <Clock className="h-4 w-4" />
               Pending
             </TabsTrigger>
-            <TabsTrigger value="sent" className="flex items-center gap-2 text-black data-[state=active]:bg-white">
+            <TabsTrigger
+              value="sent"
+              className="flex items-center gap-2 text-black data-[state=active]:bg-white"
+            >
               <Send className="h-4 w-4" />
               Sent
             </TabsTrigger>

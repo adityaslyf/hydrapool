@@ -4,20 +4,9 @@ import { useAuth } from '@/hooks/use-auth';
 import { useSolana } from '@/hooks/use-solana';
 import { AppLayout } from '@/components/layout/app-layout';
 import { SimpleLoginButton } from '@/components/auth/simple-login-button';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import {
-  User,
-  Wallet,
-  Copy,
-  ExternalLink,
-  LogOut
-} from 'lucide-react';
+import { User, Wallet, Copy, ExternalLink, LogOut } from 'lucide-react';
 import { usePrivy } from '@privy-io/react-auth';
 
 export default function ProfilePage() {
@@ -43,7 +32,9 @@ export default function ProfilePage() {
       <AppLayout>
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6">
           <div className="space-y-2">
-            <h1 className="text-2xl font-bold text-black">Sign in to view profile</h1>
+            <h1 className="text-2xl font-bold text-black">
+              Sign in to view profile
+            </h1>
             <p className="text-gray-600">
               Access your account and wallet settings
             </p>
@@ -108,8 +99,8 @@ export default function ProfilePage() {
               <div>
                 <p className="text-sm text-gray-600">Balance</p>
                 <p className="text-xl font-bold text-black">
-                  {walletInfo?.usdcBalance !== undefined 
-                    ? `$${walletInfo.usdcBalance.toFixed(2)} USDC` 
+                  {walletInfo?.usdcBalance !== undefined
+                    ? `$${walletInfo.usdcBalance.toFixed(2)} USDC`
                     : 'Loading...'}
                 </p>
               </div>
@@ -117,7 +108,7 @@ export default function ProfilePage() {
                 <Wallet className="h-6 w-6 text-black" />
               </div>
             </div>
-            
+
             {walletInfo?.address && (
               <div className="p-4 bg-gray-50 rounded-lg">
                 <p className="text-sm text-gray-600 mb-2">Wallet Address</p>
@@ -180,9 +171,9 @@ export default function ProfilePage() {
         {/* Logout */}
         <Card className="border border-gray-200">
           <CardContent className="p-6">
-            <Button 
+            <Button
               onClick={logout}
-              variant="outline" 
+              variant="outline"
               className="w-full text-red-600 border-red-200 hover:bg-red-50"
             >
               <LogOut className="h-4 w-4 mr-2" />

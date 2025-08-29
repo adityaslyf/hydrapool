@@ -16,12 +16,14 @@ export function AppLayout({ children, className }: AppLayoutProps) {
   return (
     <div className="min-h-screen bg-white">
       <Header />
-      
-      <main className={cn(
-        'px-4 py-4',
-        authenticated && 'pb-20 md:pb-6', // Extra padding for mobile nav
-        className
-      )}>
+
+      <main
+        className={cn(
+          'px-4 py-4',
+          authenticated && 'pb-20 md:pb-6', // Extra padding for mobile nav
+          className,
+        )}
+      >
         {children}
       </main>
 

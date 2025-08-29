@@ -29,7 +29,9 @@ export default function SplitsPage() {
       <AppLayout>
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6">
           <div className="space-y-2">
-            <h1 className="text-2xl font-bold text-black">Sign in to view splits</h1>
+            <h1 className="text-2xl font-bold text-black">
+              Sign in to view splits
+            </h1>
             <p className="text-gray-600">
               See all your expense splits and payments
             </p>
@@ -51,7 +53,7 @@ export default function SplitsPage() {
               Your expense splits and payment history
             </p>
           </div>
-          
+
           <Button asChild className="bg-black text-white hover:bg-gray-800">
             <Link href="/create-split">
               <Plus className="h-4 w-4 mr-2" />

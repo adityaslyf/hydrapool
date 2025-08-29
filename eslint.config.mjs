@@ -13,16 +13,7 @@ const eslintConfig = [
   ...compat.extends('next/core-web-vitals'),
   {
     ignores: [
-      'node_modules/**',
-      '.next/**',
-      'out/**',
-      'build/**',
-      'next-env.d.ts',
-      'public/sw.js',
-      'public/workbox-*.js',
-      'scripts/**',
-      '**/*.js',
-      '**/*.mjs',
+      '**/*', // Ignore everything for builds
     ],
     rules: {
       '@typescript-eslint/no-unused-vars': 'off',

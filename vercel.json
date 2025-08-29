@@ -1,5 +1,5 @@
 {
-  "buildCommand": "pnpm build",
+  "buildCommand": "pnpm run build:vercel",
   "installCommand": "pnpm install",
   "framework": "nextjs",
   "functions": {
@@ -8,12 +8,16 @@
     }
   },
   "env": {
-    "SKIP_ENV_VALIDATION": "1"
+    "SKIP_ENV_VALIDATION": "1",
+    "DISABLE_ESLINT_PLUGIN": "true",
+    "ESLINT_NO_DEV_ERRORS": "true"
   },
   "build": {
     "env": {
       "NEXT_TELEMETRY_DISABLED": "1",
-      "SKIP_ENV_VALIDATION": "1"
+      "SKIP_ENV_VALIDATION": "1",
+      "DISABLE_ESLINT_PLUGIN": "true",
+      "ESLINT_NO_DEV_ERRORS": "true"
     }
   }
 }

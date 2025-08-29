@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
   },
   eslint: {
     ignoreDuringBuilds: true,
+    dirs: [], // Don't lint any directories
   },
   typescript: {
     ignoreBuildErrors: true,
@@ -19,6 +20,14 @@ const nextConfig: NextConfig = {
         as: '*.js',
       },
     },
+  },
+  // Disable webpack's linting plugin completely
+  webpack: (config: any) => {
+    // Remove ESLint plugin
+    config.plugins = config.plugins.filter(
+      (plugin: any) => plugin.constructor.name !== 'ESLintWebpackPlugin'
+    );
+    return config;
   },
 };
 

@@ -23,9 +23,7 @@ export function Header() {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-black">
               <Waves className="h-4 w-4 text-white" />
             </div>
-            <span className="font-bold text-xl text-black">
-              HydraPool
-            </span>
+            <span className="font-bold text-xl text-black">HydraPool</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -38,7 +36,11 @@ export function Header() {
                 {authenticated ? (
                   <>
                     {/* Create Split Button */}
-                    <Button asChild size="sm" className="bg-black text-white hover:bg-gray-800">
+                    <Button
+                      asChild
+                      size="sm"
+                      className="bg-black text-white hover:bg-gray-800"
+                    >
                       <Link href="/create-split">
                         <Plus className="h-4 w-4 mr-1" />
                         <span className="hidden sm:inline">New</span>
