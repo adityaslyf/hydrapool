@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { AppLayout } from '@/components/layout/app-layout';
 import { SimpleLoginButton } from '@/components/auth/simple-login-button';
 import { UserSearch } from '@/components/users/user-search';
 import { FriendsList } from '@/components/friends/friends-list';
+import { FriendRequests } from '@/components/friends/friend-requests';
 import {
   Card,
   CardContent,
@@ -18,8 +19,51 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Users, UserPlus, Clock, Send, Search, TrendingUp } from 'lucide-react';
 
 export default function FriendsPage() {
-  const { authenticated, ready, loading } = useAuth();
+  const { authenticated, ready, loading, user } = useAuth();
   const [activeTab, setActiveTab] = useState('all');
+  const [friendsCount, setFriendsCount] = useState(0);
+  const [pendingCount, setPendingCount] = useState(0);
+  const [sentCount, setSentCount] = useState(0);
+
+  const fetchCounts = async () => {
+    if (!user?.id) return;
+
+    try {
+      // Fetch friends count
+      const friendsResponse = await fetch(`/api/friends?userId=${user.id}&type=friends`);
+      if (friendsResponse.ok) {
+        const friendsData = await friendsResponse.json();
+        setFriendsCount(friendsData.count || 0);
+      }
+
+      // Fetch pending requests count (requests TO you)
+      const pendingResponse = await fetch(`/api/friends?userId=${user.id}&type=pending`);
+      if (pendingResponse.ok) {
+        const pendingData = await pendingResponse.json();
+        setPendingCount(pendingData.count || 0);
+      }
+
+      // Fetch sent requests count (requests FROM you)
+      const sentResponse = await fetch(`/api/friends?userId=${user.id}&type=sent`);
+      if (sentResponse.ok) {
+        const sentData = await sentResponse.json();
+        setSentCount(sentData.count || 0);
+      }
+    } catch (error) {
+      console.error('Failed to fetch friend counts:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (authenticated && user?.id) {
+      fetchCounts();
+    }
+  }, [authenticated, user?.id]);
+
+  const handleRequestUpdate = () => {
+    // Refresh counts when requests are accepted/declined
+    fetchCounts();
+  };
 
   if (!ready || loading) {
     return (
@@ -66,7 +110,7 @@ export default function FriendsPage() {
 
         {/* Add Friend Section */}
         <div>
-          <Card className="border border-gray-200 overflow-hidden">
+          <Card className="border border-gray-200">
             <CardHeader className="bg-gradient-to-r from-green-50 to-blue-50 border-b border-gray-100">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-gradient-to-br from-green-600 to-blue-600 rounded-xl flex items-center justify-center">
@@ -148,7 +192,7 @@ export default function FriendsPage() {
                     </div>
                     <div className="text-right">
                       <div className="text-sm font-semibold text-blue-600">
-                        1
+                        {friendsCount}
                       </div>
                       <div className="text-xs text-gray-500">friends</div>
                     </div>
@@ -179,14 +223,14 @@ export default function FriendsPage() {
                     </div>
                     <div className="text-right">
                       <div className="text-sm font-semibold text-orange-600">
-                        2
+                        {pendingCount}
                       </div>
                       <div className="text-xs text-gray-500">pending</div>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent className="p-0">
-                  <FriendsList />
+                  <FriendRequests type="pending" onRequestUpdate={handleRequestUpdate} />
                 </CardContent>
               </Card>
             </TabsContent>
@@ -210,14 +254,14 @@ export default function FriendsPage() {
                     </div>
                     <div className="text-right">
                       <div className="text-sm font-semibold text-purple-600">
-                        0
+                        {sentCount}
                       </div>
                       <div className="text-xs text-gray-500">sent</div>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent className="p-0">
-                  <FriendsList />
+                  <FriendRequests type="sent" onRequestUpdate={handleRequestUpdate} />
                 </CardContent>
               </Card>
             </TabsContent>
@@ -232,7 +276,7 @@ export default function FriendsPage() {
                 <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-2">
                   <Users className="h-4 w-4 text-blue-600" />
                 </div>
-                <div className="text-lg font-bold text-gray-900">1</div>
+                <div className="text-lg font-bold text-gray-900">{friendsCount}</div>
                 <div className="text-xs text-gray-500">Friends</div>
               </CardContent>
             </Card>
@@ -250,7 +294,7 @@ export default function FriendsPage() {
                 <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-2">
                   <Clock className="h-4 w-4 text-orange-600" />
                 </div>
-                <div className="text-lg font-bold text-gray-900">2</div>
+                <div className="text-lg font-bold text-gray-900">{pendingCount}</div>
                 <div className="text-xs text-gray-500">Pending</div>
               </CardContent>
             </Card>

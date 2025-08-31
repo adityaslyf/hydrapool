@@ -46,20 +46,15 @@ export default function SplitsPage() {
     <AppLayout>
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-black">All Splits</h1>
-            <p className="text-gray-600">
+        <div className="flex items-start justify-between mb-6">
+          <div className="flex-1">
+            <h1 className="text-2xl font-bold text-black mb-1">All Splits</h1>
+            <p className="text-gray-600 text-sm">
               Your expense splits and payment history
             </p>
           </div>
 
-          <Button asChild className="bg-black text-white hover:bg-gray-800">
-            <Link href="/create-split">
-              <Plus className="h-4 w-4 mr-2" />
-              New Split
-            </Link>
-          </Button>
+          
         </div>
 
         {/* Splits List */}

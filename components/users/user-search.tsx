@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -51,6 +51,7 @@ export function UserSearch({
     Record<string, 'none' | 'pending_sent' | 'pending_received' | 'friends'>
   >({});
   const [requestingFriend, setRequestingFriend] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const searchUsers = useCallback(
     async (searchQuery: string) => {
@@ -118,6 +119,18 @@ export function UserSearch({
     return () => clearTimeout(timeoutId);
   }, [query, searchUsers]);
 
+  // Click outside handler
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setShowResults(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const handleUserClick = (user: UserType) => {
     onUserSelect?.(user);
     setShowResults(false);
@@ -156,7 +169,7 @@ export function UserSearch({
   };
 
   return (
-    <div className="relative">
+    <div ref={containerRef} className="relative w-full">
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
         <Input
@@ -179,7 +192,7 @@ export function UserSearch({
       )}
 
       {showResults && (
-        <Card className="absolute top-full left-0 right-0 mt-1 z-50 max-h-80 overflow-y-auto">
+        <Card className="absolute top-full left-0 right-0 mt-1 z-[100] max-h-80 overflow-y-auto shadow-lg border border-gray-200 bg-white">
           <CardContent className="p-0">
             {results.length === 0 && !loading && query.length >= 2 && (
               <div className="p-4 text-center text-muted-foreground">
