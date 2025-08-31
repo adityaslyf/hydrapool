@@ -7,10 +7,8 @@ export function ServiceWorkerRegistration() {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker
         .register('/sw.js')
-        .then(() => {
-        })
-        .catch(() => {
-        });
+        .then(() => {})
+        .catch(() => {});
     }
   }, []);
 

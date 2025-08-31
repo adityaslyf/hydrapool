@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Plus } from 'lucide-react';
+import Image from 'next/image';
 
 export function Header() {
   const { authenticated, ready, loading } = useAuth();
@@ -24,10 +25,9 @@ export function Header() {
             className="flex items-center gap-3 min-h-[44px] touch-manipulation flex-shrink-0"
             aria-label="HydraPool - Go to dashboard"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 flex-shrink-0">
-              <Waves className="h-5 w-5 text-white" />
-            </div>
-            <span className="font-bold text-xl text-gray-900">HydraPool</span>
+            {/* <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 flex-shrink-0"> */}
+              <Image src="/icons/logo.png" width={50} height={50} alt="HydraPool" className=" text-white" />
+            {/* </div> */}
           </Link>
 
           {/* Desktop Navigation */}
@@ -43,7 +43,7 @@ export function Header() {
                     <Button
                       asChild
                       size="sm"
-                      className="bg-blue-600 hover:bg-blue-700 text-white min-h-[44px] min-w-[44px] touch-manipulation"
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 touch-manipulation"
                     >
                       <Link href="/create-split" aria-label="Create new split">
                         <Plus className="h-4 w-4 sm:mr-2 flex-shrink-0" />
