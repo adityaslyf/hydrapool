@@ -116,26 +116,23 @@ export function SplitsList({
 
     if (status === 'completed') {
       return (
-        <Badge variant="default" className="bg-green-600">
-          <CheckCircle className="h-3 w-3 mr-1" />
-          Completed
+        <Badge className="bg-green-100 text-green-800 border-green-200 text-xs px-2 py-1">
+          ✓ Completed
         </Badge>
       );
     }
 
     if (userShare && !userShare.paid && !isCreator) {
       return (
-        <Badge variant="destructive">
-          <Clock className="h-3 w-3 mr-1" />
-          You Owe
+        <Badge className="bg-red-100 text-red-800 border-red-200 text-xs px-2 py-1">
+          ⏱ You Owe
         </Badge>
       );
     }
 
     return (
-      <Badge variant="secondary">
-        <Clock className="h-3 w-3 mr-1" />
-        Active
+      <Badge className="bg-blue-100 text-blue-800 border-blue-200 text-xs px-2 py-1">
+        ⏱ Active
       </Badge>
     );
   };
@@ -169,157 +166,124 @@ export function SplitsList({
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="flex items-center gap-2">
-              <DollarSign className="h-5 w-5" />
-              {type === 'created'
-                ? 'Splits You Created'
-                : type === 'participating'
-                  ? 'Splits You Joined'
-                  : 'Your Splits'}
-            </CardTitle>
-            <CardDescription>
-              {type === 'created'
-                ? 'Splits you have created for others'
-                : type === 'participating'
-                  ? 'Splits where you owe money'
-                  : 'All your splits - created and joined'}
-            </CardDescription>
+    <div>
+      {!showCreateButton && splits.length === 0 ? (
+        <div className="text-center py-12 px-4">
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <DollarSign className="h-8 w-8 text-gray-400" />
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={fetchSplits}>
-              <RefreshCw className="h-4 w-4" />
-            </Button>
-            {showCreateButton && (
-              <Button asChild size="sm">
-                <Link href="/create-split">
-                  <Plus className="h-4 w-4 mr-2" />
-                  New Split
-                </Link>
-              </Button>
-            )}
-          </div>
+          <h3 className="font-semibold text-gray-900 mb-2">No splits yet</h3>
+          <p className="text-gray-500 text-sm mb-6">
+            Create your first split to get started
+          </p>
+          <Button asChild className="bg-blue-600 hover:bg-blue-700">
+            <Link href="/create-split">
+              <Plus className="h-4 w-4 mr-2" />
+              Create Split
+            </Link>
+          </Button>
         </div>
-      </CardHeader>
-      <CardContent>
-        {splits.length === 0 ? (
-          <div className="text-center py-8">
-            <DollarSign className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground mb-4">
-              {type === 'created'
-                ? "You haven't created any splits yet"
-                : type === 'participating'
-                  ? "You're not participating in any splits"
-                  : 'No splits found'}
-            </p>
-            {showCreateButton && (
-              <Button asChild>
-                <Link href="/create-split">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create Your First Split
-                </Link>
-              </Button>
-            )}
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {splits.map((split) => {
-              const userShare = getCurrentUserShare(split);
-              const isCreator = split.creator_id === currentUser?.id;
-              const status = getSplitStatus(split);
+      ) : splits.length === 0 ? (
+        <div className="text-center py-8 px-4">
+          <p className="text-gray-500 text-sm">No recent activity</p>
+        </div>
+      ) : (
+        <div className="divide-y divide-gray-100">
+          {splits.map((split) => {
+            const userShare = getCurrentUserShare(split);
+            const isCreator = split.creator_id === currentUser?.id;
+            const status = getSplitStatus(split);
 
-              return (
-                <div
-                  key={split.id}
-                  className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/50 transition-colors"
-                >
+            return (
+              <div
+                key={split.id}
+                className="p-4 hover:bg-gray-50 transition-colors"
+              >
+                <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="font-medium truncate">{split.title}</h3>
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="font-semibold text-gray-900 truncate text-sm">
+                        {split.title}
+                      </h3>
                       {getStatusBadge(split)}
                       {isCreator && (
-                        <Badge variant="outline" className="text-xs">
+                        <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
                           Creator
                         </Badge>
                       )}
                     </div>
 
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-4 text-xs text-gray-500 mb-2">
                       <div className="flex items-center gap-1">
                         <DollarSign className="h-3 w-3" />
-                        {split.total_amount.toFixed(2)} {split.currency}
+                        ${split.total_amount.toFixed(2)}
                       </div>
                       <div className="flex items-center gap-1">
                         <Users className="h-3 w-3" />
                         {split.participants.length} people
                       </div>
                       <div>
-                        {new Date(split.created_at).toLocaleDateString()}
+                        {new Date(split.created_at).toLocaleDateString('en-US', { 
+                          month: 'short', 
+                          day: 'numeric' 
+                        })}
                       </div>
                     </div>
 
                     {userShare && !isCreator && (
-                      <div className="mt-2">
-                        <span className="text-sm font-medium">
-                          Your share: {userShare.amount_owed.toFixed(2)}{' '}
-                          {split.currency}
-                          {userShare.paid ? (
-                            <span className="text-green-600 ml-2">✓ Paid</span>
-                          ) : (
-                            <span className="text-red-600 ml-2">• Pending</span>
-                          )}
+                      <div className="text-sm">
+                        <span className="text-gray-600">
+                          Your share: <span className="font-semibold text-gray-900">${userShare.amount_owed.toFixed(2)}</span>
                         </span>
+                        {userShare.paid ? (
+                          <span className="ml-2 text-green-600 font-medium">✓ Paid</span>
+                        ) : (
+                          <span className="ml-2 text-red-600 font-medium">• Pending</span>
+                        )}
                       </div>
-                    )}
-
-                    {split.description && (
-                      <p className="text-sm text-muted-foreground mt-1 truncate">
-                        {split.description}
-                      </p>
                     )}
                   </div>
 
-                  <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2 ml-4">
+                  <div className="flex items-center gap-2 ml-4">
                     {userShare && !userShare.paid && !isCreator && (
-                      <Button size="sm" asChild className="w-full sm:w-auto">
+                      <Button 
+                        size="sm" 
+                        asChild 
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 text-xs font-medium"
+                      >
                         <Link href={`/split/${split.id}`}>
-                          <DollarSign className="h-4 w-4 mr-2" />
-                          Pay Now
+                          $ Pay Now
                         </Link>
                       </Button>
                     )}
                     <Button
-                      variant="outline"
+                      variant="ghost"
                       size="sm"
                       asChild
-                      className="w-full sm:w-auto"
+                      className="text-gray-500 hover:text-gray-900 p-2"
                     >
                       <Link href={`/split/${split.id}`}>
-                        <Eye className="h-4 w-4 mr-2" />
-                        View
+                        <Eye className="h-4 w-4" />
                       </Link>
                     </Button>
                   </div>
                 </div>
-              );
-            })}
-
-            {limit && splits.length >= limit && (
-              <div className="text-center pt-4 border-t">
-                <Button variant="outline" asChild>
-                  <Link href="/splits">
-                    View All Splits
-                    <ArrowRight className="h-4 w-4 ml-2" />
-                  </Link>
-                </Button>
               </div>
-            )}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+            );
+          })}
+
+          {limit && splits.length >= limit && (
+            <div className="text-center pt-6 pb-2">
+              <Button variant="ghost" asChild className="text-blue-600 hover:text-blue-700 font-medium">
+                <Link href="/splits">
+                  View All Splits
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Link>
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   );
 }

@@ -23,7 +23,7 @@
       "purpose": "any maskable"
     },
     {
-      "src": "/favicon.ico", 
+      "src": "/favicon.ico",
       "sizes": "512x512",
       "type": "image/x-icon",
       "purpose": "any maskable"
@@ -32,24 +32,24 @@
   "shortcuts": [
     {
       "name": "Create Split",
-      "short_name": "New Split", 
+      "short_name": "New Split",
       "description": "Create a new expense split",
       "url": "/create-split",
-      "icons": [{"src": "/favicon.ico", "sizes": "192x192"}]
+      "icons": [{ "src": "/favicon.ico", "sizes": "192x192" }]
     },
     {
       "name": "My Splits",
       "short_name": "Splits",
-      "description": "View your splits", 
+      "description": "View your splits",
       "url": "/splits",
-      "icons": [{"src": "/favicon.ico", "sizes": "192x192"}]
+      "icons": [{ "src": "/favicon.ico", "sizes": "192x192" }]
     },
     {
       "name": "Friends",
       "short_name": "Friends",
       "description": "Manage friends",
-      "url": "/friends", 
-      "icons": [{"src": "/favicon.ico", "sizes": "192x192"}]
+      "url": "/friends",
+      "icons": [{ "src": "/favicon.ico", "sizes": "192x192" }]
     }
   ],
   "display_override": ["window-controls-overlay", "standalone"],

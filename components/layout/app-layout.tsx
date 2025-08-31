@@ -14,14 +14,16 @@ export function AppLayout({ children, className }: AppLayoutProps) {
   const { authenticated } = useAuth();
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50">
       <Header />
-      
-      <main className={cn(
-        'px-3 sm:px-4 py-3 sm:py-4 safe-area-inset-x',
-        authenticated && 'pb-20 md:pb-6', // Extra padding for mobile nav
-        className
-      )}>
+
+      <main
+        className={cn(
+          'px-4 py-6 safe-area-inset-x max-w-md mx-auto md:max-w-4xl',
+          authenticated && 'pb-24 md:pb-8', // Extra padding for mobile nav
+          className,
+        )}
+      >
         {children}
       </main>
 
