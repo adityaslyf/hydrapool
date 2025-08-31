@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { AppLayout } from '@/components/layout/app-layout';
 import { LoginButton } from '@/components/auth/login-button';
 import { SplitsList } from '@/components/splits/splits-list';
@@ -26,7 +27,14 @@ import Link from 'next/link';
 
 export default function Home() {
   const { authenticated, ready, loading, user } = useAuth();
-  const { walletInfo } = useSolana();
+  const { walletInfo, refreshBalances, isWalletConnected } = useSolana();
+
+  // Load wallet balances when authenticated and wallet is connected
+  useEffect(() => {
+    if (authenticated && isWalletConnected()) {
+      refreshBalances();
+    }
+  }, [authenticated, isWalletConnected, refreshBalances]);
 
   if (!ready || loading) {
     return (

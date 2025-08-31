@@ -73,7 +73,9 @@ export default function FriendsPage() {
                   <UserPlus className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <CardTitle className="text-gray-900 text-lg">Add New Friend</CardTitle>
+                  <CardTitle className="text-gray-900 text-lg">
+                    Add New Friend
+                  </CardTitle>
                   <CardDescription className="text-gray-600 text-sm">
                     Search for users by email or username
                   </CardDescription>
@@ -136,14 +138,18 @@ export default function FriendsPage() {
                         <Users className="h-4 w-4 text-white" />
                       </div>
                       <div>
-                        <CardTitle className="text-gray-900 text-base">My Friends</CardTitle>
+                        <CardTitle className="text-gray-900 text-base">
+                          My Friends
+                        </CardTitle>
                         <CardDescription className="text-gray-600 text-sm">
                           People you're connected with on HydraPool
                         </CardDescription>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-sm font-semibold text-blue-600">1</div>
+                      <div className="text-sm font-semibold text-blue-600">
+                        1
+                      </div>
                       <div className="text-xs text-gray-500">friends</div>
                     </div>
                   </div>
@@ -163,14 +169,18 @@ export default function FriendsPage() {
                         <Clock className="h-4 w-4 text-white" />
                       </div>
                       <div>
-                        <CardTitle className="text-gray-900 text-base">Pending Requests</CardTitle>
+                        <CardTitle className="text-gray-900 text-base">
+                          Pending Requests
+                        </CardTitle>
                         <CardDescription className="text-gray-600 text-sm">
                           Friend requests waiting for your response
                         </CardDescription>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-sm font-semibold text-orange-600">2</div>
+                      <div className="text-sm font-semibold text-orange-600">
+                        2
+                      </div>
                       <div className="text-xs text-gray-500">pending</div>
                     </div>
                   </div>
@@ -190,14 +200,18 @@ export default function FriendsPage() {
                         <Send className="h-4 w-4 text-white" />
                       </div>
                       <div>
-                        <CardTitle className="text-gray-900 text-base">Sent Requests</CardTitle>
+                        <CardTitle className="text-gray-900 text-base">
+                          Sent Requests
+                        </CardTitle>
                         <CardDescription className="text-gray-600 text-sm">
                           Friend requests you've sent to others
                         </CardDescription>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-sm font-semibold text-purple-600">0</div>
+                      <div className="text-sm font-semibold text-purple-600">
+                        0
+                      </div>
                       <div className="text-xs text-gray-500">sent</div>
                     </div>
                   </div>
