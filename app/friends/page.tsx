@@ -30,21 +30,27 @@ export default function FriendsPage() {
 
     try {
       // Fetch friends count
-      const friendsResponse = await fetch(`/api/friends?userId=${user.id}&type=friends`);
+      const friendsResponse = await fetch(
+        `/api/friends?userId=${user.id}&type=friends`,
+      );
       if (friendsResponse.ok) {
         const friendsData = await friendsResponse.json();
         setFriendsCount(friendsData.count || 0);
       }
 
       // Fetch pending requests count (requests TO you)
-      const pendingResponse = await fetch(`/api/friends?userId=${user.id}&type=pending`);
+      const pendingResponse = await fetch(
+        `/api/friends?userId=${user.id}&type=pending`,
+      );
       if (pendingResponse.ok) {
         const pendingData = await pendingResponse.json();
         setPendingCount(pendingData.count || 0);
       }
 
       // Fetch sent requests count (requests FROM you)
-      const sentResponse = await fetch(`/api/friends?userId=${user.id}&type=sent`);
+      const sentResponse = await fetch(
+        `/api/friends?userId=${user.id}&type=sent`,
+      );
       if (sentResponse.ok) {
         const sentData = await sentResponse.json();
         setSentCount(sentData.count || 0);
@@ -230,7 +236,10 @@ export default function FriendsPage() {
                   </div>
                 </CardHeader>
                 <CardContent className="p-0">
-                  <FriendRequests type="pending" onRequestUpdate={handleRequestUpdate} />
+                  <FriendRequests
+                    type="pending"
+                    onRequestUpdate={handleRequestUpdate}
+                  />
                 </CardContent>
               </Card>
             </TabsContent>
@@ -261,7 +270,10 @@ export default function FriendsPage() {
                   </div>
                 </CardHeader>
                 <CardContent className="p-0">
-                  <FriendRequests type="sent" onRequestUpdate={handleRequestUpdate} />
+                  <FriendRequests
+                    type="sent"
+                    onRequestUpdate={handleRequestUpdate}
+                  />
                 </CardContent>
               </Card>
             </TabsContent>
@@ -276,7 +288,9 @@ export default function FriendsPage() {
                 <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-2">
                   <Users className="h-4 w-4 text-blue-600" />
                 </div>
-                <div className="text-lg font-bold text-gray-900">{friendsCount}</div>
+                <div className="text-lg font-bold text-gray-900">
+                  {friendsCount}
+                </div>
                 <div className="text-xs text-gray-500">Friends</div>
               </CardContent>
             </Card>
@@ -294,7 +308,9 @@ export default function FriendsPage() {
                 <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-2">
                   <Clock className="h-4 w-4 text-orange-600" />
                 </div>
-                <div className="text-lg font-bold text-gray-900">{pendingCount}</div>
+                <div className="text-lg font-bold text-gray-900">
+                  {pendingCount}
+                </div>
                 <div className="text-xs text-gray-500">Pending</div>
               </CardContent>
             </Card>

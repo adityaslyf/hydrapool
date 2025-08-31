@@ -53,8 +53,6 @@ export default function SplitsPage() {
               Your expense splits and payment history
             </p>
           </div>
-
-          
         </div>
 
         {/* Splits List */}
