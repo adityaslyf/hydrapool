@@ -4,14 +4,12 @@ import { useState, useCallback, useEffect } from 'react';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import {
   Plus,
@@ -20,6 +18,8 @@ import {
   Loader2,
   Check,
   Calculator,
+  AlertCircle,
+  X,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useFriends } from '@/hooks/use-friends';
@@ -53,32 +53,44 @@ export function CreateSplitForm({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [friends, setFriends] = useState<User[]>([]);
+  const [friendsLoading, setFriendsLoading] = useState(true);
 
-  // Load friends for custom amounts UI
+  // Use split calculation hook
+  const splitCalculation = useSplitCalculation({
+    totalAmount: formData.totalAmount,
+    participantIds: formData.participantIds,
+    creatorId: currentUser?.id || '',
+    splitType: formData.splitType as 'equal' | 'custom',
+    customAmounts: formData.customAmounts || {},
+  });
+
+  // Load friends on component mount
   useEffect(() => {
-    if (!currentUser?.id) return;
-
     const loadFriends = async () => {
+      if (!currentUser?.id) return;
+
       try {
-        const response = await fetch(
-          `/api/friends?userId=${currentUser.id}&type=all`,
-        );
-        if (!response.ok) return;
+        setFriendsLoading(true);
+        const response = await fetch(`/api/friends?userId=${currentUser.id}&type=all`);
+        if (!response.ok) throw new Error('Failed to load friends');
 
         const data = await response.json();
+        
+        // Filter for accepted friends and extract user data (same as FriendSelector)
         const relations = data.relations || [];
-
-        // Filter for accepted friends and extract user data
         const acceptedFriends = relations.filter(
           (relation: any) => relation.status === 'accepted',
         );
         const friendsData = acceptedFriends.map(
           (relation: any) => relation.otherUser,
         );
-
+        
         setFriends(friendsData);
       } catch (err) {
-        // Silently handle error
+        console.error('Error loading friends:', err);
+        setError('Failed to load friends');
+      } finally {
+        setFriendsLoading(false);
       }
     };
 
@@ -86,95 +98,98 @@ export function CreateSplitForm({
   }, [currentUser?.id]);
 
   const handleInputChange = useCallback(
-    (field: keyof CreateSplitFormData, value: string | number | string[]) => {
-      setFormData((prev) => ({ ...prev, [field]: value }));
+    (field: keyof CreateSplitFormData, value: any) => {
+      setFormData((prev) => ({
+        ...prev,
+        [field]: value,
+      }));
       setError(null);
-      setSuccess(false);
     },
     [],
   );
 
-  // Split calculation hook
-  const splitCalculation = useSplitCalculation({
-    totalAmount: formData.totalAmount,
-    participantIds: formData.participantIds,
-    creatorId: currentUser?.id || '',
-    splitType: formData.splitType || 'equal',
-    customAmounts: formData.customAmounts || {},
-  });
-
-  const handleParticipantChange = useCallback(
-    (friendIds: string[]) => {
-      handleInputChange('participantIds', friendIds);
-      // Reset custom amounts when participants change and we're in custom mode
-      if (formData.splitType === 'custom') {
-        setFormData((prev) => ({
-          ...prev,
-          participantIds: friendIds,
-          customAmounts: {}, // Reset custom amounts
-        }));
-      }
-    },
-    [handleInputChange, formData.splitType],
-  );
-
-  const handleCustomAmountChange = (userId: string, amount: number) => {
+  const handleParticipantChange = useCallback((participantIds: string[]) => {
     setFormData((prev) => ({
       ...prev,
-      customAmounts: {
-        ...prev.customAmounts,
-        [userId]: amount,
-      },
+      participantIds,
+      // Reset custom amounts when participants change
+      customAmounts:
+        prev.splitType === 'custom'
+          ? Object.fromEntries(
+              [...participantIds, ...prev.participantIds].map((id) => [
+                id,
+                prev.customAmounts?.[id] || 0,
+              ]),
+            )
+          : {},
     }));
+  }, []);
+
+  const handleCustomAmountChange = useCallback(
+    (participantId: string, amount: number) => {
+      setFormData((prev) => ({
+        ...prev,
+        customAmounts: {
+          ...prev.customAmounts,
+          [participantId]: amount,
+        },
+      }));
+    },
+    [],
+  );
+
+  const validateForm = (): string | null => {
+    if (!formData.title.trim()) return 'Split title is required';
+    if (formData.totalAmount <= 0) return 'Total amount must be greater than 0';
+    if (formData.participantIds.length === 0)
+      return 'At least one friend must be selected';
+
+    if (formData.splitType === 'custom' && !splitCalculation.isValid) {
+      return 'Custom amounts must add up to the total amount';
+    }
+
+    return null;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
 
     if (!currentUser?.id) {
-      setError('You must be logged in to create a split');
+      setError('User not authenticated');
       return;
     }
 
-    if (!formData.title.trim()) {
-      setError('Split title is required');
-      return;
-    }
-
-    if (formData.totalAmount <= 0) {
-      setError('Total amount must be greater than 0');
-      return;
-    }
-
-    if (formData.participantIds.length === 0) {
-      setError('Please select at least one friend to split with');
-      return;
-    }
-
-    // Validate custom amounts if in custom mode
-    if (formData.splitType === 'custom' && !splitCalculation.isValid) {
-      setError(
-        `Custom amounts don't add up to total. Remaining: ${splitCalculation.remainingAmount?.toFixed(2)} ${formData.currency}`,
-      );
-      return;
-    }
+    setLoading(true);
+    setError(null);
 
     try {
-      setLoading(true);
-      setError(null);
-
-      const requestData = {
-        ...formData,
-        creatorId: currentUser.id,
-        participantAmounts: splitCalculation.participantAmounts, // Send calculated amounts
-      };
+      // Check friend relationships
+      for (const friendId of formData.participantIds) {
+        const relation = await checkExistingRelation(friendId);
+        if (relation?.status !== 'accepted') {
+          throw new Error(
+            `You must be friends with all participants. Please add ${
+              friends.find((f) => f.id === friendId)?.email || 'this user'
+            } as a friend first.`,
+          );
+        }
+      }
 
       const response = await fetch('/api/splits', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(requestData),
+        body: JSON.stringify({
+          ...formData,
+          creatorId: currentUser.id,
+        }),
       });
 
       if (!response.ok) {
@@ -185,18 +200,7 @@ export function CreateSplitForm({
       const data = await response.json();
       setSuccess(true);
 
-      // Reset form
-      setFormData({
-        title: '',
-        description: '',
-        totalAmount: 0,
-        participantIds: [],
-        currency: 'USDC',
-        splitType: 'equal',
-        customAmounts: {},
-      });
-
-      // Call success callback
+      // Redirect after a short delay
       setTimeout(() => {
         onSplitCreated?.(data.split.id);
       }, 1000);
@@ -225,185 +229,210 @@ export function CreateSplitForm({
     return user.username || user.email?.split('@')[0] || 'Unknown User';
   };
 
+  if (success) {
+    return (
+      <Card className="border border-gray-200">
+        <CardContent className="p-6 text-center">
+          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Check className="h-8 w-8 text-green-600" />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            Split Created!
+          </h3>
+          <p className="text-gray-600 mb-4">
+            "{formData.title}" has been created successfully
+          </p>
+          <div className="flex items-center justify-center text-gray-500">
+            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+            <span className="text-sm">Redirecting...</span>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Plus className="h-5 w-5" />
-          Create New Split
-        </CardTitle>
-        <CardDescription>
-          Split expenses with your friends using USDC
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Split Title */}
-          <div className="space-y-2">
-            <Label htmlFor="title">Split Title *</Label>
-            <Input
-              id="title"
-              type="text"
-              value={formData.title}
-              onChange={(e) => handleInputChange('title', e.target.value)}
-              placeholder="e.g., Dinner at Olive Garden"
-              required
-              disabled={loading}
-            />
-            <p className="text-xs text-muted-foreground">
-              Give your split a descriptive name
-            </p>
+    <div className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Error Alert */}
+        {error && (
+          <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-red-900">Error</p>
+              <p className="text-sm text-red-700">{error}</p>
+            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setError(null)}
+              className="text-red-500 hover:text-red-600 p-1 h-auto"
+            >
+              <X className="h-4 w-4" />
+            </Button>
           </div>
+        )}
 
-          {/* Split Description */}
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) => handleInputChange('description', e.target.value)}
-              placeholder="Optional: Add more details about this expense..."
-              rows={3}
-              maxLength={500}
-              disabled={loading}
-            />
-            <p className="text-xs text-muted-foreground">
-              {formData.description?.length || 0}/500 characters
-            </p>
-          </div>
-
-          {/* Total Amount */}
-          <div className="space-y-2">
-            <Label htmlFor="totalAmount">Total Amount (USDC) *</Label>
-            <div className="relative">
-              <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+        {/* Main Form Card */}
+        <Card className="border border-gray-200">
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold text-gray-900">
+              Split Details
+            </CardTitle>
+          </CardHeader>
+          
+          <CardContent className="space-y-6">
+            {/* Split Title */}
+            <div className="space-y-2">
+              <Label htmlFor="title" className="text-sm font-medium text-gray-900">
+                What's this split for?
+              </Label>
               <Input
-                id="totalAmount"
-                type="number"
-                step="0.01"
-                min="0.01"
-                value={formData.totalAmount || ''}
-                onChange={(e) =>
-                  handleInputChange(
-                    'totalAmount',
-                    parseFloat(e.target.value) || 0,
-                  )
-                }
-                placeholder="0.00"
+                id="title"
+                type="text"
+                value={formData.title}
+                onChange={(e) => handleInputChange('title', e.target.value)}
+                placeholder="Dinner, groceries, trip..."
                 required
                 disabled={loading}
-                className="pl-10"
+                className="h-11"
               />
             </div>
-            <p className="text-xs text-muted-foreground">
-              Enter the total amount to be split
-            </p>
-          </div>
 
-          {/* Currency Selection */}
-          <div className="space-y-2">
-            <Label htmlFor="currency">Currency</Label>
-            <select
-              id="currency"
-              value={formData.currency}
-              onChange={(e) => handleInputChange('currency', e.target.value)}
-              disabled={loading}
-              className="w-full px-3 py-2 border border-input bg-background text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 rounded-md"
-            >
-              <option value="USDC">USDC (Solana)</option>
-              <option value="USD">USD (Fiat)</option>
-            </select>
-            <p className="text-xs text-muted-foreground">
-              Select the currency for this split
-            </p>
-          </div>
-
-          {/* Split Type Selection */}
-          <div className="space-y-2">
-            <Label htmlFor="splitType">Split Type</Label>
-            <div className="flex gap-2">
-              <Button
-                type="button"
-                variant={formData.splitType === 'equal' ? 'default' : 'outline'}
-                onClick={() => handleInputChange('splitType', 'equal')}
-                disabled={loading}
-                className="flex-1"
-              >
-                <Users className="h-4 w-4 mr-2" />
-                Equal Split
-              </Button>
-              <Button
-                type="button"
-                variant={
-                  formData.splitType === 'custom' ? 'default' : 'outline'
-                }
-                onClick={() => handleInputChange('splitType', 'custom')}
-                disabled={loading}
-                className="flex-1"
-              >
-                <Calculator className="h-4 w-4 mr-2" />
-                Custom Amounts
-              </Button>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {formData.splitType === 'equal'
-                ? 'Amount will be split equally among all participants'
-                : 'Set custom amounts for each participant'}
-            </p>
-          </div>
-
-          {/* Friend Selection */}
-          <FriendSelector
-            selectedFriends={formData.participantIds}
-            onSelectionChange={handleParticipantChange}
-            disabled={loading}
-          />
-
-          {/* Custom Amounts Section - Only show if custom mode and participants selected */}
-          {formData.splitType === 'custom' &&
-            formData.participantIds.length > 0 && (
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <Calculator className="h-5 w-5 text-primary" />
-                  <Label className="text-base font-medium">
-                    Custom Amount Distribution
-                  </Label>
+            {/* Total Amount - Grid Layout */}
+            <div className="grid grid-cols-3 gap-4">
+              <div className="col-span-2 space-y-2">
+                <Label htmlFor="totalAmount" className="text-sm font-medium text-gray-900">
+                  Total amount
+                </Label>
+                <div className="relative">
+                  <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Input
+                    id="totalAmount"
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    value={formData.totalAmount || ''}
+                    onChange={(e) =>
+                      handleInputChange(
+                        'totalAmount',
+                        parseFloat(e.target.value) || 0,
+                      )
+                    }
+                    placeholder="0.00"
+                    required
+                    disabled={loading}
+                    className="pl-9 h-11 text-center font-medium"
+                  />
                 </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-900">Currency</Label>
+                <div className="h-11 bg-slate-50 border border-gray-200 rounded-md flex items-center justify-center">
+                  <span className="text-sm font-medium text-slate-600">USDC</span>
+                </div>
+              </div>
+            </div>
 
-                <div className="space-y-3 p-4 bg-muted/50 rounded-lg">
+            {/* Split Type */}
+            <div className="space-y-3">
+              <Label className="text-sm font-medium text-gray-900">
+                How do you want to split it?
+              </Label>
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  type="button"
+                  variant={formData.splitType === 'equal' ? 'default' : 'outline'}
+                  onClick={() => handleInputChange('splitType', 'equal')}
+                  disabled={loading}
+                  className={`h-11 justify-start ${
+                    formData.splitType === 'equal'
+                      ? 'bg-blue-600 hover:bg-blue-700'
+                      : 'hover:bg-slate-50'
+                  }`}
+                >
+                  <Users className="h-4 w-4 mr-2" />
+                  Equally
+                </Button>
+                <Button
+                  type="button"
+                  variant={formData.splitType === 'custom' ? 'default' : 'outline'}
+                  onClick={() => handleInputChange('splitType', 'custom')}
+                  disabled={loading}
+                  className={`h-11 justify-start ${
+                    formData.splitType === 'custom'
+                      ? 'bg-blue-600 hover:bg-blue-700'
+                      : 'hover:bg-slate-50'
+                  }`}
+                >
+                  <Calculator className="h-4 w-4 mr-2" />
+                  Custom
+                </Button>
+              </div>
+            </div>
+
+            {/* Friend Selection */}
+            <div className="space-y-3">
+              <Label className="text-sm font-medium text-gray-900">
+                Who's involved?
+              </Label>
+              {friendsLoading ? (
+                <div className="flex items-center justify-center p-8">
+                  <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
+                  <span className="ml-2 text-gray-500">Loading friends...</span>
+                </div>
+              ) : (
+                <FriendSelector
+                  selectedFriends={formData.participantIds}
+                  onSelectionChange={handleParticipantChange}
+                  disabled={loading}
+                />
+              )}
+            </div>
+
+            {/* Custom Amounts Section */}
+            {formData.splitType === 'custom' && formData.participantIds.length > 0 && (
+              <div className="space-y-4">
+                <Label className="text-sm font-medium text-gray-900">
+                  Set custom amounts
+                </Label>
+
+                <div className="space-y-3 p-4 bg-slate-50 rounded-lg border border-slate-200">
                   {/* Creator Amount */}
                   {currentUser && (
-                    <div className="flex items-center gap-3">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <Badge variant="secondary">Creator</Badge>
-                          <span className="font-medium">
-                            {getDisplayName(currentUser)}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">
+                            {getDisplayName(currentUser)[0].toUpperCase()}
                           </span>
                         </div>
-                        <p className="text-sm text-muted-foreground">
-                          Your share of the split
-                        </p>
+                        <div>
+                          <p className="font-medium text-gray-900 text-sm">
+                            {getDisplayName(currentUser)}
+                          </p>
+                          <Badge className="bg-blue-100 text-blue-800 text-xs">You</Badge>
+                        </div>
                       </div>
-                      <div className="w-32">
+                      <div className="w-20">
                         <div className="relative">
-                          <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                          <DollarSign className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-3 w-3" />
                           <Input
                             type="number"
                             step="0.01"
                             min="0"
-                            value={
-                              formData.customAmounts?.[currentUser.id] || ''
-                            }
+                            value={formData.customAmounts?.[currentUser.id] || ''}
                             onChange={(e) =>
                               handleCustomAmountChange(
                                 currentUser.id,
                                 parseFloat(e.target.value) || 0,
                               )
                             }
-                            placeholder="0.00"
+                            placeholder="0"
                             disabled={loading}
-                            className="pl-10 text-center"
+                            className="pl-6 text-center text-sm h-9"
                           />
                         </div>
                       </div>
@@ -416,21 +445,22 @@ export function CreateSplitForm({
                     if (!friend) return null;
 
                     return (
-                      <div key={friendId} className="flex items-center gap-3">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <Badge variant="outline">Friend</Badge>
-                            <span className="font-medium">
-                              {getDisplayName(friend)}
+                      <div key={friendId} className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-slate-400 rounded-full flex items-center justify-center">
+                            <span className="text-white text-xs font-bold">
+                              {getDisplayName(friend)[0].toUpperCase()}
                             </span>
                           </div>
-                          <p className="text-sm text-muted-foreground">
-                            {friend.email}
-                          </p>
+                          <div>
+                            <p className="font-medium text-gray-900 text-sm">
+                              {getDisplayName(friend)}
+                            </p>
+                          </div>
                         </div>
-                        <div className="w-32">
+                        <div className="w-20">
                           <div className="relative">
-                            <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                            <DollarSign className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-3 w-3" />
                             <Input
                               type="number"
                               step="0.01"
@@ -442,9 +472,9 @@ export function CreateSplitForm({
                                   parseFloat(e.target.value) || 0,
                                 )
                               }
-                              placeholder="0.00"
+                              placeholder="0"
                               disabled={loading}
-                              className="pl-10 text-center"
+                              className="pl-6 text-center text-sm h-9"
                             />
                           </div>
                         </div>
@@ -455,30 +485,21 @@ export function CreateSplitForm({
                   {/* Validation Message */}
                   {formData.totalAmount > 0 && (
                     <div
-                      className={`p-3 rounded-lg border text-sm ${
+                      className={`p-3 rounded-lg text-sm ${
                         splitCalculation.isValid
-                          ? 'bg-green-50 border-green-200 text-green-700'
-                          : 'bg-red-50 border-red-200 text-red-700'
+                          ? 'bg-green-50 text-green-700 border border-green-200'
+                          : 'bg-red-50 text-red-700 border border-red-200'
                       }`}
                     >
                       {splitCalculation.isValid ? (
                         <div className="flex items-center gap-2">
                           <Check className="h-4 w-4" />
-                          Custom amounts add up perfectly!
+                          Amounts add up correctly
                         </div>
                       ) : (
                         <div>
                           <p className="font-medium">
-                            Amounts don't match total:
-                          </p>
-                          <p>
-                            Remaining:{' '}
-                            {splitCalculation.remainingAmount?.toFixed(2)}{' '}
-                            {formData.currency}
-                            {splitCalculation.remainingAmount &&
-                            splitCalculation.remainingAmount > 0
-                              ? ' (need to add more)'
-                              : ' (too much allocated)'}
+                            Remaining: ${splitCalculation.remainingAmount?.toFixed(2) || '0.00'}
                           </p>
                         </div>
                       )}
@@ -488,191 +509,64 @@ export function CreateSplitForm({
               </div>
             )}
 
-          {/* Enhanced Split Calculation Preview */}
-          {formData.totalAmount > 0 && (
-            <div className="p-4 bg-muted/50 rounded-lg">
-              <div className="flex items-center gap-2 mb-3">
-                <Calculator className="h-4 w-4 text-primary" />
-                <h4 className="font-medium">Split Summary</h4>
-              </div>
-
-              <div className="space-y-3 text-sm">
-                {/* Basic Info */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex justify-between">
-                    <span>Total Amount:</span>
-                    <span className="font-mono font-medium">
-                      {formData.totalAmount.toFixed(2)} {formData.currency}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Participants:</span>
-                    <span>
-                      You + {formData.participantIds.length} friend
-                      {formData.participantIds.length !== 1 ? 's' : ''}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Split Type:</span>
-                    <Badge
-                      variant={
-                        formData.splitType === 'equal' ? 'default' : 'secondary'
-                      }
-                    >
-                      {formData.splitType === 'equal' ? 'Equal' : 'Custom'}
-                    </Badge>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Status:</span>
-                    <Badge
-                      variant={
-                        splitCalculation.isValid ? 'default' : 'destructive'
-                      }
-                    >
-                      {splitCalculation.isValid ? 'Valid' : 'Invalid'}
-                    </Badge>
-                  </div>
+            {/* Split Preview */}
+            {formData.totalAmount > 0 && formData.participantIds.length > 0 && (
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-center justify-between text-sm mb-2">
+                  <span className="text-blue-700">Total amount:</span>
+                  <span className="font-semibold text-blue-900">
+                    ${formData.totalAmount.toFixed(2)}
+                  </span>
                 </div>
-
-                {/* Individual Amounts */}
-                {formData.participantIds.length > 0 &&
-                  splitCalculation.isValid && (
-                    <div className="border-t pt-3">
-                      <p className="font-medium mb-2">Individual Amounts:</p>
-                      <div className="space-y-1">
-                        {/* Creator */}
-                        {currentUser && (
-                          <div className="flex justify-between">
-                            <span>
-                              <Badge variant="secondary" className="mr-2">
-                                You
-                              </Badge>
-                              {getDisplayName(currentUser)}
-                            </span>
-                            <span className="font-mono">
-                              {splitCalculation.participantAmounts[
-                                currentUser.id
-                              ]?.toFixed(2) || '0.00'}{' '}
-                              {formData.currency}
-                            </span>
-                          </div>
-                        )}
-
-                        {/* Friends */}
-                        {formData.participantIds.map((friendId) => {
-                          const friend = getFriendById(friendId);
-                          if (!friend) return null;
-
-                          return (
-                            <div
-                              key={friendId}
-                              className="flex justify-between"
-                            >
-                              <span>
-                                <Badge variant="outline" className="mr-2">
-                                  Friend
-                                </Badge>
-                                {getDisplayName(friend)}
-                              </span>
-                              <span className="font-mono">
-                                {splitCalculation.participantAmounts[
-                                  friendId
-                                ]?.toFixed(2) || '0.00'}{' '}
-                                {formData.currency}
-                              </span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-
-                {/* Equal Split Info */}
-                {formData.splitType === 'equal' &&
-                  formData.participantIds.length > 0 && (
-                    <div className="border-t pt-3">
-                      <div className="flex justify-between font-medium text-primary">
-                        <span>Per Person (Equal):</span>
-                        <span className="font-mono">
-                          {perPersonAmount.toFixed(2)} {formData.currency}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-
-                {/* Warnings */}
-                {formData.participantIds.length === 0 && (
-                  <div className="text-amber-600 text-xs bg-amber-50 p-3 rounded border border-amber-200">
-                    ⚠️ Please select at least one friend to split with
+                <div className="flex items-center justify-between text-sm mb-2">
+                  <span className="text-blue-700">Split between:</span>
+                  <span className="font-semibold text-blue-900">
+                    {formData.participantIds.length + 1} people
+                  </span>
+                </div>
+                {formData.splitType === 'equal' && (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-blue-700">Each person pays:</span>
+                    <span className="font-semibold text-blue-900">
+                      ${perPersonAmount.toFixed(2)}
+                    </span>
                   </div>
                 )}
-
-                {formData.splitType === 'custom' &&
-                  !splitCalculation.isValid &&
-                  formData.participantIds.length > 0 && (
-                    <div className="text-red-600 text-xs bg-red-50 p-3 rounded border border-red-200">
-                      ❌ Custom amounts don't add up to total amount
-                    </div>
-                  )}
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Error Message */}
-          {error && (
-            <div className="p-3 rounded-md bg-destructive/10 border border-destructive/20">
-              <p className="text-sm text-destructive">{error}</p>
-            </div>
-          )}
-
-          {/* Success Message */}
-          {success && (
-            <div className="p-3 rounded-md bg-green-50 border border-green-200">
-              <p className="text-sm text-green-600 flex items-center gap-2">
-                <Check className="h-4 w-4" />
-                Split created successfully! Redirecting...
-              </p>
-            </div>
-          )}
-
-          {/* Action Buttons */}
-          <div className="flex gap-3 pt-4">
-            {onCancel && (
+            {/* Action Buttons */}
+            <div className="flex gap-3 pt-4">
               <Button
                 type="button"
                 variant="outline"
                 onClick={onCancel}
                 disabled={loading}
-                className="flex-1"
+                className="flex-1 h-11"
               >
                 Cancel
               </Button>
-            )}
-            <Button
-              type="submit"
-              disabled={
-                loading ||
-                !formData.title.trim() ||
-                formData.totalAmount <= 0 ||
-                formData.participantIds.length === 0
-              }
-              className="flex-1"
-            >
-              {loading ? (
-                <div className="flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Creating Split...
-                </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <Plus className="h-4 w-4" />
-                  Create Split
-                </div>
-              )}
-            </Button>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
+              <Button
+                type="submit"
+                disabled={loading || !formData.title || !formData.totalAmount || formData.participantIds.length === 0}
+                className="flex-1 h-11 bg-blue-600 hover:bg-blue-700"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Creating...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create Split
+                  </>
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </form>
+    </div>
   );
 }
