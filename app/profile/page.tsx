@@ -57,7 +57,7 @@ export default function ProfilePage() {
   if (!authenticated) {
     return (
       <AppLayout>
-        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-8 px-4">
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-8">
           <div className="space-y-4">
             <div className="w-20 h-20 bg-gradient-to-br from-purple-600 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
               <User className="h-10 w-10 text-white" />
@@ -93,7 +93,7 @@ export default function ProfilePage() {
     <AppLayout>
       <div className="space-y-6">
         {/* Header with Avatar */}
-        <div className="px-1">
+        <div>
           <div className="flex items-center gap-4 mb-6">
             <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-blue-600 rounded-2xl flex items-center justify-center">
               <span className="text-white font-bold text-xl">
@@ -114,7 +114,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Account Info */}
-        <div className="px-1">
+        <div>
           <Card className="border border-gray-200 overflow-hidden">
             <CardHeader className="bg-gradient-to-r from-purple-50 to-blue-50 border-b border-gray-100">
               <div className="flex items-center gap-3">
@@ -179,7 +179,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Wallet Info */}
-        <div className="px-1">
+        <div>
           <Card className="border border-gray-200 overflow-hidden">
             <CardHeader className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-white">
               <div className="flex items-center justify-between">
@@ -267,7 +267,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Quick Stats */}
-        <div className="px-1">
+        <div>
           <div className="grid grid-cols-3 gap-3">
             <Card className="border border-gray-200 hover:shadow-md transition-all duration-200">
               <CardContent className="p-4 text-center">
@@ -300,7 +300,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Actions */}
-        <div className="px-1 space-y-3">
+        <div className="space-y-3">
           <Card className="border border-gray-200">
             <CardContent className="p-4">
               <Button

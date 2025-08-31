@@ -34,7 +34,7 @@ export default function CreateSplitPage() {
   if (!authenticated) {
     return (
       <AppLayout>
-        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-8 px-4">
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-8">
           <div className="space-y-4">
             <div className="w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
               <Plus className="h-10 w-10 text-white" />
@@ -55,12 +55,10 @@ export default function CreateSplitPage() {
   return (
     <AppLayout>
       <div className="space-y-6">
-        <div className="px-1">
-          <CreateSplitForm
-            onSplitCreated={handleSplitCreated}
-            onCancel={() => router.push('/')}
-          />
-        </div>
+        <CreateSplitForm
+          onSplitCreated={handleSplitCreated}
+          onCancel={() => router.push('/')}
+        />
       </div>
     </AppLayout>
   );

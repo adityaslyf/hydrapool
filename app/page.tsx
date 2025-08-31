@@ -114,7 +114,7 @@ export default function Home() {
     <AppLayout>
       <div className="space-y-6">
         {/* Welcome Header */}
-        <div className="px-1">
+        <div>
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900 mb-1">
@@ -133,7 +133,7 @@ export default function Home() {
         </div>
 
         {/* Wallet Balance Card - Enhanced */}
-        <div className="px-1">
+        <div>
           <Card className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 border-0 shadow-xl overflow-hidden">
             <CardContent className="p-6 relative">
               {/* Background Pattern */}
@@ -185,7 +185,7 @@ export default function Home() {
         </div>
 
         {/* Quick Actions - Redesigned */}
-        <div className="px-1">
+        <div className="px-0">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
             Quick Actions
           </h2>
@@ -231,7 +231,7 @@ export default function Home() {
         </div>
 
         {/* Recent Activity */}
-        <div className="px-1">
+        <div>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-900">
               Recent Activity

@@ -56,7 +56,7 @@ export function MobileNavigation() {
     <>
       {/* Mobile Bottom Navigation */}
       <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg border-t border-gray-200 md:hidden safe-area-inset-bottom">
-        <div className="max-w-md mx-auto">
+        <div className="max-w-md mx-auto md:max-w-4xl">
           <div className="grid grid-cols-4 min-h-[72px] px-2">
             {navigationItems.map((item) => {
               const Icon = item.icon;

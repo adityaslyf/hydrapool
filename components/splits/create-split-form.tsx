@@ -1,12 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -71,11 +66,13 @@ export function CreateSplitForm({
 
       try {
         setFriendsLoading(true);
-        const response = await fetch(`/api/friends?userId=${currentUser.id}&type=all`);
+        const response = await fetch(
+          `/api/friends?userId=${currentUser.id}&type=all`,
+        );
         if (!response.ok) throw new Error('Failed to load friends');
 
         const data = await response.json();
-        
+
         // Filter for accepted friends and extract user data (same as FriendSelector)
         const relations = data.relations || [];
         const acceptedFriends = relations.filter(
@@ -84,7 +81,7 @@ export function CreateSplitForm({
         const friendsData = acceptedFriends.map(
           (relation: any) => relation.otherUser,
         );
-        
+
         setFriends(friendsData);
       } catch (err) {
         console.error('Error loading friends:', err);
@@ -153,7 +150,7 @@ export function CreateSplitForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const validationError = validateForm();
     if (validationError) {
       setError(validationError);
@@ -281,11 +278,14 @@ export function CreateSplitForm({
               Split Details
             </CardTitle>
           </CardHeader>
-          
+
           <CardContent className="space-y-6">
             {/* Split Title */}
             <div className="space-y-2">
-              <Label htmlFor="title" className="text-sm font-medium text-gray-900">
+              <Label
+                htmlFor="title"
+                className="text-sm font-medium text-gray-900"
+              >
                 What's this split for?
               </Label>
               <Input
@@ -303,7 +303,10 @@ export function CreateSplitForm({
             {/* Total Amount - Grid Layout */}
             <div className="grid grid-cols-3 gap-4">
               <div className="col-span-2 space-y-2">
-                <Label htmlFor="totalAmount" className="text-sm font-medium text-gray-900">
+                <Label
+                  htmlFor="totalAmount"
+                  className="text-sm font-medium text-gray-900"
+                >
                   Total amount
                 </Label>
                 <div className="relative">
@@ -327,11 +330,15 @@ export function CreateSplitForm({
                   />
                 </div>
               </div>
-              
+
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-900">Currency</Label>
+                <Label className="text-sm font-medium text-gray-900">
+                  Currency
+                </Label>
                 <div className="h-11 bg-slate-50 border border-gray-200 rounded-md flex items-center justify-center">
-                  <span className="text-sm font-medium text-slate-600">USDC</span>
+                  <span className="text-sm font-medium text-slate-600">
+                    USDC
+                  </span>
                 </div>
               </div>
             </div>
@@ -344,7 +351,9 @@ export function CreateSplitForm({
               <div className="grid grid-cols-2 gap-3">
                 <Button
                   type="button"
-                  variant={formData.splitType === 'equal' ? 'default' : 'outline'}
+                  variant={
+                    formData.splitType === 'equal' ? 'default' : 'outline'
+                  }
                   onClick={() => handleInputChange('splitType', 'equal')}
                   disabled={loading}
                   className={`h-11 justify-start ${
@@ -358,7 +367,9 @@ export function CreateSplitForm({
                 </Button>
                 <Button
                   type="button"
-                  variant={formData.splitType === 'custom' ? 'default' : 'outline'}
+                  variant={
+                    formData.splitType === 'custom' ? 'default' : 'outline'
+                  }
                   onClick={() => handleInputChange('splitType', 'custom')}
                   disabled={loading}
                   className={`h-11 justify-start ${
@@ -393,69 +404,30 @@ export function CreateSplitForm({
             </div>
 
             {/* Custom Amounts Section */}
-            {formData.splitType === 'custom' && formData.participantIds.length > 0 && (
-              <div className="space-y-4">
-                <Label className="text-sm font-medium text-gray-900">
-                  Set custom amounts
-                </Label>
+            {formData.splitType === 'custom' &&
+              formData.participantIds.length > 0 && (
+                <div className="space-y-4">
+                  <Label className="text-sm font-medium text-gray-900">
+                    Set custom amounts
+                  </Label>
 
-                <div className="space-y-3 p-4 bg-slate-50 rounded-lg border border-slate-200">
-                  {/* Creator Amount */}
-                  {currentUser && (
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                          <span className="text-white text-xs font-bold">
-                            {getDisplayName(currentUser)[0].toUpperCase()}
-                          </span>
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-900 text-sm">
-                            {getDisplayName(currentUser)}
-                          </p>
-                          <Badge className="bg-blue-100 text-blue-800 text-xs">You</Badge>
-                        </div>
-                      </div>
-                      <div className="w-20">
-                        <div className="relative">
-                          <DollarSign className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-3 w-3" />
-                          <Input
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            value={formData.customAmounts?.[currentUser.id] || ''}
-                            onChange={(e) =>
-                              handleCustomAmountChange(
-                                currentUser.id,
-                                parseFloat(e.target.value) || 0,
-                              )
-                            }
-                            placeholder="0"
-                            disabled={loading}
-                            className="pl-6 text-center text-sm h-9"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Friend Amounts */}
-                  {formData.participantIds.map((friendId) => {
-                    const friend = getFriendById(friendId);
-                    if (!friend) return null;
-
-                    return (
-                      <div key={friendId} className="flex items-center justify-between">
+                  <div className="space-y-3 p-4 bg-slate-50 rounded-lg border border-slate-200">
+                    {/* Creator Amount */}
+                    {currentUser && (
+                      <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-slate-400 rounded-full flex items-center justify-center">
+                          <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
                             <span className="text-white text-xs font-bold">
-                              {getDisplayName(friend)[0].toUpperCase()}
+                              {getDisplayName(currentUser)[0].toUpperCase()}
                             </span>
                           </div>
                           <div>
                             <p className="font-medium text-gray-900 text-sm">
-                              {getDisplayName(friend)}
+                              {getDisplayName(currentUser)}
                             </p>
+                            <Badge className="bg-blue-100 text-blue-800 text-xs">
+                              You
+                            </Badge>
                           </div>
                         </div>
                         <div className="w-20">
@@ -465,10 +437,12 @@ export function CreateSplitForm({
                               type="number"
                               step="0.01"
                               min="0"
-                              value={formData.customAmounts?.[friendId] || ''}
+                              value={
+                                formData.customAmounts?.[currentUser.id] || ''
+                              }
                               onChange={(e) =>
                                 handleCustomAmountChange(
-                                  friendId,
+                                  currentUser.id,
                                   parseFloat(e.target.value) || 0,
                                 )
                               }
@@ -479,35 +453,82 @@ export function CreateSplitForm({
                           </div>
                         </div>
                       </div>
-                    );
-                  })}
+                    )}
 
-                  {/* Validation Message */}
-                  {formData.totalAmount > 0 && (
-                    <div
-                      className={`p-3 rounded-lg text-sm ${
-                        splitCalculation.isValid
-                          ? 'bg-green-50 text-green-700 border border-green-200'
-                          : 'bg-red-50 text-red-700 border border-red-200'
-                      }`}
-                    >
-                      {splitCalculation.isValid ? (
-                        <div className="flex items-center gap-2">
-                          <Check className="h-4 w-4" />
-                          Amounts add up correctly
+                    {/* Friend Amounts */}
+                    {formData.participantIds.map((friendId) => {
+                      const friend = getFriendById(friendId);
+                      if (!friend) return null;
+
+                      return (
+                        <div
+                          key={friendId}
+                          className="flex items-center justify-between"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-slate-400 rounded-full flex items-center justify-center">
+                              <span className="text-white text-xs font-bold">
+                                {getDisplayName(friend)[0].toUpperCase()}
+                              </span>
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-900 text-sm">
+                                {getDisplayName(friend)}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="w-20">
+                            <div className="relative">
+                              <DollarSign className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-3 w-3" />
+                              <Input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                value={formData.customAmounts?.[friendId] || ''}
+                                onChange={(e) =>
+                                  handleCustomAmountChange(
+                                    friendId,
+                                    parseFloat(e.target.value) || 0,
+                                  )
+                                }
+                                placeholder="0"
+                                disabled={loading}
+                                className="pl-6 text-center text-sm h-9"
+                              />
+                            </div>
+                          </div>
                         </div>
-                      ) : (
-                        <div>
-                          <p className="font-medium">
-                            Remaining: ${splitCalculation.remainingAmount?.toFixed(2) || '0.00'}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                      );
+                    })}
+
+                    {/* Validation Message */}
+                    {formData.totalAmount > 0 && (
+                      <div
+                        className={`p-3 rounded-lg text-sm ${
+                          splitCalculation.isValid
+                            ? 'bg-green-50 text-green-700 border border-green-200'
+                            : 'bg-red-50 text-red-700 border border-red-200'
+                        }`}
+                      >
+                        {splitCalculation.isValid ? (
+                          <div className="flex items-center gap-2">
+                            <Check className="h-4 w-4" />
+                            Amounts add up correctly
+                          </div>
+                        ) : (
+                          <div>
+                            <p className="font-medium">
+                              Remaining: $
+                              {splitCalculation.remainingAmount?.toFixed(2) ||
+                                '0.00'}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
             {/* Split Preview */}
             {formData.totalAmount > 0 && formData.participantIds.length > 0 && (
@@ -548,7 +569,12 @@ export function CreateSplitForm({
               </Button>
               <Button
                 type="submit"
-                disabled={loading || !formData.title || !formData.totalAmount || formData.participantIds.length === 0}
+                disabled={
+                  loading ||
+                  !formData.title ||
+                  !formData.totalAmount ||
+                  formData.participantIds.length === 0
+                }
                 className="flex-1 h-11 bg-blue-600 hover:bg-blue-700"
               >
                 {loading ? (

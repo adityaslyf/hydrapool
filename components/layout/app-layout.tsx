@@ -17,14 +17,16 @@ export function AppLayout({ children, className }: AppLayoutProps) {
     <div className="min-h-screen bg-gray-50">
       <Header />
 
-      <main
-        className={cn(
-          'px-4 py-6 safe-area-inset-x max-w-md mx-auto md:max-w-4xl',
-          authenticated && 'pb-24 md:pb-8', // Extra padding for mobile nav
-          className,
-        )}
-      >
-        {children}
+      <main className="safe-area-inset-x">
+        <div
+          className={cn(
+            'max-w-md mx-auto md:max-w-4xl px-2 py-4',
+            authenticated && 'pb-24 md:pb-8', // Extra padding for mobile nav
+            className,
+          )}
+        >
+          {children}
+        </div>
       </main>
 
       {authenticated && <MobileNavigation />}

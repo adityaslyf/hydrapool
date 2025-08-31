@@ -16,15 +16,15 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-lg border-b border-gray-200 safe-area-inset-top">
-      <div className="max-w-md mx-auto md:max-w-4xl px-4 safe-area-inset-x">
-        <div className="flex h-16 items-center justify-between">
+      <div className="max-w-md mx-auto md:max-w-4xl px-8 py-3 safe-area-inset-x">
+        <div className="flex h-16 items-center justify-between gap-4">
           {/* Logo */}
           <Link
             href="/"
-            className="flex items-center space-x-3 min-h-[44px] touch-manipulation"
+            className="flex items-center gap-3 min-h-[44px] touch-manipulation flex-shrink-0"
             aria-label="HydraPool - Go to dashboard"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 flex-shrink-0">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 flex-shrink-0">
               <Waves className="h-5 w-5 text-white" />
             </div>
             <span className="font-bold text-xl text-gray-900">HydraPool</span>
@@ -34,7 +34,7 @@ export function Header() {
           {authenticated && <DesktopNavigation />}
 
           {/* Right Actions */}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-3">
             {ready && !loading && (
               <>
                 {authenticated ? (
@@ -43,7 +43,7 @@ export function Header() {
                     <Button
                       asChild
                       size="sm"
-                      className="bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 min-h-[44px] min-w-[44px] touch-manipulation shadow-lg"
+                      className="bg-blue-600 hover:bg-blue-700 text-white min-h-[44px] min-w-[44px] touch-manipulation"
                     >
                       <Link href="/create-split" aria-label="Create new split">
                         <Plus className="h-4 w-4 sm:mr-2 flex-shrink-0" />
