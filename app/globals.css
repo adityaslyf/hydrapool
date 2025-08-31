@@ -146,26 +146,26 @@
   .touch-manipulation {
     touch-action: manipulation;
   }
-  
+
   /* Smooth scrolling for better UX */
   .smooth-scroll {
     scroll-behavior: smooth;
   }
-  
+
   /* Custom scrollbar for webkit browsers */
   .custom-scrollbar::-webkit-scrollbar {
     width: 4px;
   }
-  
+
   .custom-scrollbar::-webkit-scrollbar-track {
     background: transparent;
   }
-  
+
   .custom-scrollbar::-webkit-scrollbar-thumb {
     background: #d1d5db;
     border-radius: 2px;
   }
-  
+
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: #9ca3af;
   }

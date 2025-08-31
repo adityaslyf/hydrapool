@@ -207,7 +207,10 @@ export function SplitsList({
                       </h3>
                       {getStatusBadge(split)}
                       {isCreator && (
-                        <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                        <Badge
+                          variant="outline"
+                          className="text-xs bg-blue-50 text-blue-700 border-blue-200"
+                        >
                           Creator
                         </Badge>
                       )}
@@ -215,30 +218,40 @@ export function SplitsList({
 
                     <div className="flex items-center gap-4 text-xs text-gray-500 mb-2">
                       <div className="flex items-center gap-1">
-                        <DollarSign className="h-3 w-3" />
-                        ${split.total_amount.toFixed(2)}
+                        <DollarSign className="h-3 w-3" />$
+                        {split.total_amount.toFixed(2)}
                       </div>
                       <div className="flex items-center gap-1">
                         <Users className="h-3 w-3" />
                         {split.participants.length} people
                       </div>
                       <div>
-                        {new Date(split.created_at).toLocaleDateString('en-US', { 
-                          month: 'short', 
-                          day: 'numeric' 
-                        })}
+                        {new Date(split.created_at).toLocaleDateString(
+                          'en-US',
+                          {
+                            month: 'short',
+                            day: 'numeric',
+                          },
+                        )}
                       </div>
                     </div>
 
                     {userShare && !isCreator && (
                       <div className="text-sm">
                         <span className="text-gray-600">
-                          Your share: <span className="font-semibold text-gray-900">${userShare.amount_owed.toFixed(2)}</span>
+                          Your share:{' '}
+                          <span className="font-semibold text-gray-900">
+                            ${userShare.amount_owed.toFixed(2)}
+                          </span>
                         </span>
                         {userShare.paid ? (
-                          <span className="ml-2 text-green-600 font-medium">✓ Paid</span>
+                          <span className="ml-2 text-green-600 font-medium">
+                            ✓ Paid
+                          </span>
                         ) : (
-                          <span className="ml-2 text-red-600 font-medium">• Pending</span>
+                          <span className="ml-2 text-red-600 font-medium">
+                            • Pending
+                          </span>
                         )}
                       </div>
                     )}
@@ -246,14 +259,12 @@ export function SplitsList({
 
                   <div className="flex items-center gap-2 ml-4">
                     {userShare && !userShare.paid && !isCreator && (
-                      <Button 
-                        size="sm" 
-                        asChild 
+                      <Button
+                        size="sm"
+                        asChild
                         className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 text-xs font-medium"
                       >
-                        <Link href={`/split/${split.id}`}>
-                          $ Pay Now
-                        </Link>
+                        <Link href={`/split/${split.id}`}>$ Pay Now</Link>
                       </Button>
                     )}
                     <Button
@@ -274,7 +285,11 @@ export function SplitsList({
 
           {limit && splits.length >= limit && (
             <div className="text-center pt-6 pb-2">
-              <Button variant="ghost" asChild className="text-blue-600 hover:text-blue-700 font-medium">
+              <Button
+                variant="ghost"
+                asChild
+                className="text-blue-600 hover:text-blue-700 font-medium"
+              >
                 <Link href="/splits">
                   View All Splits
                   <ArrowRight className="h-4 w-4 ml-2" />

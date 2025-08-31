@@ -74,10 +74,14 @@ export function MobileNavigation() {
                   )}
                   aria-label={`${item.name} - ${item.description}`}
                 >
-                  <div className={cn(
-                    'w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200',
-                    isActive ? 'bg-blue-600 text-white scale-110' : 'text-gray-500'
-                  )}>
+                  <div
+                    className={cn(
+                      'w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200',
+                      isActive
+                        ? 'bg-blue-600 text-white scale-110'
+                        : 'text-gray-500',
+                    )}
+                  >
                     <Icon className="h-5 w-5 flex-shrink-0" />
                   </div>
                   <span

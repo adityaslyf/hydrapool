@@ -13,7 +13,15 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, Plus, CreditCard, BarChart3, Wallet, TrendingUp, Clock } from 'lucide-react';
+import {
+  Users,
+  Plus,
+  CreditCard,
+  BarChart3,
+  Wallet,
+  TrendingUp,
+  Clock,
+} from 'lucide-react';
 import Link from 'next/link';
 
 export default function Home() {
@@ -45,7 +53,8 @@ export default function Home() {
               Split Bills Seamlessly
             </h1>
             <p className="text-lg text-gray-600 max-w-md mx-auto">
-              Effortless expense splitting with Solana USDC. Fast, secure, and transparent payments.
+              Effortless expense splitting with Solana USDC. Fast, secure, and
+              transparent payments.
             </p>
           </div>
 
@@ -56,15 +65,21 @@ export default function Home() {
               <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-4">
                 <CreditCard className="h-6 w-6 text-blue-600" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Instant Payments</h3>
-              <p className="text-sm text-gray-600">Pay with USDC on Solana blockchain</p>
+              <h3 className="font-semibold text-gray-900 mb-2">
+                Instant Payments
+              </h3>
+              <p className="text-sm text-gray-600">
+                Pay with USDC on Solana blockchain
+              </p>
             </div>
 
             <div className="text-center p-6 bg-white rounded-xl border border-gray-200">
               <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-4">
                 <Users className="h-6 w-6 text-green-600" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Connect Friends</h3>
+              <h3 className="font-semibold text-gray-900 mb-2">
+                Connect Friends
+              </h3>
               <p className="text-sm text-gray-600">
                 Add friends and split expenses together
               </p>
@@ -74,7 +89,9 @@ export default function Home() {
               <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-4">
                 <BarChart3 className="h-6 w-6 text-purple-600" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Track Everything</h3>
+              <h3 className="font-semibold text-gray-900 mb-2">
+                Track Everything
+              </h3>
               <p className="text-sm text-gray-600">
                 Monitor all splits and payment history
               </p>
@@ -114,25 +131,29 @@ export default function Home() {
               {/* Background Pattern */}
               <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 to-purple-600/10"></div>
               <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-16 translate-x-16"></div>
-              
+
               <div className="relative">
                 <div className="flex items-start justify-between mb-6">
                   <div>
-                    <p className="text-gray-300 text-sm font-medium mb-2">Total Balance</p>
+                    <p className="text-gray-300 text-sm font-medium mb-2">
+                      Total Balance
+                    </p>
                     <div className="flex items-baseline gap-2">
                       <span className="text-3xl font-bold text-white">
                         {walletInfo?.usdcBalance !== undefined
                           ? `$${walletInfo.usdcBalance.toFixed(2)}`
                           : '$0.00'}
                       </span>
-                      <span className="text-gray-400 text-sm font-medium">USDC</span>
+                      <span className="text-gray-400 text-sm font-medium">
+                        USDC
+                      </span>
                     </div>
                   </div>
                   <div className="w-12 h-12 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center">
                     <Wallet className="h-6 w-6 text-white" />
                   </div>
                 </div>
-                
+
                 {walletInfo?.usdcBalance === undefined ? (
                   <div className="flex items-center gap-2 text-gray-400 text-sm">
                     <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
@@ -157,7 +178,9 @@ export default function Home() {
 
         {/* Quick Actions - Redesigned */}
         <div className="px-1">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            Quick Actions
+          </h2>
           <div className="grid grid-cols-2 gap-4">
             <Card className="border border-gray-200 hover:shadow-lg hover:border-blue-300 transition-all duration-300 active:scale-95 group">
               <CardContent className="p-0">
@@ -167,7 +190,9 @@ export default function Home() {
                       <Plus className="h-7 w-7 text-white" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900 mb-1">Create Split</h3>
+                      <h3 className="font-semibold text-gray-900 mb-1">
+                        Create Split
+                      </h3>
                       <p className="text-xs text-gray-500">Start new expense</p>
                     </div>
                   </div>
@@ -183,8 +208,12 @@ export default function Home() {
                       <Users className="h-7 w-7 text-white" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900 mb-1">Friends</h3>
-                      <p className="text-xs text-gray-500">Manage connections</p>
+                      <h3 className="font-semibold text-gray-900 mb-1">
+                        Friends
+                      </h3>
+                      <p className="text-xs text-gray-500">
+                        Manage connections
+                      </p>
                     </div>
                   </div>
                 </Link>
@@ -196,18 +225,20 @@ export default function Home() {
         {/* Recent Activity */}
         <div className="px-1">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Recent Activity</h2>
+            <h2 className="text-lg font-semibold text-gray-900">
+              Recent Activity
+            </h2>
             <Link href="/splits">
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                variant="ghost"
+                size="sm"
                 className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 font-medium min-h-[44px]"
               >
                 View All
               </Button>
             </Link>
           </div>
-          
+
           <Card className="border border-gray-200 overflow-hidden">
             <SplitsList type="all" limit={5} showCreateButton={false} />
           </Card>
