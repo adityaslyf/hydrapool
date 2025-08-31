@@ -1,9 +1,7 @@
 import { User, Friend, Split, SplitParticipant } from '@prisma/client';
 
-// Re-export basic types
 export type { User, Friend, Split, SplitParticipant };
 
-// Extended types with relations
 export type UserWithFriends = User & {
   friends: (Friend & { friend: User })[];
 };
@@ -18,7 +16,6 @@ export type SplitParticipantWithUser = SplitParticipant & {
   split: Split;
 };
 
-// Form types
 export interface CreateSplitFormData {
   title: string;
   description?: string;
@@ -39,7 +36,6 @@ export interface SplitCalculation {
   remainingAmount?: number;
 }
 
-// Solana Types
 export interface SolanaTransaction {
   signature?: string;
   status: 'pending' | 'confirmed' | 'failed';
@@ -80,7 +76,6 @@ export interface AddFriendFormData {
   username?: string;
 }
 
-// Friend request types
 export type FriendStatus = 'pending' | 'accepted' | 'declined';
 
 export interface FriendRequest {
@@ -107,7 +102,6 @@ export interface FriendRequestActionData {
   userId: string;
 }
 
-// Solana types
 export interface SolanaWalletContextType {
   publicKey: string | null;
   connected: boolean;
@@ -116,7 +110,6 @@ export interface SolanaWalletContextType {
   sendTransaction: (transaction: unknown) => Promise<string>;
 }
 
-// Payment types
 export interface PaymentData {
   splitId: string;
   participantId: string;
@@ -124,7 +117,6 @@ export interface PaymentData {
   recipientWallet: string;
 }
 
-// API Response types
 export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;

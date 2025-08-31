@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase';
 
-// Get a specific split by ID
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -17,7 +16,6 @@ export async function GET(
       );
     }
 
-    // Fetch the split with creator information
     const { data: split, error: splitError } = await supabase
       .from('splits')
       .select(
@@ -43,7 +41,6 @@ export async function GET(
       return NextResponse.json({ error: 'Split not found' }, { status: 404 });
     }
 
-    // Fetch participants with user information
     const { data: participants, error: participantsError } = await supabase
       .from('split_participants')
       .select(
@@ -68,7 +65,6 @@ export async function GET(
       );
     }
 
-    // Combine split and participants data
     const splitWithParticipants = {
       ...split,
       participants: participants || [],

@@ -17,7 +17,6 @@ export async function GET(request: NextRequest) {
 
     const searchTerm = query.trim().toLowerCase();
 
-    // Search users by email, username, or wallet address
     const { data: users, error } = await supabase
       .from('users')
       .select('id, email, username, wallet, created_at')
@@ -33,7 +32,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Transform the results to match our frontend types
     const transformedUsers =
       users?.map((user) => ({
         id: user.id,

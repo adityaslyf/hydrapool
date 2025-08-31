@@ -30,7 +30,6 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       if (error.code === 'PGRST116') {
-        // Not found
         return NextResponse.json({ user: null });
       }
 
@@ -56,7 +55,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 });
     }
 
-    // Check if user already exists by email
     const { data: existingUser } = await supabase
       .from('users')
       .select('*')
@@ -64,7 +62,6 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (existingUser) {
-      // If user exists and we have a real wallet, update it
       if (
         wallet &&
         !wallet.startsWith('pending_') &&
@@ -85,7 +82,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ user: existingUser });
     }
 
-    // Create new user
     const { data: user, error } = await supabase
       .from('users')
       .insert({

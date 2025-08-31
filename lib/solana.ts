@@ -15,14 +15,11 @@ import {
   getAccount,
 } from '@solana/spl-token';
 
-// USDC mint address on Devnet
 export const USDC_MINT_ADDRESS = new PublicKey(
   '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU',
 );
 
-// Solana network configuration
 export const SOLANA_NETWORK = 'devnet';
-// RPC URLs with fallbacks to prevent rate limiting
 const RPC_URLS = [
   process.env.NEXT_PUBLIC_SOLANA_RPC_URL || 'https://api.devnet.solana.com',
   'https://devnet.helius-rpc.com/?api-key=demo',
@@ -33,12 +30,10 @@ const RPC_URLS = [
 let currentRpcIndex = 0;
 export const SOLANA_RPC_URL = RPC_URLS[currentRpcIndex];
 
-// Create Solana connection with retry logic
 export function createSolanaConnection(): Connection {
   return new Connection(RPC_URLS[currentRpcIndex], 'confirmed');
 }
 
-// Retry function for RPC calls
 async function retryWithFallback<T>(
   operation: (connection: Connection) => Promise<T>,
   maxRetries: number = 2,
@@ -52,21 +47,18 @@ async function retryWithFallback<T>(
     } catch (error: any) {
       lastError = error;
 
-      // If we get a 429 (rate limit) error, try the next RPC
       if (
         error.message?.includes('429') ||
         error.message?.includes('Too Many Requests')
       ) {
         currentRpcIndex = (currentRpcIndex + 1) % RPC_URLS.length;
 
-        // Wait a bit before retrying
         await new Promise((resolve) =>
           setTimeout(resolve, 1000 * (attempt + 1)),
         );
         continue;
       }
 
-      // For other errors, don't retry
       break;
     }
   }
@@ -74,17 +66,14 @@ async function retryWithFallback<T>(
   throw lastError || new Error('Operation failed after retries');
 }
 
-// Convert USDC amount to smallest units (6 decimals)
 export function usdcToSmallestUnit(amount: number): number {
   return Math.floor(amount * 1_000_000); // 6 decimals
 }
 
-// Convert smallest units back to USDC
 export function smallestUnitToUsdc(amount: number): number {
   return amount / 1_000_000; // 6 decimals
 }
 
-// Get SOL balance for a wallet
 export async function getSolBalance(walletAddress: string): Promise<number> {
   return retryWithFallback(async (connection) => {
     const publicKey = new PublicKey(walletAddress);
@@ -93,12 +82,10 @@ export async function getSolBalance(walletAddress: string): Promise<number> {
   });
 }
 
-// Get USDC balance for a wallet
 export async function getUsdcBalance(walletAddress: string): Promise<number> {
   return retryWithFallback(async (connection) => {
     const publicKey = new PublicKey(walletAddress);
 
-    // Get associated token account address
     const tokenAccountAddress = await getAssociatedTokenAddress(
       USDC_MINT_ADDRESS,
       publicKey,
@@ -116,13 +103,11 @@ export async function getUsdcBalance(walletAddress: string): Promise<number> {
       );
       return smallestUnitToUsdc(Number(tokenAccount.amount));
     } catch (error) {
-      // Token account doesn't exist, balance is 0
       return 0;
     }
   });
 }
 
-// Check if associated token account exists
 export async function checkTokenAccountExists(
   walletAddress: string,
   mintAddress: PublicKey = USDC_MINT_ADDRESS,
@@ -157,7 +142,6 @@ export async function checkTokenAccountExists(
   }
 }
 
-// Create associated token account instruction if it doesn't exist
 export async function createTokenAccountIfNeeded(
   payer: PublicKey,
   owner: PublicKey,
@@ -195,7 +179,6 @@ export async function createTokenAccountIfNeeded(
   }
 }
 
-// Create USDC transfer transaction
 export async function createUsdcTransferTransaction(
   fromAddress: string,
   toAddress: string,
@@ -206,10 +189,8 @@ export async function createUsdcTransferTransaction(
     const fromPublicKey = new PublicKey(fromAddress);
     const toPublicKey = new PublicKey(toAddress);
 
-    // Convert amount to smallest unit
     const transferAmount = usdcToSmallestUnit(amount);
 
-    // Get associated token addresses
     const fromTokenAccount = await getAssociatedTokenAddress(
       USDC_MINT_ADDRESS,
       fromPublicKey,
@@ -226,10 +207,8 @@ export async function createUsdcTransferTransaction(
       ASSOCIATED_TOKEN_PROGRAM_ID,
     );
 
-    // Create transaction
     const transaction = new Transaction();
 
-    // Check if recipient's token account exists, create if needed
     const toAccountExists = await checkTokenAccountExists(toAddress);
     if (!toAccountExists) {
       const createAccountIx = createAssociatedTokenAccountInstruction(
@@ -243,7 +222,6 @@ export async function createUsdcTransferTransaction(
       transaction.add(createAccountIx);
     }
 
-    // Create transfer instruction
     const transferInstruction = createTransferInstruction(
       fromTokenAccount,
       toTokenAccount,
@@ -255,7 +233,6 @@ export async function createUsdcTransferTransaction(
 
     transaction.add(transferInstruction);
 
-    // Get recent blockhash
     const { blockhash } = await connection.getLatestBlockhash('confirmed');
     transaction.recentBlockhash = blockhash;
     transaction.feePayer = fromPublicKey;
@@ -268,7 +245,6 @@ export async function createUsdcTransferTransaction(
   }
 }
 
-// Validate Solana wallet address
 export function isValidSolanaAddress(address: string): boolean {
   try {
     new PublicKey(address);
@@ -278,7 +254,6 @@ export function isValidSolanaAddress(address: string): boolean {
   }
 }
 
-// Format wallet address for display (truncate middle)
 export function formatWalletAddress(
   address: string,
   chars: number = 4,
@@ -287,7 +262,6 @@ export function formatWalletAddress(
   return `${address.slice(0, chars)}...${address.slice(-chars)}`;
 }
 
-// Wait for transaction confirmation
 export async function confirmTransaction(
   signature: string,
   commitment: 'processed' | 'confirmed' | 'finalized' = 'confirmed',

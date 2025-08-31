@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase';
 
-// Send friend request
 export async function POST(request: NextRequest) {
   try {
     const supabase = createServerClient();
@@ -22,7 +21,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if request already exists
     const { data: existingRequest } = await supabase
       .from('friends')
       .select('*')
@@ -38,7 +36,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create friend request
     const { data: friendRequest, error } = await supabase
       .from('friends')
       .insert({
@@ -66,7 +63,6 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Accept or decline friend request
 export async function PUT(request: NextRequest) {
   try {
     const supabase = createServerClient();
@@ -91,7 +87,6 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // Verify the user is the recipient of the friend request
     const { data: friendRequestData, error: fetchError } = await supabase
       .from('friends')
       .select('*')
@@ -107,7 +102,6 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // Update the friend request
     const updateData: Record<string, unknown> = {
       status: action === 'accept' ? 'accepted' : 'declined',
     };

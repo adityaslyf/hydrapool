@@ -23,7 +23,6 @@ import { useFriends } from '@/hooks/use-friends';
 import Link from 'next/link';
 import type { User as UserType } from '@/types';
 
-// AddFriendButton Component
 function AddFriendButton({ user }: { user: UserType }) {
   const { user: currentUser } = useAuth();
   const {
@@ -36,7 +35,6 @@ function AddFriendButton({ user }: { user: UserType }) {
   >('none');
   const [requestingFriend, setRequestingFriend] = useState(false);
 
-  // Check friend status when user changes
   useEffect(() => {
     if (user?.id && currentUser?.id) {
       getFriendStatus(user.id).then(setFriendStatus);

@@ -57,7 +57,6 @@ export function FriendsList({ onFriendRemoved }: FriendsListProps) {
       setRemovingFriend(friendId);
       setError(null);
 
-      // Find the friend relation to get the relation ID
       const friendRelation = friends.find(
         (friend) => friend.otherUser.id === friendId,
       );
@@ -78,7 +77,6 @@ export function FriendsList({ onFriendRemoved }: FriendsListProps) {
         throw new Error('Failed to remove friend');
       }
 
-      // Remove friend from local state
       setFriends((prev) =>
         prev.filter((friend) => friend.otherUser.id !== friendId),
       );
@@ -98,7 +96,7 @@ export function FriendsList({ onFriendRemoved }: FriendsListProps) {
 
   const formatWalletAddress = (address?: string) => {
     if (!address || address.startsWith('pending_')) return 'No wallet';
-    return `${address.slice(0, 4)}...${address.slice(-4)}`;
+    return `${address.slice(0, 3)}...${address.slice(-3)}`;
   };
 
   if (loading) {
@@ -171,16 +169,16 @@ export function FriendsList({ onFriendRemoved }: FriendsListProps) {
                       {getUserDisplayName(friend.otherUser)}
                     </h3>
 
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground mt-1">
-                      <div className="flex items-center gap-1">
+                    <div className="space-y-1 mt-1">
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
                         <Mail className="h-3 w-3" />
-                        <span className="truncate max-w-[120px]">
+                        <span className="truncate max-w-[200px]">
                           {friend.otherUser.email}
                         </span>
                       </div>
 
                       {friend.otherUser.wallet && (
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
                           <Wallet className="h-3 w-3" />
                           <span className="font-mono">
                             {formatWalletAddress(friend.otherUser.wallet)}

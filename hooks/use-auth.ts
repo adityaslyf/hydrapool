@@ -24,13 +24,11 @@ export function useAuth() {
         return;
       }
 
-      // Wait a bit for Privy user object to be fully populated
       await new Promise((resolve) => setTimeout(resolve, 500));
 
       try {
         const email = privyUser.email?.address;
 
-        // Look for Solana wallet
         const solanaWallet = privyUser.linkedAccounts.find(
           (account) =>
             account.type === 'wallet' && account.chainType === 'solana',
@@ -38,7 +36,6 @@ export function useAuth() {
 
         const walletAddress = (solanaWallet as { address?: string })?.address;
 
-        // Try to get email from Google account if primary email is not available
         const googleAccount = privyUser.linkedAccounts.find(
           (account) => account.type === 'google_oauth',
         );
@@ -49,7 +46,6 @@ export function useAuth() {
           return;
         }
 
-        // Use email or fallback email
         const finalEmail = email || fallbackEmail;
 
         if (!finalEmail) {
@@ -57,10 +53,8 @@ export function useAuth() {
           return;
         }
 
-        // Try to find existing user by email first
         let existingUser = await getUserByEmail(finalEmail);
 
-        // If wallet is available now, check if we need to update a pending wallet
         if (
           walletAddress &&
           existingUser &&
@@ -76,17 +70,13 @@ export function useAuth() {
             setLoading(false);
             return;
           } catch (error) {
-            // Silent error handling
           }
         }
 
-        // If no wallet available yet but user is authenticated,
-        // still create/find user record with email
         if (!walletAddress) {
           if (existingUser) {
             setDbUser(existingUser);
           } else {
-            // Create user with placeholder wallet, will update when wallet becomes available
             try {
               const newUser = await createUser({
                 email: finalEmail,
@@ -95,14 +85,12 @@ export function useAuth() {
               });
               setDbUser(newUser);
             } catch (error) {
-              // Silent error handling
             }
           }
           setLoading(false);
           return;
         }
 
-        // Check if user exists by wallet address (since we already checked email above)
         if (!existingUser && walletAddress) {
           existingUser = await getUserByWallet(walletAddress);
         }
@@ -110,7 +98,6 @@ export function useAuth() {
         if (existingUser) {
           setDbUser(existingUser);
         } else {
-          // Create new user
           const newUser = await createUser({
             email: finalEmail,
             wallet: walletAddress,
@@ -119,7 +106,6 @@ export function useAuth() {
           setDbUser(newUser);
         }
       } catch (error) {
-        // Silent error handling
       } finally {
         setLoading(false);
       }
@@ -128,24 +114,20 @@ export function useAuth() {
     syncUserWithDatabase();
   }, [ready, authenticated, privyUser]);
 
-  // Get Solana wallet info only
   const solanaWallet = privyUser?.linkedAccounts.find(
     (account) => account.type === 'wallet' && account.chainType === 'solana',
   );
 
   return {
-    // Privy auth state
     privyUser,
     ready,
     authenticated,
     login,
     logout,
 
-    // Database user state
     user: dbUser,
     loading,
 
-    // Solana wallet info
     walletAddress: (solanaWallet as { address?: string })?.address || null,
     hasWallet: !!solanaWallet,
     walletType: solanaWallet ? 'solana' : null,

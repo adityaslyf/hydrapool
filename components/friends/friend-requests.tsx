@@ -77,7 +77,6 @@ export function FriendRequests({ type, onRequestUpdate }: FriendRequestsProps) {
         throw new Error(`Failed to ${action} friend request`);
       }
 
-      // Refresh the requests list
       await fetchRequests();
       onRequestUpdate?.();
     } catch (err) {
@@ -97,7 +96,7 @@ export function FriendRequests({ type, onRequestUpdate }: FriendRequestsProps) {
 
   const formatWalletAddress = (address?: string) => {
     if (!address || address.startsWith('pending_')) return 'No wallet';
-    return `${address.slice(0, 4)}...${address.slice(-4)}`;
+    return `${address.slice(0, 3)}...${address.slice(-3)}`;
   };
 
   if (loading) {
@@ -179,12 +178,14 @@ export function FriendRequests({ type, onRequestUpdate }: FriendRequestsProps) {
                     <p className="font-medium text-sm">
                       {getUserDisplayName(request.otherUser)}
                     </p>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                      <span>{request.otherUser.email}</span>
+                    <div className="space-y-1 mt-1">
+                      <div className="text-xs text-muted-foreground">
+                        {request.otherUser.email}
+                      </div>
                       {request.otherUser.wallet && (
-                        <span className="font-mono">
+                        <div className="text-xs text-muted-foreground font-mono">
                           {formatWalletAddress(request.otherUser.wallet)}
-                        </span>
+                        </div>
                       )}
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">

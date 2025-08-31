@@ -47,7 +47,6 @@ export function useSplitCalculation({
       remainingAmount = 0; // For equal split, it should always be 0
       isValid = true;
     } else {
-      // Custom split
       let allocatedAmount = 0;
       allParticipantIds.forEach((id) => {
         const amount = customAmounts[id] || 0;
@@ -58,7 +57,6 @@ export function useSplitCalculation({
       creatorAmount = customAmounts[creatorId] || 0;
       remainingAmount = totalAmount - allocatedAmount;
 
-      // Allow a small floating point tolerance
       isValid = Math.abs(remainingAmount) < 0.01;
     }
 

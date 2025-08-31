@@ -29,7 +29,6 @@ export default function Home() {
   const { authenticated, ready, loading, user } = useAuth();
   const { walletInfo, refreshBalances, isWalletConnected } = useSolana();
 
-  // Load wallet balances when authenticated and wallet is connected
   useEffect(() => {
     if (authenticated && isWalletConnected()) {
       refreshBalances();
