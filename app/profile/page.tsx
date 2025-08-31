@@ -30,7 +30,13 @@ import {
 // import { usePrivy } from '@privy-io/react-auth';
 
 export default function ProfilePage() {
-  const { authenticated, user: currentUser, ready, loading, logout } = useAuth();
+  const {
+    authenticated,
+    user: currentUser,
+    ready,
+    loading,
+    logout,
+  } = useAuth();
   const { walletInfo, refreshBalances, isWalletConnected } = useSolana();
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
@@ -374,29 +380,29 @@ export default function ProfilePage() {
         </div>
 
         {/* Actions */}
-          <Card className="border border-red-200 bg-red-50">
-            <CardContent className="p-4">
-              <Button
-                onClick={handleLogout}
-                variant="ghost"
-                className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-100"
-              >
-                <LogOut className="h-4 w-4 mr-3" />
-                Sign Out
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
+        <Card className="border border-red-200 bg-red-50">
+          <CardContent className="p-4">
+            <Button
+              onClick={handleLogout}
+              variant="ghost"
+              className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-100"
+            >
+              <LogOut className="h-4 w-4 mr-3" />
+              Sign Out
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
 
-        {/* Toast Notification */}
-        {showToast && (
-          <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-50 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg animate-in slide-in-from-bottom-2 duration-300">
-            <div className="flex items-center gap-2">
-              <Check className="h-4 w-4" />
-              <span className="text-sm font-medium">{toastMessage}</span>
-            </div>
+      {/* Toast Notification */}
+      {showToast && (
+        <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-50 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg animate-in slide-in-from-bottom-2 duration-300">
+          <div className="flex items-center gap-2">
+            <Check className="h-4 w-4" />
+            <span className="text-sm font-medium">{toastMessage}</span>
           </div>
-        )}
+        </div>
+      )}
     </AppLayout>
   );
 }

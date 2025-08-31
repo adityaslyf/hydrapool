@@ -10,7 +10,7 @@ export async function PUT(request: NextRequest) {
     if (!userId || !username) {
       return NextResponse.json(
         { error: 'User ID and username are required' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -19,7 +19,7 @@ export async function PUT(request: NextRequest) {
     if (trimmedUsername.length < 2 || trimmedUsername.length > 30) {
       return NextResponse.json(
         { error: 'Username must be between 2 and 30 characters' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -35,14 +35,14 @@ export async function PUT(request: NextRequest) {
       // PGRST116 is "not found" which is what we want
       return NextResponse.json(
         { error: 'Database error checking username' },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
     if (existingUser) {
       return NextResponse.json(
         { error: 'Username is already taken' },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -57,7 +57,7 @@ export async function PUT(request: NextRequest) {
     if (error) {
       return NextResponse.json(
         { error: 'Failed to update username' },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -69,7 +69,7 @@ export async function PUT(request: NextRequest) {
     console.error('Error updating username:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

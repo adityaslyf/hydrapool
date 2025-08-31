@@ -14,7 +14,9 @@ export async function POST(request: NextRequest) {
       currency,
       creatorId,
       participantIds,
-      participantAmounts, // New field for custom amounts
+      splitType,
+      customAmounts,
+      participantAmounts, // Legacy field for backward compatibility
     } = body;
 
     if (!title || !totalAmount || !creatorId) {
@@ -31,9 +33,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Calculate per-person amount
+    // Calculate per-person amount for equal splits
     const totalParticipants = participantIds.length + 1; // +1 for creator
     const perPersonAmount = totalAmount / totalParticipants;
+
+    // Use customAmounts if splitType is 'custom', otherwise use participantAmounts or equal split
+    const amounts = customAmounts || participantAmounts || {};
+
+    // Validate custom amounts if splitType is 'custom'
+    if (splitType === 'custom') {
+      const allParticipantIds = [creatorId, ...participantIds];
+      const totalCustomAmount = allParticipantIds.reduce((sum, id) => {
+        return sum + (amounts[id] || 0);
+      }, 0);
+
+      // Allow small rounding differences (within 0.01)
+      if (Math.abs(totalCustomAmount - totalAmount) > 0.01) {
+        return NextResponse.json(
+          { 
+            error: `Custom amounts ($${totalCustomAmount.toFixed(2)}) must equal total amount ($${totalAmount.toFixed(2)})` 
+          },
+          { status: 400 }
+        );
+      }
+    }
 
     // Create the split
     const splitData = {
@@ -65,7 +88,7 @@ export async function POST(request: NextRequest) {
       {
         split_id: split.id,
         user_id: creatorId,
-        amount_owed: participantAmounts?.[creatorId] || perPersonAmount, // Use custom amount or fallback
+        amount_owed: splitType === 'custom' ? (amounts[creatorId] || 0) : perPersonAmount,
         paid: true,
         payment_status: 'confirmed', // Use 'confirmed' instead of 'paid'
       },
@@ -73,7 +96,7 @@ export async function POST(request: NextRequest) {
       ...participantIds.map((participantId: string) => ({
         split_id: split.id,
         user_id: participantId,
-        amount_owed: participantAmounts?.[participantId] || perPersonAmount, // Use custom amount or fallback
+        amount_owed: splitType === 'custom' ? (amounts[participantId] || 0) : perPersonAmount,
         paid: false,
         payment_status: 'pending',
       })),
