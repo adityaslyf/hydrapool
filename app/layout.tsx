@@ -63,7 +63,33 @@ export const metadata: Metadata = {
   icons: {
     icon: '/favicon.ico',
     shortcut: '/favicon.ico',
-    apple: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
+    other: [
+      {
+        rel: 'icon',
+        type: 'image/png',
+        sizes: '144x144',
+        url: '/icon-144.png',
+      },
+      {
+        rel: 'icon',
+        type: 'image/png',
+        sizes: '152x152',
+        url: '/icon-152.png',
+      },
+      {
+        rel: 'icon',
+        type: 'image/png',
+        sizes: '192x192',
+        url: '/icon-192.png',
+      },
+      {
+        rel: 'icon',
+        type: 'image/png',
+        sizes: '512x512',
+        url: '/icon-512.png',
+      },
+    ],
   },
   appleWebApp: {
     capable: true,

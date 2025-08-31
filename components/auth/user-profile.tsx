@@ -30,7 +30,7 @@ export function UserProfile() {
       className="flex items-center gap-2"
     >
       <Link href="/profile">
-        <div className="h-6 w-6 rounded-full bg-black flex items-center justify-center">
+        <div className="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center">
           <span className="text-white text-xs font-medium">
             {displayName.charAt(0).toUpperCase()}
           </span>

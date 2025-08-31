@@ -123,11 +123,6 @@ export default function Home() {
                 {user?.username || user?.email?.split('@')[0] || 'User'}
               </p>
             </div>
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-lg">
-                {(user?.username || user?.email || 'U')[0].toUpperCase()}
-              </span>
-            </div>
           </div>
         </div>
 
