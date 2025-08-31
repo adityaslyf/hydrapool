@@ -15,8 +15,8 @@ export function Header() {
   const { authenticated, ready, loading } = useAuth();
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-lg border-b border-gray-200 safe-area-inset-top">
-      <div className="max-w-md mx-auto md:max-w-4xl px-8 py-3 safe-area-inset-x">
+    <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-lg border-b border-gray-200 safe-area-inset-top px-2 py-1">
+      <div className="max-w-md mx-auto md:max-w-4xl safe-area-inset-x">
         <div className="flex h-16 items-center justify-between gap-4">
           {/* Logo */}
           <Link
