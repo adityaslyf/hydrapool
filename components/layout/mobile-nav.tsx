@@ -47,7 +47,6 @@ export function MobileNavigation() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
 
-  // Close menu on route change
   useEffect(() => {
     setIsOpen(false);
   }, [pathname]);

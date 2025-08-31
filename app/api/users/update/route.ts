@@ -14,7 +14,6 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // Validate username (basic validation)
     const trimmedUsername = username.trim();
     if (trimmedUsername.length < 2 || trimmedUsername.length > 30) {
       return NextResponse.json(
@@ -23,7 +22,6 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // Check if username is already taken by another user
     const { data: existingUser, error: checkError } = await supabase
       .from('users')
       .select('id')
@@ -32,7 +30,6 @@ export async function PUT(request: NextRequest) {
       .single();
 
     if (checkError && checkError.code !== 'PGRST116') {
-      // PGRST116 is "not found" which is what we want
       return NextResponse.json(
         { error: 'Database error checking username' },
         { status: 500 },
@@ -46,7 +43,6 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // Update the username
     const { data, error } = await supabase
       .from('users')
       .update({ username: trimmedUsername })
@@ -66,7 +62,6 @@ export async function PUT(request: NextRequest) {
       user: data,
     });
   } catch (error) {
-    console.error('Error updating username:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 },

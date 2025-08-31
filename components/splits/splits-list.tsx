@@ -74,7 +74,6 @@ export function SplitsList({
       const data = await response.json();
       let fetchedSplits = data.splits || [];
 
-      // Apply limit if specified
       if (limit) {
         fetchedSplits = fetchedSplits.slice(0, limit);
       }

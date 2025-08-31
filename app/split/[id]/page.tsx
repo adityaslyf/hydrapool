@@ -58,7 +58,7 @@ export default function SplitDetailPage() {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
 
-  const splitId = params.id as string;
+  const splitId = params?.id as string;
 
   const fetchSplit = useCallback(async () => {
     try {
@@ -152,7 +152,6 @@ export default function SplitDetailPage() {
       setPaymentLoading(true);
       setError(null);
 
-      // Find the creator's wallet address
       const creatorWallet = split.creator?.wallet;
       if (!creatorWallet) {
         throw new Error('Creator wallet address not found');
@@ -169,7 +168,6 @@ export default function SplitDetailPage() {
       const result = await sendPayment(paymentRequest);
 
       if (result.success && result.signature) {
-        // Update the split participant status in the database
         const updateResponse = await fetch(`/api/splits/${split.id}/payment`, {
           method: 'POST',
           headers: {
@@ -183,7 +181,6 @@ export default function SplitDetailPage() {
         });
 
         if (updateResponse.ok) {
-          // Refresh the split data
           await fetchSplit();
           showToastMessage('Payment successful! Split updated.');
         } else {
@@ -214,7 +211,7 @@ export default function SplitDetailPage() {
       await navigator.clipboard.writeText(url);
       showToastMessage('Split link copied to clipboard!');
     } catch (err) {
-      console.error('Failed to copy:', err);
+      showToastMessage('Failed to copy link');
     }
   };
 
@@ -229,7 +226,9 @@ export default function SplitDetailPage() {
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center space-y-4">
             <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-            <p className="text-gray-600 font-medium">Loading split details...</p>
+            <p className="text-gray-600 font-medium">
+              Loading split details...
+            </p>
           </div>
         </div>
       </AppLayout>
@@ -244,12 +243,17 @@ export default function SplitDetailPage() {
             <div className="w-20 h-20 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
               <XCircle className="h-10 w-10 text-red-600" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900">Split Not Found</h1>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Split Not Found
+            </h1>
             <p className="text-lg text-gray-600 max-w-md mx-auto">
               {error || 'The split you are looking for does not exist.'}
             </p>
           </div>
-          <Button onClick={() => router.push('/')} className="bg-blue-600 hover:bg-blue-700">
+          <Button
+            onClick={() => router.push('/')}
+            className="bg-blue-600 hover:bg-blue-700"
+          >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Dashboard
           </Button>
@@ -272,12 +276,16 @@ export default function SplitDetailPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-1">Split Details</h1>
-              <p className="text-gray-600 text-sm">View and manage this expense split</p>
+              <h1 className="text-2xl font-bold text-gray-900 mb-1">
+                Split Details
+              </h1>
+              <p className="text-gray-600 text-sm">
+                View and manage this expense split
+              </p>
             </div>
           </div>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={copyShareLink}
             className="w-full sm:w-auto"
           >
@@ -291,7 +299,9 @@ export default function SplitDetailPage() {
           <CardContent className="p-6">
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6">
               <div className="flex-1">
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">{split.title}</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                  {split.title}
+                </h2>
                 {split.description && (
                   <p className="text-gray-600 mb-4">{split.description}</p>
                 )}
@@ -333,7 +343,9 @@ export default function SplitDetailPage() {
                 <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-3">
                   <CheckCircle className="h-5 w-5 text-green-600" />
                 </div>
-                <div className="font-bold text-lg text-gray-900">${totalPaid.toFixed(2)}</div>
+                <div className="font-bold text-lg text-gray-900">
+                  ${totalPaid.toFixed(2)}
+                </div>
                 <div className="text-sm text-gray-500">Paid</div>
               </div>
               <div className="text-center p-4 bg-gray-50 rounded-xl">
@@ -358,8 +370,12 @@ export default function SplitDetailPage() {
                   <CreditCard className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Your Share</h3>
-                  <p className="text-sm text-gray-600">Your portion of this split</p>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Your Share
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    Your portion of this split
+                  </p>
                 </div>
               </div>
 
@@ -405,9 +421,7 @@ export default function SplitDetailPage() {
 
                     {/* Payment Info */}
                     <div className="text-xs text-gray-500 space-y-1">
-                      <div>
-                        Paying to: {getDisplayName(split.creator)}
-                      </div>
+                      <div>Paying to: {getDisplayName(split.creator)}</div>
                     </div>
                   </div>
                 )}
@@ -424,8 +438,12 @@ export default function SplitDetailPage() {
                 <Users className="h-5 w-5 text-purple-600" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">Participants</h3>
-                <p className="text-sm text-gray-600">Payment status for all members</p>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Participants
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Payment status for all members
+                </p>
               </div>
             </div>
 
@@ -436,7 +454,9 @@ export default function SplitDetailPage() {
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                       <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
                         <span className="text-sm font-semibold text-white">
-                          {getDisplayName(participant.user).charAt(0).toUpperCase()}
+                          {getDisplayName(participant.user)
+                            .charAt(0)
+                            .toUpperCase()}
                         </span>
                       </div>
                       <div className="flex-1 min-w-0">
@@ -458,7 +478,9 @@ export default function SplitDetailPage() {
                         <div className="space-y-1">
                           <div className="flex items-center gap-1 text-xs text-gray-500">
                             <Mail className="h-3 w-3" />
-                            <span className="truncate">{participant.user.email}</span>
+                            <span className="truncate">
+                              {participant.user.email}
+                            </span>
                           </div>
                           {participant.user.wallet && (
                             <div className="flex items-center gap-1 text-xs text-gray-500">
@@ -478,7 +500,8 @@ export default function SplitDetailPage() {
                         </div>
                         {participant.paid_at && (
                           <div className="text-xs text-gray-500">
-                            Paid {new Date(participant.paid_at).toLocaleDateString()}
+                            Paid{' '}
+                            {new Date(participant.paid_at).toLocaleDateString()}
                           </div>
                         )}
                       </div>
@@ -493,7 +516,6 @@ export default function SplitDetailPage() {
             </div>
           </CardContent>
         </Card>
-
       </div>
 
       {/* Toast Notification */}

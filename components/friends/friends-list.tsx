@@ -57,7 +57,6 @@ export function FriendsList({ onFriendRemoved }: FriendsListProps) {
       setRemovingFriend(friendId);
       setError(null);
 
-      // Find the friend relation to get the relation ID
       const friendRelation = friends.find(
         (friend) => friend.otherUser.id === friendId,
       );
@@ -78,7 +77,6 @@ export function FriendsList({ onFriendRemoved }: FriendsListProps) {
         throw new Error('Failed to remove friend');
       }
 
-      // Remove friend from local state
       setFriends((prev) =>
         prev.filter((friend) => friend.otherUser.id !== friendId),
       );

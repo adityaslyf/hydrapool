@@ -26,11 +26,9 @@ export function WalletInfo({
   const { walletInfo, isLoading, error, refreshBalances, isWalletConnected } =
     useSolana();
 
-  // Only refresh balances when wallet is first loaded
   useEffect(() => {
     if (!isWalletConnected()) return;
 
-    // Only fetch balances once when component mounts
     const timeoutId = setTimeout(() => {
       refreshBalances();
     }, 1000);

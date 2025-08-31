@@ -9,7 +9,6 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     throw new Error('NEXT_PUBLIC_PRIVY_APP_ID is not set');
   }
 
-  // Prevent hydration mismatch by ensuring client-only rendering for Privy
   if (typeof window === 'undefined') {
     return <>{children}</>;
   }
@@ -18,7 +17,6 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     <PrivyProvider
       appId={privyAppId}
       config={{
-        // Enable Solana wallets only
         wallets: {
           solana: true,
         },

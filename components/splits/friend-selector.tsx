@@ -32,7 +32,6 @@ export function FriendSelector({
   const [searchQuery, setSearchQuery] = useState('');
   const [error, setError] = useState<string | null>(null);
 
-  // Load friends - direct implementation in useEffect to avoid dependency issues
   useEffect(() => {
     if (!user?.id) return;
 
@@ -54,7 +53,6 @@ export function FriendSelector({
         const data = await response.json();
         const relations = data.relations || [];
 
-        // Filter for accepted friends and extract user data
         const acceptedFriends = relations.filter(
           (relation: any) => relation.status === 'accepted',
         );
@@ -83,7 +81,6 @@ export function FriendSelector({
     };
   }, [user?.id]);
 
-  // Manual reload function for "Try Again" button
   const reloadFriends = useCallback(async () => {
     if (!user?.id) return;
 
@@ -100,7 +97,6 @@ export function FriendSelector({
       const data = await response.json();
       const relations = data.relations || [];
 
-      // Filter for accepted friends and extract user data
       const acceptedFriends = relations.filter(
         (relation: any) => relation.status === 'accepted',
       );

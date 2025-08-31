@@ -50,7 +50,6 @@ export function CreateSplitForm({
   const [friends, setFriends] = useState<User[]>([]);
   const [friendsLoading, setFriendsLoading] = useState(true);
 
-  // Use split calculation hook
   const splitCalculation = useSplitCalculation({
     totalAmount: formData.totalAmount,
     participantIds: formData.participantIds,
@@ -59,7 +58,6 @@ export function CreateSplitForm({
     customAmounts: formData.customAmounts || {},
   });
 
-  // Load friends on component mount
   useEffect(() => {
     const loadFriends = async () => {
       if (!currentUser?.id) return;
@@ -73,7 +71,6 @@ export function CreateSplitForm({
 
         const data = await response.json();
 
-        // Filter for accepted friends and extract user data (same as FriendSelector)
         const relations = data.relations || [];
         const acceptedFriends = relations.filter(
           (relation: any) => relation.status === 'accepted',
@@ -84,7 +81,6 @@ export function CreateSplitForm({
 
         setFriends(friendsData);
       } catch (err) {
-        console.error('Error loading friends:', err);
         setError('Failed to load friends');
       } finally {
         setFriendsLoading(false);
@@ -109,7 +105,6 @@ export function CreateSplitForm({
     setFormData((prev) => ({
       ...prev,
       participantIds,
-      // Reset custom amounts when participants change
       customAmounts:
         prev.splitType === 'custom'
           ? Object.fromEntries(
@@ -166,7 +161,6 @@ export function CreateSplitForm({
     setError(null);
 
     try {
-      // Check friend relationships
       for (const friendId of formData.participantIds) {
         const relation = await checkExistingRelation(friendId);
         if (relation?.status !== 'accepted') {
@@ -197,7 +191,6 @@ export function CreateSplitForm({
       const data = await response.json();
       setSuccess(true);
 
-      // Redirect after a short delay
       setTimeout(() => {
         onSplitCreated?.(data.split.id);
       }, 1000);
@@ -216,12 +209,10 @@ export function CreateSplitForm({
 
   const perPersonAmount = calculatePerPerson();
 
-  // Helper to get friend by ID
   const getFriendById = (friendId: string) => {
     return friends.find((f) => f.id === friendId);
   };
 
-  // Helper to get display name
   const getDisplayName = (user: User) => {
     return user.username || user.email?.split('@')[0] || 'Unknown User';
   };

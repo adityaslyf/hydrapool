@@ -27,7 +27,6 @@ import {
   X,
   Loader2,
 } from 'lucide-react';
-// import { usePrivy } from '@privy-io/react-auth';
 
 export default function ProfilePage() {
   const {
@@ -47,13 +46,11 @@ export default function ProfilePage() {
   const handleLogout = async () => {
     try {
       await logout();
-      // Redirect will happen automatically after logout
     } catch (error) {
-      console.error('Logout failed:', error);
+      showToastMessage('Logout failed. Please try again.');
     }
   };
 
-  // Load wallet balances when authenticated and wallet is connected
   useEffect(() => {
     if (authenticated && isWalletConnected()) {
       refreshBalances();
@@ -105,7 +102,7 @@ export default function ProfilePage() {
       await navigator.clipboard.writeText(text);
       showToastMessage('Wallet address copied!');
     } catch (err) {
-      console.error('Failed to copy:', err);
+      showToastMessage('Failed to copy address');
     }
   };
 
@@ -138,17 +135,16 @@ export default function ProfilePage() {
       if (response.ok) {
         setIsEditingUsername(false);
         showToastMessage('Username updated successfully!');
-        // Refresh the page to get updated user data
         window.location.reload();
-      } else {
-        const errorData = await response.json();
-        showToastMessage(errorData.error || 'Failed to update username');
+              } else {
+          const errorData = await response.json();
+          showToastMessage(errorData.error || 'Failed to update username');
+        }
+      } catch (error) {
+        showToastMessage('Failed to update username');
+      } finally {
+        setIsUpdating(false);
       }
-    } catch (error) {
-      console.error('Error updating username:', error);
-    } finally {
-      setIsUpdating(false);
-    }
   };
 
   const formatAddress = (address: string) => {

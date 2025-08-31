@@ -75,7 +75,6 @@ export function useFriends(): UseFriendsReturn {
         const data = await response.json();
         const relations: FriendRequest[] = data.relations || [];
 
-        // Find any relation with this user
         return (
           relations.find((relation) => relation.otherUser.id === friendId) ||
           null
@@ -116,7 +115,6 @@ export function useFriends(): UseFriendsReturn {
       const data = await response.json();
       const relations = data.relations || [];
 
-      // Filter for accepted friends only
       const acceptedFriends = relations.filter(
         (relation: any) => relation.status === 'accepted',
       );

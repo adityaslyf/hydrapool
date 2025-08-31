@@ -7,11 +7,9 @@ export function ServiceWorkerRegistration() {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker
         .register('/sw.js')
-        .then((registration) => {
-          console.log('SW registered: ', registration);
+        .then(() => {
         })
-        .catch((registrationError) => {
-          console.log('SW registration failed: ', registrationError);
+        .catch(() => {
         });
     }
   }, []);

@@ -77,7 +77,6 @@ export function FriendRequests({ type, onRequestUpdate }: FriendRequestsProps) {
         throw new Error(`Failed to ${action} friend request`);
       }
 
-      // Refresh the requests list
       await fetchRequests();
       onRequestUpdate?.();
     } catch (err) {

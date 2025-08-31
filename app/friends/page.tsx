@@ -29,7 +29,6 @@ export default function FriendsPage() {
     if (!user?.id) return;
 
     try {
-      // Fetch friends count
       const friendsResponse = await fetch(
         `/api/friends?userId=${user.id}&type=friends`,
       );
@@ -38,7 +37,6 @@ export default function FriendsPage() {
         setFriendsCount(friendsData.count || 0);
       }
 
-      // Fetch pending requests count (requests TO you)
       const pendingResponse = await fetch(
         `/api/friends?userId=${user.id}&type=pending`,
       );
@@ -47,7 +45,6 @@ export default function FriendsPage() {
         setPendingCount(pendingData.count || 0);
       }
 
-      // Fetch sent requests count (requests FROM you)
       const sentResponse = await fetch(
         `/api/friends?userId=${user.id}&type=sent`,
       );
@@ -55,8 +52,7 @@ export default function FriendsPage() {
         const sentData = await sentResponse.json();
         setSentCount(sentData.count || 0);
       }
-    } catch (error) {
-      console.error('Failed to fetch friend counts:', error);
+              } catch (error) {
     }
   };
 
@@ -67,7 +63,6 @@ export default function FriendsPage() {
   }, [authenticated, user?.id]);
 
   const handleRequestUpdate = () => {
-    // Refresh counts when requests are accepted/declined
     fetchCounts();
   };
 
@@ -137,8 +132,6 @@ export default function FriendsPage() {
                 placeholder="Search users to add as friends..."
                 showAddButton={true}
                 onUserSelect={(user) => {
-                  console.log('Selected user:', user);
-                  // Handle friend request logic
                 }}
               />
             </CardContent>

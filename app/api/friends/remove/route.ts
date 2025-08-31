@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase';
 
-// Remove friend (delete friend relation)
 export async function DELETE(request: NextRequest) {
   try {
     const supabase = createServerClient();
@@ -15,7 +14,6 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // Verify the user is part of this friend relation
     const { data: relation, error: fetchError } = await supabase
       .from('friends')
       .select('*')
@@ -31,7 +29,6 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // Delete the friend relation
     const { error: deleteError } = await supabase
       .from('friends')
       .delete()

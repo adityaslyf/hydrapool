@@ -12,7 +12,6 @@ export function UserProfile() {
     return null;
   }
 
-  // Get email from Google account or primary email
   const googleAccount = privyUser.linkedAccounts.find(
     (account) => account.type === 'google_oauth',
   );

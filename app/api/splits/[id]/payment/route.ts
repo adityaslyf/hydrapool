@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase';
 
-// Update payment status for a split participant
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -20,7 +19,6 @@ export async function POST(
       );
     }
 
-    // Update the participant's payment status
     const { error: updateError } = await supabase
       .from('split_participants')
       .update({

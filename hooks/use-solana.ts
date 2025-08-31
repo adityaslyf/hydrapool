@@ -40,24 +40,19 @@ export function useSolana(): UseSolanaReturn {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Add refs to prevent excessive calls
   const lastFetchTime = useRef<number>(0);
   const isCurrentlyFetching = useRef<boolean>(false);
   const CACHE_DURATION = 30000; // 30 seconds cache
 
-  // Get the user's Solana wallet address
   const getWalletAddress = useCallback((): string | null => {
-    // Use the Privy Solana wallets hook - much cleaner!
     return wallets[0]?.address || null;
   }, [wallets]);
 
-  // Check if wallet is connected
   const isWalletConnected = useCallback((): boolean => {
     const address = getWalletAddress();
     return !!(address && isValidSolanaAddress(address));
   }, [getWalletAddress]);
 
-  // Refresh wallet balances with caching
   const refreshBalances = useCallback(async (): Promise<void> => {
     const walletAddress = getWalletAddress();
     if (!walletAddress || !isValidSolanaAddress(walletAddress)) {
@@ -65,7 +60,6 @@ export function useSolana(): UseSolanaReturn {
       return;
     }
 
-    // Check if we should skip due to caching or ongoing fetch
     const now = Date.now();
     if (
       isCurrentlyFetching.current ||
@@ -97,7 +91,6 @@ export function useSolana(): UseSolanaReturn {
       const errorMessage =
         err instanceof Error ? err.message : 'Failed to fetch wallet balances';
       setError(errorMessage);
-      // Preserve existing balances on error
       setWalletInfo((prev: SolanaWalletInfo | null) =>
         prev
           ? {
@@ -118,7 +111,6 @@ export function useSolana(): UseSolanaReturn {
     }
   }, [getWalletAddress, walletInfo?.address, CACHE_DURATION]);
 
-  // Send USDC payment
   const sendPayment = useCallback(
     async (request: PaymentRequest): Promise<PaymentResponse> => {
       const walletAddress = getWalletAddress();
@@ -147,7 +139,6 @@ export function useSolana(): UseSolanaReturn {
         setIsLoading(true);
         setError(null);
 
-        // Check USDC balance
         const currentBalance = await getUsdcBalance(walletAddress);
         if (currentBalance < request.amount) {
           return {
@@ -156,14 +147,12 @@ export function useSolana(): UseSolanaReturn {
           };
         }
 
-        // Create the transaction
         const transaction = await createUsdcTransferTransaction(
           walletAddress,
           request.recipient,
           request.amount,
         );
 
-        // Send transaction using Privy's Solana-specific method
         const connection = createSolanaConnection();
         const result = await sendTransaction({
           transaction,
@@ -177,7 +166,6 @@ export function useSolana(): UseSolanaReturn {
           };
         }
 
-        // Create transaction record
         const solanaTransaction: SolanaTransaction = {
           signature: result.signature,
           status: 'pending',
@@ -190,16 +178,13 @@ export function useSolana(): UseSolanaReturn {
           participantId: request.participantId,
         };
 
-        // Confirm transaction in background
         setTimeout(async () => {
           try {
             await confirmTransaction(result.signature);
           } catch (err) {
-            // Silent confirmation error handling
           }
         }, 1000);
 
-        // Refresh balances after successful transaction
         setTimeout(() => {
           refreshBalances();
         }, 2000);
@@ -223,7 +208,6 @@ export function useSolana(): UseSolanaReturn {
     [getWalletAddress, sendTransaction, refreshBalances],
   );
 
-  // Initialize wallet info when wallets change - simplified with Privy Solana hooks
   useEffect(() => {
     if (wallets.length === 0) {
       setWalletInfo(null);
@@ -234,11 +218,9 @@ export function useSolana(): UseSolanaReturn {
     const address = primaryWallet.address;
 
     setWalletInfo((prev: SolanaWalletInfo | null) => {
-      // If it's the same address and we already have balance data, preserve it
       if (prev?.address === address && prev.balance !== undefined) {
         return prev;
       }
-      // Set up new wallet info
       return {
         address,
         balance: undefined,

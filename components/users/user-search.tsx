@@ -75,7 +75,6 @@ export function UserSearch({
 
         const data: SearchResult = await response.json();
 
-        // Filter out current user if excludeCurrentUser is true
         let filteredUsers = data.users;
         if (excludeCurrentUser && currentUser) {
           filteredUsers = data.users.filter(
@@ -86,7 +85,6 @@ export function UserSearch({
         setResults(filteredUsers);
         setShowResults(true);
 
-        // Check friend status for each user
         if (filteredUsers.length > 0 && showAddButton) {
           const statuses: Record<
             string,
@@ -110,7 +108,6 @@ export function UserSearch({
     [currentUser, excludeCurrentUser, showAddButton, getFriendStatus],
   );
 
-  // Debounced search
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       searchUsers(query);
@@ -119,7 +116,6 @@ export function UserSearch({
     return () => clearTimeout(timeoutId);
   }, [query, searchUsers]);
 
-  // Click outside handler
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -150,7 +146,6 @@ export function UserSearch({
     const result = await sendFriendRequest(user.id);
 
     if (result.success) {
-      // Update the friend status immediately
       setFriendStatuses((prev) => ({
         ...prev,
         [user.id]: 'pending_sent',
