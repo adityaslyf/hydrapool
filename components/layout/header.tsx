@@ -26,7 +26,13 @@ export function Header() {
             aria-label="HydraPool - Go to dashboard"
           >
             {/* <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 flex-shrink-0"> */}
-              <Image src="/icons/logo.png" width={50} height={50} alt="HydraPool" className=" text-white" />
+            <Image
+              src="/icons/logo.png"
+              width={50}
+              height={50}
+              alt="HydraPool"
+              className=" text-white"
+            />
             {/* </div> */}
           </Link>
 

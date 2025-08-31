@@ -181,7 +181,8 @@ export function useSolana(): UseSolanaReturn {
         setTimeout(async () => {
           try {
             await confirmTransaction(result.signature);
-          } catch (err) {}
+          } catch (err) {
+          }
         }, 1000);
 
         setTimeout(() => {

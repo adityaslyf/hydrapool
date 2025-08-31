@@ -136,15 +136,15 @@ export default function ProfilePage() {
         setIsEditingUsername(false);
         showToastMessage('Username updated successfully!');
         window.location.reload();
-      } else {
-        const errorData = await response.json();
-        showToastMessage(errorData.error || 'Failed to update username');
+              } else {
+          const errorData = await response.json();
+          showToastMessage(errorData.error || 'Failed to update username');
+        }
+      } catch (error) {
+        showToastMessage('Failed to update username');
+      } finally {
+        setIsUpdating(false);
       }
-    } catch (error) {
-      showToastMessage('Failed to update username');
-    } finally {
-      setIsUpdating(false);
-    }
   };
 
   const formatAddress = (address: string) => {
