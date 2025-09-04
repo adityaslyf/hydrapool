@@ -36,16 +36,20 @@ interface WalletPaymentProps {
   onPaymentSuccess: () => void;
 }
 
-export function WalletPayment({ split, participant, onPaymentSuccess }: WalletPaymentProps) {
-  const { 
-    sendPayment, 
-    walletInfo, 
-    isWalletConnected, 
+export function WalletPayment({
+  split,
+  participant,
+  onPaymentSuccess,
+}: WalletPaymentProps) {
+  const {
+    sendPayment,
+    walletInfo,
+    isWalletConnected,
     refreshBalances,
     error: walletError,
-    isLoading: walletLoading 
+    isLoading: walletLoading,
   } = useSolana();
-  
+
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -68,7 +72,7 @@ export function WalletPayment({ split, participant, onPaymentSuccess }: WalletPa
         status: 'disconnected',
         message: 'Please connect your Solana wallet to make payments',
         color: 'orange',
-        icon: <Wallet className="h-4 w-4" />
+        icon: <Wallet className="h-4 w-4" />,
       };
     }
 
@@ -77,7 +81,7 @@ export function WalletPayment({ split, participant, onPaymentSuccess }: WalletPa
         status: 'loading',
         message: 'Loading wallet information...',
         color: 'blue',
-        icon: <Loader2 className="h-4 w-4 animate-spin" />
+        icon: <Loader2 className="h-4 w-4 animate-spin" />,
       };
     }
 
@@ -86,7 +90,7 @@ export function WalletPayment({ split, participant, onPaymentSuccess }: WalletPa
         status: 'insufficient',
         message: `Insufficient USDC balance. You need ${participant.amount_owed.toFixed(2)} USDC but have ${walletInfo?.usdcBalance?.toFixed(2) || '0.00'} USDC`,
         color: 'red',
-        icon: <AlertCircle className="h-4 w-4" />
+        icon: <AlertCircle className="h-4 w-4" />,
       };
     }
 
@@ -94,7 +98,7 @@ export function WalletPayment({ split, participant, onPaymentSuccess }: WalletPa
       status: 'ready',
       message: 'Wallet connected and ready for payment',
       color: 'green',
-      icon: <CheckCircle className="h-4 w-4" />
+      icon: <CheckCircle className="h-4 w-4" />,
     };
   };
 
@@ -146,7 +150,8 @@ export function WalletPayment({ split, participant, onPaymentSuccess }: WalletPa
         throw new Error(result.error || 'Payment failed');
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Payment failed';
+      const errorMessage =
+        err instanceof Error ? err.message : 'Payment failed';
       setError(errorMessage);
     } finally {
       setPaymentLoading(false);
@@ -164,9 +169,12 @@ export function WalletPayment({ split, participant, onPaymentSuccess }: WalletPa
               <CheckCircle className="h-6 w-6 text-white" />
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold text-green-900">Payment Completed</h3>
+              <h3 className="font-semibold text-green-900">
+                Payment Completed
+              </h3>
               <p className="text-sm text-green-700">
-                You've successfully paid ${participant.amount_owed.toFixed(2)} USDC
+                You've successfully paid ${participant.amount_owed.toFixed(2)}{' '}
+                USDC
               </p>
               {participant.payment_transaction_id && (
                 <div className="mt-2">
@@ -176,7 +184,8 @@ export function WalletPayment({ split, participant, onPaymentSuccess }: WalletPa
                     rel="noopener noreferrer"
                     className="text-xs text-green-600 hover:text-green-800 font-mono flex items-center gap-1"
                   >
-                    {participant.payment_transaction_id.slice(0, 8)}...{participant.payment_transaction_id.slice(-8)}
+                    {participant.payment_transaction_id.slice(0, 8)}...
+                    {participant.payment_transaction_id.slice(-8)}
                     <ExternalLink className="h-3 w-3" />
                   </a>
                 </div>
@@ -197,9 +206,12 @@ export function WalletPayment({ split, participant, onPaymentSuccess }: WalletPa
               <CheckCircle className="h-8 w-8 text-white" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-green-900">Payment Successful!</h3>
+              <h3 className="text-lg font-semibold text-green-900">
+                Payment Successful!
+              </h3>
               <p className="text-sm text-green-700">
-                Your payment of ${participant.amount_owed.toFixed(2)} USDC has been sent
+                Your payment of ${participant.amount_owed.toFixed(2)} USDC has
+                been sent
               </p>
             </div>
             {transactionHash && (
@@ -233,7 +245,9 @@ export function WalletPayment({ split, participant, onPaymentSuccess }: WalletPa
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Connection Status */}
-          <Alert className={`border-${walletStatus.color}-200 bg-${walletStatus.color}-50`}>
+          <Alert
+            className={`border-${walletStatus.color}-200 bg-${walletStatus.color}-50`}
+          >
             <div className="flex items-center gap-2">
               {walletStatus.icon}
               <AlertDescription className={`text-${walletStatus.color}-800`}>
@@ -251,9 +265,7 @@ export function WalletPayment({ split, participant, onPaymentSuccess }: WalletPa
           {(error || walletError) && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                {error || walletError}
-              </AlertDescription>
+              <AlertDescription>{error || walletError}</AlertDescription>
             </Alert>
           )}
         </CardContent>
@@ -264,7 +276,9 @@ export function WalletPayment({ split, participant, onPaymentSuccess }: WalletPa
         <CardContent className="p-6">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900">Payment Details</h3>
+              <h3 className="text-lg font-semibold text-gray-900">
+                Payment Details
+              </h3>
               <Badge variant="outline" className="bg-white">
                 {split.currency || 'USDC'}
               </Badge>
@@ -280,7 +294,9 @@ export function WalletPayment({ split, participant, onPaymentSuccess }: WalletPa
               <div>
                 <span className="text-gray-600">Paying To:</span>
                 <div className="font-medium text-gray-900">
-                  {split.creator.username || split.creator.email?.split('@')[0] || 'Creator'}
+                  {split.creator.username ||
+                    split.creator.email?.split('@')[0] ||
+                    'Creator'}
                 </div>
               </div>
             </div>
@@ -294,8 +310,8 @@ export function WalletPayment({ split, participant, onPaymentSuccess }: WalletPa
               <Button
                 onClick={handlePayment}
                 disabled={
-                  paymentLoading || 
-                  !isWalletConnected() || 
+                  paymentLoading ||
+                  !isWalletConnected() ||
                   hasInsufficientBalance() ||
                   walletLoading
                 }

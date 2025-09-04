@@ -47,7 +47,10 @@ const SETUP_STEPS = [
   },
 ];
 
-export function WalletSetup({ onComplete, skipOption = true }: WalletSetupProps) {
+export function WalletSetup({
+  onComplete,
+  skipOption = true,
+}: WalletSetupProps) {
   const { isWalletConnected, walletInfo, refreshBalances } = useSolana();
   const [currentStep, setCurrentStep] = useState(0);
   const [showWalletConnector, setShowWalletConnector] = useState(false);
@@ -134,14 +137,16 @@ export function WalletSetup({ onComplete, skipOption = true }: WalletSetupProps)
                 <Alert className="border-green-200 bg-green-50">
                   <CheckCircle className="h-4 w-4 text-green-600" />
                   <AlertDescription className="text-green-800">
-                    Great! We detected {detectedWallets.join(', ')} on your browser.
+                    Great! We detected {detectedWallets.join(', ')} on your
+                    browser.
                   </AlertDescription>
                 </Alert>
               ) : (
                 <Alert className="border-orange-200 bg-orange-50">
                   <Info className="h-4 w-4 text-orange-600" />
                   <AlertDescription className="text-orange-800">
-                    No Solana wallets detected. We recommend installing Phantom wallet.
+                    No Solana wallets detected. We recommend installing Phantom
+                    wallet.
                   </AlertDescription>
                 </Alert>
               )}
@@ -153,17 +158,24 @@ export function WalletSetup({ onComplete, skipOption = true }: WalletSetupProps)
                     <span className="text-lg">👻</span>
                     <div>
                       <div className="font-medium">Phantom</div>
-                      <div className="text-sm text-gray-600">Most popular Solana wallet</div>
+                      <div className="text-sm text-gray-600">
+                        Most popular Solana wallet
+                      </div>
                     </div>
                     {detectedWallets.includes('Phantom') && (
-                      <Badge variant="outline" className="bg-green-50 text-green-700">
+                      <Badge
+                        variant="outline"
+                        className="bg-green-50 text-green-700"
+                      >
                         Installed
                       </Badge>
                     )}
                   </div>
                   <Button
                     variant="outline"
-                    onClick={() => window.open('https://phantom.app/', '_blank')}
+                    onClick={() =>
+                      window.open('https://phantom.app/', '_blank')
+                    }
                   >
                     <ExternalLink className="h-4 w-4 mr-1" />
                     {detectedWallets.includes('Phantom') ? 'Open' : 'Install'}
@@ -177,7 +189,9 @@ export function WalletSetup({ onComplete, skipOption = true }: WalletSetupProps)
                   disabled={detectedWallets.length === 0}
                   className="flex-1"
                 >
-                  {detectedWallets.length > 0 ? 'Continue' : 'Install a Wallet First'}
+                  {detectedWallets.length > 0
+                    ? 'Continue'
+                    : 'Install a Wallet First'}
                 </Button>
               </div>
             </div>
@@ -195,7 +209,8 @@ export function WalletSetup({ onComplete, skipOption = true }: WalletSetupProps)
                   <Alert className="border-blue-200 bg-blue-50">
                     <Shield className="h-4 w-4 text-blue-600" />
                     <AlertDescription className="text-blue-800">
-                      Your wallet stays secure. We never access your private keys.
+                      Your wallet stays secure. We never access your private
+                      keys.
                     </AlertDescription>
                   </Alert>
 
@@ -224,15 +239,14 @@ export function WalletSetup({ onComplete, skipOption = true }: WalletSetupProps)
                 {SETUP_STEPS[currentStep].description}
               </p>
 
-              {isWalletConnected() && (
-                <WalletInfo showActions={true} />
-              )}
+              {isWalletConnected() && <WalletInfo showActions={true} />}
 
               <Alert className="border-yellow-200 bg-yellow-50">
                 <Info className="h-4 w-4 text-yellow-600" />
                 <AlertDescription className="text-yellow-800">
-                  You need USDC in your wallet to make payments. You can buy USDC on exchanges
-                  like Coinbase or FTX and transfer it to your wallet.
+                  You need USDC in your wallet to make payments. You can buy
+                  USDC on exchanges like Coinbase or FTX and transfer it to your
+                  wallet.
                 </AlertDescription>
               </Alert>
 
@@ -241,7 +255,10 @@ export function WalletSetup({ onComplete, skipOption = true }: WalletSetupProps)
                 <div className="space-y-2 text-sm text-gray-600">
                   <div className="flex items-center gap-2">
                     <Globe className="h-4 w-4" />
-                    <span>Buy USDC on a centralized exchange (Coinbase, Binance, etc.)</span>
+                    <span>
+                      Buy USDC on a centralized exchange (Coinbase, Binance,
+                      etc.)
+                    </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <ArrowRight className="h-4 w-4" />
@@ -288,8 +305,9 @@ export function WalletSetup({ onComplete, skipOption = true }: WalletSetupProps)
             <div className="text-sm">
               <p className="font-medium text-gray-900 mb-1">Need Help?</p>
               <p className="text-gray-600">
-                If you're having trouble connecting your wallet, make sure you have a Solana
-                wallet extension installed and enabled in your browser.
+                If you're having trouble connecting your wallet, make sure you
+                have a Solana wallet extension installed and enabled in your
+                browser.
               </p>
             </div>
           </div>

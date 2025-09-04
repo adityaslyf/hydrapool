@@ -18,8 +18,11 @@ import {
   Shield,
   Clock,
   ExternalLink,
+  Smartphone,
+  Info,
 } from 'lucide-react';
 import { usePhantomWallet } from '@/hooks/use-phantom-wallet';
+import { detectPWAContext, openWalletApp } from '@/lib/pwa-utils';
 import type { PaymentRequest, SplitWithParticipants, User } from '@/types';
 
 interface PhantomPaymentProps {
@@ -37,21 +40,26 @@ interface PhantomPaymentProps {
   onPaymentSuccess: () => void;
 }
 
-export function PhantomPayment({ split, participant, onPaymentSuccess }: PhantomPaymentProps) {
+export function PhantomPayment({
+  split,
+  participant,
+  onPaymentSuccess,
+}: PhantomPaymentProps) {
   const { connected, publicKey } = useWallet();
-  const { 
-    sendPayment, 
-    walletInfo, 
-    isWalletConnected, 
+  const {
+    sendPayment,
+    walletInfo,
+    isWalletConnected,
     refreshBalances,
     error: walletError,
-    isLoading: walletLoading 
+    isLoading: walletLoading,
   } = usePhantomWallet();
-  
+
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [transactionHash, setTransactionHash] = useState<string | null>(null);
+  const [pwaInfo] = useState(detectPWAContext());
 
   useEffect(() => {
     if (isWalletConnected()) {
@@ -70,7 +78,7 @@ export function PhantomPayment({ split, participant, onPaymentSuccess }: Phantom
         status: 'disconnected',
         message: 'Please connect your Phantom wallet to make payments',
         color: 'orange',
-        icon: <Wallet className="h-4 w-4" />
+        icon: <Wallet className="h-4 w-4" />,
       };
     }
 
@@ -79,7 +87,7 @@ export function PhantomPayment({ split, participant, onPaymentSuccess }: Phantom
         status: 'loading',
         message: 'Loading wallet information...',
         color: 'blue',
-        icon: <Loader2 className="h-4 w-4 animate-spin" />
+        icon: <Loader2 className="h-4 w-4 animate-spin" />,
       };
     }
 
@@ -88,7 +96,7 @@ export function PhantomPayment({ split, participant, onPaymentSuccess }: Phantom
         status: 'insufficient',
         message: `Insufficient USDC balance. You need ${participant.amount_owed.toFixed(2)} USDC but have ${walletInfo?.usdcBalance?.toFixed(2) || '0.00'} USDC`,
         color: 'red',
-        icon: <AlertCircle className="h-4 w-4" />
+        icon: <AlertCircle className="h-4 w-4" />,
       };
     }
 
@@ -96,7 +104,7 @@ export function PhantomPayment({ split, participant, onPaymentSuccess }: Phantom
       status: 'ready',
       message: 'Phantom wallet connected and ready for payment',
       color: 'green',
-      icon: <CheckCircle className="h-4 w-4" />
+      icon: <CheckCircle className="h-4 w-4" />,
     };
   };
 
@@ -148,7 +156,8 @@ export function PhantomPayment({ split, participant, onPaymentSuccess }: Phantom
         throw new Error(result.error || 'Payment failed');
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Payment failed';
+      const errorMessage =
+        err instanceof Error ? err.message : 'Payment failed';
       setError(errorMessage);
     } finally {
       setPaymentLoading(false);
@@ -166,9 +175,12 @@ export function PhantomPayment({ split, participant, onPaymentSuccess }: Phantom
               <CheckCircle className="h-6 w-6 text-white" />
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold text-green-900">Payment Completed</h3>
+              <h3 className="font-semibold text-green-900">
+                Payment Completed
+              </h3>
               <p className="text-sm text-green-700">
-                You've successfully paid ${participant.amount_owed.toFixed(2)} USDC
+                You've successfully paid ${participant.amount_owed.toFixed(2)}{' '}
+                USDC
               </p>
               {participant.payment_transaction_id && (
                 <div className="mt-2">
@@ -178,7 +190,8 @@ export function PhantomPayment({ split, participant, onPaymentSuccess }: Phantom
                     rel="noopener noreferrer"
                     className="text-xs text-green-600 hover:text-green-800 font-mono flex items-center gap-1"
                   >
-                    {participant.payment_transaction_id.slice(0, 8)}...{participant.payment_transaction_id.slice(-8)}
+                    {participant.payment_transaction_id.slice(0, 8)}...
+                    {participant.payment_transaction_id.slice(-8)}
                     <ExternalLink className="h-3 w-3" />
                   </a>
                 </div>
@@ -199,9 +212,12 @@ export function PhantomPayment({ split, participant, onPaymentSuccess }: Phantom
               <CheckCircle className="h-8 w-8 text-white" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-green-900">Payment Successful!</h3>
+              <h3 className="text-lg font-semibold text-green-900">
+                Payment Successful!
+              </h3>
               <p className="text-sm text-green-700">
-                Your payment of ${participant.amount_owed.toFixed(2)} USDC has been sent via Phantom
+                Your payment of ${participant.amount_owed.toFixed(2)} USDC has
+                been sent via Phantom
               </p>
             </div>
             {transactionHash && (
@@ -237,7 +253,9 @@ export function PhantomPayment({ split, participant, onPaymentSuccess }: Phantom
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Connection Status */}
-          <Alert className={`border-${walletStatus.color}-200 bg-${walletStatus.color}-50`}>
+          <Alert
+            className={`border-${walletStatus.color}-200 bg-${walletStatus.color}-50`}
+          >
             <div className="flex items-center gap-2">
               {walletStatus.icon}
               <AlertDescription className={`text-${walletStatus.color}-800`}>
@@ -249,10 +267,66 @@ export function PhantomPayment({ split, participant, onPaymentSuccess }: Phantom
           {/* Wallet Connection */}
           {!isWalletConnected() && (
             <div className="space-y-3">
-              <p className="text-sm text-gray-600">
-                Connect your Phantom wallet to continue with the payment
-              </p>
-              <WalletMultiButton className="!bg-purple-600 hover:!bg-purple-700" />
+              {pwaInfo.isPWA && pwaInfo.isMobile ? (
+                <div className="space-y-3">
+                  <Alert className="border-blue-200 bg-blue-50">
+                    <Smartphone className="h-4 w-4 text-blue-600" />
+                    <AlertDescription className="text-blue-800">
+                      <div className="space-y-2">
+                        <p className="font-medium">Mobile PWA Detected</p>
+                        <p className="text-sm">
+                          For the best experience, use the Phantom mobile app to make payments.
+                        </p>
+                      </div>
+                    </AlertDescription>
+                  </Alert>
+                  
+                  <div className="grid gap-2">
+                    <Button
+                      onClick={() => openWalletApp('Phantom', pwaInfo)}
+                      className="bg-purple-600 hover:bg-purple-700 h-12"
+                      size="lg"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">👻</span>
+                        Open Phantom App
+                      </div>
+                    </Button>
+                    
+                    <Button
+                      variant="outline"
+                      onClick={() => window.open(
+                        pwaInfo.platform === 'ios'
+                          ? 'https://apps.apple.com/app/phantom-solana-wallet/id1598432977'
+                          : 'https://play.google.com/store/apps/details?id=app.phantom',
+                        '_blank'
+                      )}
+                      className="h-10"
+                    >
+                      <div className="flex items-center gap-2">
+                        <ExternalLink className="h-4 w-4" />
+                        Install Phantom App
+                      </div>
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <p className="text-sm text-gray-600">
+                    Connect your Phantom wallet to continue with the payment
+                  </p>
+                  {pwaInfo.isPWA && !pwaInfo.isMobile && (
+                    <Alert className="border-amber-200 bg-amber-50">
+                      <Info className="h-4 w-4 text-amber-600" />
+                      <AlertDescription className="text-amber-800 text-sm">
+                        Browser extensions may have limited functionality in PWA mode.
+                        Consider using the web version for full wallet support.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  <WalletMultiButton className="!bg-purple-600 hover:!bg-purple-700" />
+                </div>
+              )}
             </div>
           )}
 
@@ -262,7 +336,8 @@ export function PhantomPayment({ split, participant, onPaymentSuccess }: Phantom
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Connected Wallet:</span>
                 <code className="text-xs font-mono bg-white px-2 py-1 rounded">
-                  {walletInfo.address.slice(0, 6)}...{walletInfo.address.slice(-6)}
+                  {walletInfo.address.slice(0, 6)}...
+                  {walletInfo.address.slice(-6)}
                 </code>
               </div>
               <div className="flex items-center justify-between">
@@ -284,9 +359,7 @@ export function PhantomPayment({ split, participant, onPaymentSuccess }: Phantom
           {(error || walletError) && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                {error || walletError}
-              </AlertDescription>
+              <AlertDescription>{error || walletError}</AlertDescription>
             </Alert>
           )}
         </CardContent>
@@ -297,7 +370,9 @@ export function PhantomPayment({ split, participant, onPaymentSuccess }: Phantom
         <CardContent className="p-6">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900">Payment Details</h3>
+              <h3 className="text-lg font-semibold text-gray-900">
+                Payment Details
+              </h3>
               <Badge variant="outline" className="bg-white">
                 {split.currency || 'USDC'}
               </Badge>
@@ -313,7 +388,9 @@ export function PhantomPayment({ split, participant, onPaymentSuccess }: Phantom
               <div>
                 <span className="text-gray-600">Paying To:</span>
                 <div className="font-medium text-gray-900">
-                  {split.creator.username || split.creator.email?.split('@')[0] || 'Creator'}
+                  {split.creator.username ||
+                    split.creator.email?.split('@')[0] ||
+                    'Creator'}
                 </div>
               </div>
             </div>
@@ -327,8 +404,8 @@ export function PhantomPayment({ split, participant, onPaymentSuccess }: Phantom
               <Button
                 onClick={handlePayment}
                 disabled={
-                  paymentLoading || 
-                  !isWalletConnected() || 
+                  paymentLoading ||
+                  !isWalletConnected() ||
                   hasInsufficientBalance() ||
                   walletLoading
                 }

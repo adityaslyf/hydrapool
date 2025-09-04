@@ -30,7 +30,15 @@ interface UsePhantomWalletReturn {
 }
 
 export function usePhantomWallet(): UsePhantomWalletReturn {
-  const { publicKey, connected, connecting, disconnect, sendTransaction, wallet, connect } = useWallet();
+  const {
+    publicKey,
+    connected,
+    connecting,
+    disconnect,
+    sendTransaction,
+    wallet,
+    connect,
+  } = useWallet();
   const { connection } = useConnection();
   const [walletInfo, setWalletInfo] = useState<SolanaWalletInfo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -55,7 +63,8 @@ export function usePhantomWallet(): UsePhantomWalletReturn {
         await connect();
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to connect wallet';
+      const errorMessage =
+        err instanceof Error ? err.message : 'Failed to connect wallet';
       setError(errorMessage);
       throw err;
     }
@@ -67,7 +76,8 @@ export function usePhantomWallet(): UsePhantomWalletReturn {
       await disconnect();
       setWalletInfo(null);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to disconnect wallet';
+      const errorMessage =
+        err instanceof Error ? err.message : 'Failed to disconnect wallet';
       setError(errorMessage);
       throw err;
     }

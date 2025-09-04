@@ -4,20 +4,16 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-  Wallet,
-  Zap,
-  Shield,
-  Users,
-  ExternalLink,
-} from 'lucide-react';
+import { Wallet, Zap, Shield, Users, ExternalLink } from 'lucide-react';
 
 interface WalletSelectionProps {
   onSelect: (walletType: 'privy' | 'phantom') => void;
 }
 
 export function WalletSelection({ onSelect }: WalletSelectionProps) {
-  const [selectedWallet, setSelectedWallet] = useState<'privy' | 'phantom' | null>(null);
+  const [selectedWallet, setSelectedWallet] = useState<
+    'privy' | 'phantom' | null
+  >(null);
 
   const walletOptions = [
     {
@@ -29,15 +25,11 @@ export function WalletSelection({ onSelect }: WalletSelectionProps) {
         'Your own wallet',
         'Full control of keys',
         'Works with other dApps',
-        'Import existing wallet'
+        'Import existing wallet',
       ],
-      pros: [
-        'Maximum security',
-        'Wallet portability',
-        'Familiar interface'
-      ],
+      pros: ['Maximum security', 'Wallet portability', 'Familiar interface'],
       recommended: true,
-      color: 'purple'
+      color: 'purple',
     },
     {
       id: 'privy' as const,
@@ -48,16 +40,12 @@ export function WalletSelection({ onSelect }: WalletSelectionProps) {
         'No setup required',
         'Automatic creation',
         'Email-based recovery',
-        'Built-in integration'
+        'Built-in integration',
       ],
-      pros: [
-        'Zero setup',
-        'Beginner friendly',
-        'Fast onboarding'
-      ],
+      pros: ['Zero setup', 'Beginner friendly', 'Fast onboarding'],
       recommended: false,
-      color: 'blue'
-    }
+      color: 'blue',
+    },
   ];
 
   const handleSelect = (walletType: 'privy' | 'phantom') => {
@@ -76,7 +64,7 @@ export function WalletSelection({ onSelect }: WalletSelectionProps) {
 
       <div className="grid gap-6 md:grid-cols-2">
         {walletOptions.map((wallet) => (
-          <Card 
+          <Card
             key={wallet.id}
             className={`border-2 cursor-pointer transition-all duration-200 ${
               selectedWallet === wallet.id
@@ -102,19 +90,24 @@ export function WalletSelection({ onSelect }: WalletSelectionProps) {
                 </CardTitle>
                 <Wallet className={`h-5 w-5 text-${wallet.color}-600`} />
               </div>
-              <p className="text-sm text-gray-600 mt-2">
-                {wallet.description}
-              </p>
+              <p className="text-sm text-gray-600 mt-2">{wallet.description}</p>
             </CardHeader>
 
             <CardContent className="space-y-4">
               {/* Features */}
               <div>
-                <h4 className="text-sm font-medium text-gray-900 mb-2">Features:</h4>
+                <h4 className="text-sm font-medium text-gray-900 mb-2">
+                  Features:
+                </h4>
                 <ul className="space-y-1">
                   {wallet.features.map((feature, index) => (
-                    <li key={index} className="flex items-center gap-2 text-sm text-gray-600">
-                      <div className={`w-1.5 h-1.5 bg-${wallet.color}-600 rounded-full`} />
+                    <li
+                      key={index}
+                      className="flex items-center gap-2 text-sm text-gray-600"
+                    >
+                      <div
+                        className={`w-1.5 h-1.5 bg-${wallet.color}-600 rounded-full`}
+                      />
                       {feature}
                     </li>
                   ))}
@@ -123,10 +116,15 @@ export function WalletSelection({ onSelect }: WalletSelectionProps) {
 
               {/* Pros */}
               <div>
-                <h4 className="text-sm font-medium text-gray-900 mb-2">Benefits:</h4>
+                <h4 className="text-sm font-medium text-gray-900 mb-2">
+                  Benefits:
+                </h4>
                 <ul className="space-y-1">
                   {wallet.pros.map((pro, index) => (
-                    <li key={index} className="flex items-center gap-2 text-sm text-green-700">
+                    <li
+                      key={index}
+                      className="flex items-center gap-2 text-sm text-green-700"
+                    >
                       <Shield className="h-3 w-3" />
                       {pro}
                     </li>
@@ -180,16 +178,26 @@ export function WalletSelection({ onSelect }: WalletSelectionProps) {
           <div className="flex items-start gap-3">
             <Shield className="h-6 w-6 text-blue-600 mt-1" />
             <div>
-              <h3 className="font-semibold text-gray-900 mb-2">Security Note</h3>
+              <h3 className="font-semibold text-gray-900 mb-2">
+                Security Note
+              </h3>
               <p className="text-sm text-gray-600 mb-3">
-                Both options are secure, but they offer different levels of control:
+                Both options are secure, but they offer different levels of
+                control:
               </p>
               <ul className="space-y-1 text-sm text-gray-600">
-                <li>• <strong>Phantom:</strong> You control your private keys completely</li>
-                <li>• <strong>Embedded:</strong> HydraPool helps manage your wallet securely</li>
+                <li>
+                  • <strong>Phantom:</strong> You control your private keys
+                  completely
+                </li>
+                <li>
+                  • <strong>Embedded:</strong> HydraPool helps manage your
+                  wallet securely
+                </li>
               </ul>
               <p className="text-xs text-gray-500 mt-3">
-                You can change your wallet choice later in your account settings.
+                You can change your wallet choice later in your account
+                settings.
               </p>
             </div>
           </div>

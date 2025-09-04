@@ -29,13 +29,8 @@ import { useAuth } from '@/hooks/use-auth';
 
 export default function WalletPage() {
   const { user } = useAuth();
-  const { 
-    isWalletConnected, 
-    walletInfo, 
-    refreshBalances, 
-    isLoading, 
-    error 
-  } = useSolana();
+  const { isWalletConnected, walletInfo, refreshBalances, isLoading, error } =
+    useSolana();
   const [showSetup, setShowSetup] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
 
@@ -65,7 +60,7 @@ export default function WalletPage() {
     return (
       <AppLayout>
         <div className="max-w-4xl mx-auto py-6">
-          <WalletSetup 
+          <WalletSetup
             onComplete={() => setShowSetup(false)}
             skipOption={true}
           />
@@ -101,7 +96,9 @@ export default function WalletPage() {
                 variant="outline"
                 className="flex items-center gap-2"
               >
-                <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+                <RefreshCw
+                  className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`}
+                />
                 Refresh
               </Button>
             )}
@@ -114,7 +111,8 @@ export default function WalletPage() {
             <Alert className="border-orange-200 bg-orange-50">
               <AlertCircle className="h-4 w-4 text-orange-600" />
               <AlertDescription className="text-orange-800">
-                No wallet connected. Connect your Solana wallet to start making payments.
+                No wallet connected. Connect your Solana wallet to start making
+                payments.
               </AlertDescription>
             </Alert>
             <WalletConnector onWalletConnected={refreshBalances} />
@@ -139,10 +137,9 @@ export default function WalletPage() {
                     </label>
                     <div className="flex items-center gap-2 mt-1">
                       <code className="flex-1 px-3 py-2 text-sm bg-gray-50 rounded-lg font-mono border">
-                        {walletInfo?.address ? 
-                          formatWalletAddress(walletInfo.address) : 
-                          'Loading...'
-                        }
+                        {walletInfo?.address
+                          ? formatWalletAddress(walletInfo.address)
+                          : 'Loading...'}
                       </code>
                       <Button
                         variant="outline"
@@ -166,7 +163,10 @@ export default function WalletPage() {
                       Network
                     </label>
                     <div className="mt-1">
-                      <Badge variant="outline" className="bg-blue-50 text-blue-700">
+                      <Badge
+                        variant="outline"
+                        className="bg-blue-50 text-blue-700"
+                      >
                         Solana Devnet
                       </Badge>
                     </div>
@@ -209,7 +209,9 @@ export default function WalletPage() {
                       <span className="text-sm font-medium text-blue-700">
                         USDC Balance
                       </span>
-                      <span className="text-xs text-blue-600">Primary currency</span>
+                      <span className="text-xs text-blue-600">
+                        Primary currency
+                      </span>
                     </div>
                     <div className="text-2xl font-bold text-blue-900">
                       {isLoading ? (
@@ -231,7 +233,9 @@ export default function WalletPage() {
                       <span className="text-sm font-medium text-purple-700">
                         SOL Balance
                       </span>
-                      <span className="text-xs text-purple-600">Network fees</span>
+                      <span className="text-xs text-purple-600">
+                        Network fees
+                      </span>
                     </div>
                     <div className="text-2xl font-bold text-purple-900">
                       {isLoading ? (
@@ -265,7 +269,12 @@ export default function WalletPage() {
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   <Button
                     variant="outline"
-                    onClick={() => window.open(`https://explorer.solana.com/address/${walletInfo?.address}?cluster=devnet`, '_blank')}
+                    onClick={() =>
+                      window.open(
+                        `https://explorer.solana.com/address/${walletInfo?.address}?cluster=devnet`,
+                        '_blank',
+                      )
+                    }
                     disabled={!walletInfo?.address}
                     className="justify-start h-auto p-4"
                   >
@@ -354,14 +363,16 @@ export default function WalletPage() {
                       Need Help?
                     </h3>
                     <p className="text-sm text-gray-600 mb-3">
-                      If you're having trouble with your wallet or need to add USDC, 
-                      here are some helpful resources:
+                      If you're having trouble with your wallet or need to add
+                      USDC, here are some helpful resources:
                     </p>
                     <div className="space-y-2">
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => window.open('https://docs.phantom.app/', '_blank')}
+                        onClick={() =>
+                          window.open('https://docs.phantom.app/', '_blank')
+                        }
                       >
                         <ExternalLink className="h-4 w-4 mr-2" />
                         Phantom Wallet Guide
@@ -369,7 +380,12 @@ export default function WalletPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => window.open('https://docs.solana.com/wallet-guide', '_blank')}
+                        onClick={() =>
+                          window.open(
+                            'https://docs.solana.com/wallet-guide',
+                            '_blank',
+                          )
+                        }
                       >
                         <ExternalLink className="h-4 w-4 mr-2" />
                         Solana Wallet Guide

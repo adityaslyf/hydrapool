@@ -52,8 +52,7 @@ export default function FriendsPage() {
         const sentData = await sentResponse.json();
         setSentCount(sentData.count || 0);
       }
-              } catch (error) {
-    }
+    } catch (error) {}
   };
 
   useEffect(() => {
@@ -131,8 +130,7 @@ export default function FriendsPage() {
               <UserSearch
                 placeholder="Search users to add as friends..."
                 showAddButton={true}
-                onUserSelect={(user) => {
-                }}
+                onUserSelect={(user) => {}}
               />
             </CardContent>
           </Card>

@@ -69,8 +69,7 @@ export function useAuth() {
             setDbUser(updatedUser);
             setLoading(false);
             return;
-          } catch (error) {
-          }
+          } catch (error) {}
         }
 
         if (!walletAddress) {
@@ -84,8 +83,7 @@ export function useAuth() {
                 username: finalEmail.split('@')[0],
               });
               setDbUser(newUser);
-            } catch (error) {
-            }
+            } catch (error) {}
           }
           setLoading(false);
           return;

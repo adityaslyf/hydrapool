@@ -28,7 +28,13 @@ export function Header() {
             className="flex items-center gap-3 min-h-[44px] touch-manipulation flex-shrink-0"
             aria-label="HydraPool - Go to dashboard"
           >
-           <Image src="/logo.png" width={50} height={50} alt="HydraPool" className=" text-white" />
+            <Image
+              src="/logo.png"
+              width={50}
+              height={50}
+              alt="HydraPool"
+              className=" text-white"
+            />
           </Link>
 
           {/* Desktop Navigation */}
