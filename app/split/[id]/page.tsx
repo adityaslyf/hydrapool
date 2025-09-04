@@ -27,9 +27,9 @@ import {
   Wallet,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
-import { useSolana } from '@/hooks/use-solana';
 import { AppLayout } from '@/components/layout/app-layout';
-import type { SplitWithParticipants, User, PaymentRequest } from '@/types';
+import { PhantomPayment } from '@/components/payments/phantom-payment';
+import type { SplitWithParticipants, User } from '@/types';
 
 interface SplitParticipantWithUser {
   id: string;
@@ -50,11 +50,9 @@ export default function SplitDetailPage() {
   const params = useParams();
   const router = useRouter();
   const { user: currentUser } = useAuth();
-  const { sendPayment, walletInfo, isWalletConnected } = useSolana();
   const [split, setSplit] = useState<SplitDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [paymentLoading, setPaymentLoading] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
 
@@ -139,64 +137,9 @@ export default function SplitDetailPage() {
     }
   };
 
-  const handlePayment = async () => {
-    const participation = getCurrentUserParticipation();
-    if (!participation || participation.paid || !split) return;
-
-    if (!isWalletConnected()) {
-      showToastMessage('Please ensure your Solana wallet is connected.');
-      return;
-    }
-
-    try {
-      setPaymentLoading(true);
-      setError(null);
-
-      const creatorWallet = split.creator?.wallet;
-      if (!creatorWallet) {
-        throw new Error('Creator wallet address not found');
-      }
-
-      const paymentRequest: PaymentRequest = {
-        amount: participation.amount_owed,
-        recipient: creatorWallet,
-        splitId: split.id,
-        participantId: participation.id,
-        currency: split.currency || 'USDC',
-      };
-
-      const result = await sendPayment(paymentRequest);
-
-      if (result.success && result.signature) {
-        const updateResponse = await fetch(`/api/splits/${split.id}/payment`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            participantId: participation.id,
-            transactionSignature: result.signature,
-            amount: participation.amount_owed,
-          }),
-        });
-
-        if (updateResponse.ok) {
-          await fetchSplit();
-          showToastMessage('Payment successful! Split updated.');
-        } else {
-          throw new Error('Failed to update payment status');
-        }
-      } else {
-        throw new Error(result.error || 'Payment failed');
-      }
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : 'Payment failed';
-      setError(errorMessage);
-      showToastMessage(`Payment failed: ${errorMessage}`);
-    } finally {
-      setPaymentLoading(false);
-    }
+  const handlePaymentSuccess = () => {
+    fetchSplit();
+    showToastMessage('Payment successful! Split updated.');
   };
 
   const showToastMessage = (message: string) => {
@@ -363,71 +306,11 @@ export default function SplitDetailPage() {
 
         {/* Current User Payment Section */}
         {currentUserParticipation && !isCreator() && (
-          <Card className="border border-gray-200 bg-gradient-to-r from-blue-50 to-purple-50">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
-                  <CreditCard className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Your Share
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    Your portion of this split
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <div>
-                    <div className="text-3xl font-bold text-gray-900">
-                      ${currentUserParticipation.amount_owed.toFixed(2)}
-                    </div>
-                    <div className="text-sm text-gray-500">Amount due</div>
-                  </div>
-                  {getPaymentStatusBadge(
-                    currentUserParticipation.payment_status,
-                    currentUserParticipation.paid,
-                  )}
-                </div>
-
-                {!currentUserParticipation.paid && (
-                  <div className="flex flex-col gap-3">
-                    <Button
-                      onClick={handlePayment}
-                      disabled={paymentLoading || !walletInfo?.isConnected}
-                      className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto"
-                      size="lg"
-                    >
-                      {paymentLoading ? (
-                        <div className="flex items-center gap-2">
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                          Processing Payment...
-                        </div>
-                      ) : !walletInfo?.isConnected ? (
-                        <div className="flex items-center gap-2">
-                          <Wallet className="h-4 w-4" />
-                          Connect Wallet
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2">
-                          <DollarSign className="h-4 w-4" />
-                          Pay ${currentUserParticipation.amount_owed.toFixed(2)}
-                        </div>
-                      )}
-                    </Button>
-
-                    {/* Payment Info */}
-                    <div className="text-xs text-gray-500 space-y-1">
-                      <div>Paying to: {getDisplayName(split.creator)}</div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+          <PhantomPayment
+            split={split}
+            participant={currentUserParticipation}
+            onPaymentSuccess={handlePaymentSuccess}
+          />
         )}
 
         {/* Participants List */}

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import localFont from 'next/font/local';
 import './globals.css';
 import Providers from '@/providers/privy-provider';
+import { PhantomWalletProvider } from '@/providers/phantom-wallet-provider';
 import { ServiceWorkerRegistration } from '@/components/pwa/service-worker';
 import { PWAInstallPrompt } from '@/components/pwa/install-prompt';
 
@@ -121,8 +122,10 @@ export default function RootLayout({
       >
         <ServiceWorkerRegistration />
         <Providers>
-          {children}
-          <PWAInstallPrompt />
+          <PhantomWalletProvider>
+            {children}
+            <PWAInstallPrompt />
+          </PhantomWalletProvider>
         </Providers>
       </body>
     </html>

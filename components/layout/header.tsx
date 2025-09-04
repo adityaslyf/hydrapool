@@ -4,7 +4,9 @@ import Link from 'next/link';
 import { UserProfile } from '@/components/auth/user-profile';
 import { SimpleLoginButton } from '@/components/auth/simple-login-button';
 import { DesktopNavigation, QuickActions } from './mobile-nav';
+import { WalletInfo } from '@/components/solana/wallet-info';
 import { useAuth } from '@/hooks/use-auth';
+import { useSolana } from '@/hooks/use-solana';
 import { Waves, Bell, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,6 +16,7 @@ import Image from 'next/image';
 
 export function Header() {
   const { authenticated, ready, loading } = useAuth();
+  const { isWalletConnected } = useSolana();
 
   return (
     <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-lg border-b border-gray-200 safe-area-inset-top px-2 py-1">
@@ -37,6 +40,11 @@ export function Header() {
               <>
                 {authenticated ? (
                   <>
+                    {/* Wallet Info */}
+                    <div className="hidden md:block">
+                      <WalletInfo compact={true} showActions={false} />
+                    </div>
+
                     {/* Create Split Button */}
                     <Button
                       asChild
