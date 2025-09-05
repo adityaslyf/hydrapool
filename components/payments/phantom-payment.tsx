@@ -20,6 +20,10 @@ import {
   ExternalLink,
   Smartphone,
   Info,
+  QrCode,
+  Scan,
+  Copy,
+  RefreshCw,
 } from 'lucide-react';
 import { usePhantomWallet } from '@/hooks/use-phantom-wallet';
 import { detectPWAContext, openWalletApp } from '@/lib/pwa-utils';
@@ -60,6 +64,9 @@ export function PhantomPayment({
   const [success, setSuccess] = useState(false);
   const [transactionHash, setTransactionHash] = useState<string | null>(null);
   const [pwaInfo] = useState(detectPWAContext());
+  const [showQRCode, setShowQRCode] = useState(false);
+  const [transactionData, setTransactionData] = useState<string | null>(null);
+  const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (isWalletConnected()) {
@@ -159,6 +166,28 @@ export function PhantomPayment({
       const errorMessage =
         err instanceof Error ? err.message : 'Payment failed';
       setError(errorMessage);
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
+
+  const generateTransactionQR = async () => {
+    if (!split.creator?.wallet || participant.paid) return;
+
+    try {
+      setPaymentLoading(true);
+      
+      // Create Solana Pay URL with transaction details
+      const solanaPayUrl = `solana:${split.creator.wallet}?amount=${participant.amount_owed}&spl-token=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v&reference=${participant.id}&memo=${encodeURIComponent(`HydraPool: ${split.title}`)}`;
+      
+      // Create QR code URL using qr-server.com API
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(solanaPayUrl)}`;
+      
+      setTransactionData(solanaPayUrl);
+      setQrCodeUrl(qrCodeUrl);
+      setShowQRCode(true);
+    } catch (err) {
+      setError('Failed to generate transaction QR code');
     } finally {
       setPaymentLoading(false);
     }
@@ -275,40 +304,134 @@ export function PhantomPayment({
                       <div className="space-y-2">
                         <p className="font-medium">Mobile PWA Detected</p>
                         <p className="text-sm">
-                          For the best experience, use the Phantom mobile app to make payments.
+                          Generate a QR code to complete payment with your mobile wallet app.
                         </p>
                       </div>
                     </AlertDescription>
                   </Alert>
-                  
-                  <div className="grid gap-2">
-                    <Button
-                      onClick={() => openWalletApp('Phantom', pwaInfo)}
-                      className="bg-purple-600 hover:bg-purple-700 h-12"
-                      size="lg"
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg">👻</span>
-                        Open Phantom App
+
+                  {!showQRCode ? (
+                    <div className="grid gap-2">
+                      <Button
+                        onClick={generateTransactionQR}
+                        disabled={paymentLoading || !split.creator?.wallet}
+                        className="bg-purple-600 hover:bg-purple-700 h-12"
+                        size="lg"
+                      >
+                        {paymentLoading ? (
+                          <div className="flex items-center gap-2">
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Generating QR Code...
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <QrCode className="h-5 w-5" />
+                            Generate Payment QR Code
+                          </div>
+                        )}
+                      </Button>
+
+                      <Button
+                        variant="outline"
+                        onClick={() =>
+                          window.open(
+                            pwaInfo.platform === 'ios'
+                              ? 'https://apps.apple.com/app/phantom-solana-wallet/id1598432977'
+                              : 'https://play.google.com/store/apps/details?id=app.phantom',
+                            '_blank',
+                          )
+                        }
+                        className="h-10"
+                      >
+                        <div className="flex items-center gap-2">
+                          <ExternalLink className="h-4 w-4" />
+                          Install Phantom App
+                        </div>
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {/* QR Code Display */}
+                      <div className="bg-white p-6 rounded-lg border-2 border-dashed border-gray-300 text-center">
+                        {qrCodeUrl ? (
+                          <div className="space-y-4">
+                            <img
+                              src={qrCodeUrl}
+                              alt="Payment QR Code"
+                              className="mx-auto w-72 h-72 border border-gray-200 rounded-lg"
+                            />
+                            <div className="space-y-2">
+                              <p className="font-semibold text-gray-900">
+                                Scan with Phantom Mobile App
+                              </p>
+                              <p className="text-sm text-gray-600">
+                                Payment: ${participant.amount_owed.toFixed(2)} USDC
+                              </p>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-center py-12">
+                            <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+                          </div>
+                        )}
                       </div>
-                    </Button>
-                    
-                    <Button
-                      variant="outline"
-                      onClick={() => window.open(
-                        pwaInfo.platform === 'ios'
-                          ? 'https://apps.apple.com/app/phantom-solana-wallet/id1598432977'
-                          : 'https://play.google.com/store/apps/details?id=app.phantom',
-                        '_blank'
-                      )}
-                      className="h-10"
-                    >
-                      <div className="flex items-center gap-2">
-                        <ExternalLink className="h-4 w-4" />
-                        Install Phantom App
+
+                      {/* Instructions */}
+                      <div className="bg-gray-50 p-4 rounded-lg">
+                        <div className="space-y-3 text-sm">
+                          <div className="flex items-start gap-3">
+                            <div className="w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center text-white text-xs font-bold">1</div>
+                            <p className="text-gray-700">Open your Phantom mobile app</p>
+                          </div>
+                          <div className="flex items-start gap-3">
+                            <div className="w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center text-white text-xs font-bold">2</div>
+                            <p className="text-gray-700">Tap the scan icon and scan this QR code</p>
+                          </div>
+                          <div className="flex items-start gap-3">
+                            <div className="w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center text-white text-xs font-bold">3</div>
+                            <p className="text-gray-700">Review and confirm the transaction</p>
+                          </div>
+                        </div>
                       </div>
-                    </Button>
-                  </div>
+
+                      {/* QR Actions */}
+                      <div className="grid grid-cols-2 gap-2">
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            if (transactionData) {
+                              navigator.clipboard.writeText(transactionData);
+                            }
+                          }}
+                          className="h-10 text-sm"
+                        >
+                          <Copy className="h-4 w-4 mr-2" />
+                          Copy Link
+                        </Button>
+                        <Button
+                          variant="outline"
+                          onClick={generateTransactionQR}
+                          disabled={paymentLoading}
+                          className="h-10 text-sm"
+                        >
+                          <RefreshCw className="h-4 w-4 mr-2" />
+                          Regenerate
+                        </Button>
+                      </div>
+
+                      <Button
+                        variant="ghost"
+                        onClick={() => {
+                          setShowQRCode(false);
+                          setQrCodeUrl(null);
+                          setTransactionData(null);
+                        }}
+                        className="w-full h-10 text-sm"
+                      >
+                        Back to Options
+                      </Button>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -319,8 +442,9 @@ export function PhantomPayment({
                     <Alert className="border-amber-200 bg-amber-50">
                       <Info className="h-4 w-4 text-amber-600" />
                       <AlertDescription className="text-amber-800 text-sm">
-                        Browser extensions may have limited functionality in PWA mode.
-                        Consider using the web version for full wallet support.
+                        Browser extensions may have limited functionality in PWA
+                        mode. Consider using the web version for full wallet
+                        support.
                       </AlertDescription>
                     </Alert>
                   )}

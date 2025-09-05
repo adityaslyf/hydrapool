@@ -23,15 +23,16 @@ export function detectPWAContext(): PWAInfo {
   }
 
   // Check if running in standalone mode (PWA)
-  const isStandalone = 
+  const isStandalone =
     window.matchMedia('(display-mode: standalone)').matches ||
     (window.navigator as any).standalone === true ||
     document.referrer.includes('android-app://');
 
   // Detect mobile devices
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-    navigator.userAgent
-  );
+  const isMobile =
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent,
+    );
 
   // Detect platform
   let platform: PWAInfo['platform'] = 'unknown';
@@ -43,7 +44,8 @@ export function detectPWAContext(): PWAInfo {
     platform = 'desktop';
   }
 
-  const isPWA = isStandalone || window.location.href.includes('mode=standalone');
+  const isPWA =
+    isStandalone || window.location.href.includes('mode=standalone');
 
   return {
     isPWA,
@@ -73,20 +75,24 @@ export function detectWalletsInPWA() {
 
   // Phantom Wallet Detection
   const phantomDetected = !!(window as any).phantom?.solana;
-  
+
   if (pwaInfo.isPWA && pwaInfo.isMobile) {
     // In mobile PWA, browser extensions aren't available
     detectedWallets.push({
       name: 'Phantom',
       detected: false,
       available: true,
-      deepLinkUrl: 'https://phantom.app/ul/browse/' + encodeURIComponent(window.location.origin),
-      installUrl: pwaInfo.platform === 'ios' 
-        ? 'https://apps.apple.com/app/phantom-solana-wallet/id1598432977'
-        : 'https://play.google.com/store/apps/details?id=app.phantom',
-      reason: pwaInfo.platform === 'ios' 
-        ? 'Install Phantom mobile app from App Store'
-        : 'Install Phantom mobile app from Play Store'
+      deepLinkUrl:
+        'https://phantom.app/ul/browse/' +
+        encodeURIComponent(window.location.origin),
+      installUrl:
+        pwaInfo.platform === 'ios'
+          ? 'https://apps.apple.com/app/phantom-solana-wallet/id1598432977'
+          : 'https://play.google.com/store/apps/details?id=app.phantom',
+      reason:
+        pwaInfo.platform === 'ios'
+          ? 'Install Phantom mobile app from App Store'
+          : 'Install Phantom mobile app from Play Store',
     });
   } else if (pwaInfo.isPWA && !pwaInfo.isMobile) {
     // Desktop PWA - extensions might not be available
@@ -95,9 +101,9 @@ export function detectWalletsInPWA() {
       detected: phantomDetected,
       available: phantomDetected,
       installUrl: 'https://phantom.app/',
-      reason: phantomDetected 
+      reason: phantomDetected
         ? 'Phantom extension detected'
-        : 'Install Phantom browser extension, then restart the PWA'
+        : 'Install Phantom browser extension, then restart the PWA',
     });
   } else {
     // Regular browser context
@@ -106,9 +112,9 @@ export function detectWalletsInPWA() {
       detected: phantomDetected,
       available: true,
       installUrl: 'https://phantom.app/',
-      reason: phantomDetected 
+      reason: phantomDetected
         ? 'Phantom extension detected'
-        : 'Install Phantom browser extension'
+        : 'Install Phantom browser extension',
     });
   }
 
@@ -120,10 +126,11 @@ export function detectWalletsInPWA() {
       detected: false,
       available: true,
       deepLinkUrl: 'https://solflare.com/access-wallet',
-      installUrl: pwaInfo.platform === 'ios'
-        ? 'https://apps.apple.com/app/solflare/id1580902717'
-        : 'https://play.google.com/store/apps/details?id=com.solflare.mobile',
-      reason: 'Use Solflare mobile app'
+      installUrl:
+        pwaInfo.platform === 'ios'
+          ? 'https://apps.apple.com/app/solflare/id1580902717'
+          : 'https://play.google.com/store/apps/details?id=com.solflare.mobile',
+      reason: 'Use Solflare mobile app',
     });
   } else {
     detectedWallets.push({
@@ -131,9 +138,9 @@ export function detectWalletsInPWA() {
       detected: solflareDetected,
       available: solflareDetected || !pwaInfo.isPWA,
       installUrl: 'https://solflare.com/',
-      reason: solflareDetected 
+      reason: solflareDetected
         ? 'Solflare detected'
-        : 'Install Solflare extension'
+        : 'Install Solflare extension',
     });
   }
 
@@ -150,10 +157,10 @@ export function getWalletInstructions(pwaInfo: PWAInfo) {
       instructions: [
         'Install a Solana wallet app on your phone',
         'Open the wallet app',
-        'Use the wallet\'s browser or scan QR codes to connect',
-        'Some wallets support deep linking from PWAs'
+        "Use the wallet's browser or scan QR codes to connect",
+        'Some wallets support deep linking from PWAs',
       ],
-      note: 'Mobile PWAs work best with dedicated wallet apps rather than browser extensions.'
+      note: 'Mobile PWAs work best with dedicated wallet apps rather than browser extensions.',
     };
   } else if (pwaInfo.isPWA && !pwaInfo.isMobile) {
     return {
@@ -162,9 +169,9 @@ export function getWalletInstructions(pwaInfo: PWAInfo) {
         'Install wallet browser extensions in your main browser',
         'Extensions may not work in PWA mode',
         'Consider using the web version for full wallet support',
-        'Or use WalletConnect-compatible wallets'
+        'Or use WalletConnect-compatible wallets',
       ],
-      note: 'Desktop PWAs have limited access to browser extensions. Use the web version for full compatibility.'
+      note: 'Desktop PWAs have limited access to browser extensions. Use the web version for full compatibility.',
     };
   } else {
     return {
@@ -173,9 +180,9 @@ export function getWalletInstructions(pwaInfo: PWAInfo) {
         'Install a wallet browser extension',
         'Refresh the page after installation',
         'Click connect to authorize the wallet',
-        'Approve the connection in your wallet'
+        'Approve the connection in your wallet',
       ],
-      note: 'Browser extensions work best in regular browser mode.'
+      note: 'Browser extensions work best in regular browser mode.',
     };
   }
 }
@@ -189,37 +196,39 @@ export function openWalletApp(walletName: string, pwaInfo: PWAInfo) {
   }
 
   const currentUrl = window.location.origin;
-  
+
   switch (walletName.toLowerCase()) {
     case 'phantom':
       // Phantom deep link
       const phantomUrl = `phantom://browse/${encodeURIComponent(currentUrl)}`;
       window.location.href = phantomUrl;
-      
+
       // Fallback to app store after a delay
       setTimeout(() => {
-        const storeUrl = pwaInfo.platform === 'ios'
-          ? 'https://apps.apple.com/app/phantom-solana-wallet/id1598432977'
-          : 'https://play.google.com/store/apps/details?id=app.phantom';
+        const storeUrl =
+          pwaInfo.platform === 'ios'
+            ? 'https://apps.apple.com/app/phantom-solana-wallet/id1598432977'
+            : 'https://play.google.com/store/apps/details?id=app.phantom';
         window.open(storeUrl, '_blank');
       }, 2000);
-      
+
       return true;
-      
+
     case 'solflare':
       // Solflare deep link
       const solflareUrl = `solflare://browse/${encodeURIComponent(currentUrl)}`;
       window.location.href = solflareUrl;
-      
+
       setTimeout(() => {
-        const storeUrl = pwaInfo.platform === 'ios'
-          ? 'https://apps.apple.com/app/solflare/id1580902717'
-          : 'https://play.google.com/store/apps/details?id=com.solflare.mobile';
+        const storeUrl =
+          pwaInfo.platform === 'ios'
+            ? 'https://apps.apple.com/app/solflare/id1580902717'
+            : 'https://play.google.com/store/apps/details?id=com.solflare.mobile';
         window.open(storeUrl, '_blank');
       }, 2000);
-      
+
       return true;
-      
+
     default:
       return false;
   }

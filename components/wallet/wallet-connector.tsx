@@ -23,7 +23,12 @@ import {
   Info,
 } from 'lucide-react';
 import { useSolana } from '@/hooks/use-solana';
-import { detectPWAContext, detectWalletsInPWA, getWalletInstructions, openWalletApp } from '@/lib/pwa-utils';
+import {
+  detectPWAContext,
+  detectWalletsInPWA,
+  getWalletInstructions,
+  openWalletApp,
+} from '@/lib/pwa-utils';
 
 interface WalletConnectorProps {
   onWalletConnected?: () => void;
@@ -220,13 +225,14 @@ export function WalletConnector({
               <AlertDescription className="text-blue-800">
                 <div className="space-y-1">
                   <div className="font-medium">
-                    {pwaInfo.isMobile ? 'Mobile PWA Detected' : 'Desktop PWA Detected'}
+                    {pwaInfo.isMobile
+                      ? 'Mobile PWA Detected'
+                      : 'Desktop PWA Detected'}
                   </div>
                   <div className="text-sm">
-                    {pwaInfo.isMobile 
+                    {pwaInfo.isMobile
                       ? 'Use wallet mobile apps for best experience'
-                      : 'Browser extensions may have limited functionality'
-                    }
+                      : 'Browser extensions may have limited functionality'}
                   </div>
                 </div>
               </AlertDescription>
@@ -244,14 +250,21 @@ export function WalletConnector({
               </div>
               <div className="space-y-2">
                 {walletDetection.wallets.map((wallet) => (
-                  <div key={wallet.name} className="flex items-center justify-between">
+                  <div
+                    key={wallet.name}
+                    className="flex items-center justify-between"
+                  >
                     <div className="flex items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full ${
-                        wallet.detected ? 'bg-green-500' : 'bg-gray-400'
-                      }`} />
+                      <div
+                        className={`w-2 h-2 rounded-full ${
+                          wallet.detected ? 'bg-green-500' : 'bg-gray-400'
+                        }`}
+                      />
                       <span className="text-sm font-medium">{wallet.name}</span>
                       {pwaInfo.isMobile && wallet.deepLinkUrl && (
-                        <Badge variant="outline" className="text-xs">Mobile</Badge>
+                        <Badge variant="outline" className="text-xs">
+                          Mobile
+                        </Badge>
                       )}
                     </div>
                     <div className="flex items-center gap-2">
@@ -272,7 +285,9 @@ export function WalletConnector({
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => window.open(wallet.installUrl, '_blank')}
+                          onClick={() =>
+                            window.open(wallet.installUrl, '_blank')
+                          }
                           className="h-6 text-xs"
                         >
                           Install
