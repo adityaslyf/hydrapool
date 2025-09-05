@@ -27,7 +27,7 @@ import {
 } from 'lucide-react';
 import { usePhantomWallet } from '@/hooks/use-phantom-wallet';
 import { detectPWAContext, openWalletApp } from '@/lib/pwa-utils';
-import { USDC_MINT_ADDRESS, usdcToSmallestUnit } from '@/lib/solana';
+import { USDC_MINT_ADDRESS, usdcToSmallestUnit, checkTokenAccountExists, isValidSolanaAddress } from '@/lib/solana';
 import type { PaymentRequest, SplitWithParticipants, User } from '@/types';
 
 interface PhantomPaymentProps {
@@ -177,21 +177,42 @@ export function PhantomPayment({
 
     try {
       setPaymentLoading(true);
+      setError(null);
+
+      // Validate recipient address
+      const recipient = split.creator.wallet;
+      if (!isValidSolanaAddress(recipient)) {
+        throw new Error('Invalid recipient wallet address');
+      }
+
+      // Check if recipient has USDC token account
+      console.log('Checking recipient token account...');
+      const recipientHasAccount = await checkTokenAccountExists(recipient);
+      console.log('Recipient has USDC token account:', recipientHasAccount);
+      
+      if (!recipientHasAccount) {
+        console.warn('⚠️ Recipient does not have a USDC token account. Transaction may fail.');
+        setError('Warning: Recipient wallet may not have a USDC token account. Transaction might fail. They need to create one first.');
+        // Don't return, still generate QR but show warning
+      }
 
       // Create Solana Pay URL with transaction details
       const amount = participant.amount_owed;
       const amountInSmallestUnit = usdcToSmallestUnit(amount); // Convert to micro USDC
-      const recipient = split.creator.wallet;
       const memo = `HydraPool: ${split.title}`;
       const tokenMint = USDC_MINT_ADDRESS.toBase58();
 
-      // Try standard Solana Pay format (recommended)
+      // Use standard Solana Pay format
       const solanaPayUrl = `solana:${recipient}?amount=${amountInSmallestUnit}&spl-token=${tokenMint}&memo=${encodeURIComponent(memo)}`;
 
+      console.log('=== QR CODE DEBUG INFO ===');
       console.log('Generated Solana Pay URL:', solanaPayUrl);
       console.log('Amount in USDC:', amount);
-      console.log('Amount in smallest unit:', amountInSmallestUnit);
-      console.log('Token mint:', tokenMint);
+      console.log('Amount in smallest unit (micro USDC):', amountInSmallestUnit);
+      console.log('Token mint (devnet USDC):', tokenMint);
+      console.log('Recipient address:', recipient);
+      console.log('Recipient has token account:', recipientHasAccount);
+      console.log('========================');
 
       // Create QR code URL using qr-server.com API
       const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(solanaPayUrl)}`;
@@ -201,7 +222,8 @@ export function PhantomPayment({
       setShowQRCode(true);
     } catch (err) {
       console.error('QR generation error:', err);
-      setError('Failed to generate transaction QR code');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to generate transaction QR code';
+      setError(errorMessage);
     } finally {
       setPaymentLoading(false);
     }
@@ -435,11 +457,14 @@ export function PhantomPayment({
 
                         <div className="mt-3 p-3 bg-blue-50 rounded border-l-4 border-blue-400">
                           <p className="text-xs text-blue-800">
-                            <strong>Troubleshooting:</strong> If QR code doesn't work:
-                            <br />• Make sure Phantom app is set to <strong>devnet</strong>
-                            <br />• Try the "Test" button to open the link directly
-                            <br />• Try the alternative format buttons below
-                            <br />• Check browser console for debugging info
+                            <strong>🔧 Troubleshooting "Send Error":</strong>
+                            <br />• Make sure Phantom app is set to{' '}
+                            <strong>devnet</strong> network
+                            <br />• Try "📊 Standard Devnet USDC" button below (different token)
+                            <br />• Recipient may need to create a USDC token account first
+                            <br />• Check if you have enough USDC balance for the amount
+                            <br />• Try the "Test" button to open link directly
+                            <br />• Check browser console for detailed error info
                           </p>
                         </div>
                       </div>
@@ -495,10 +520,12 @@ export function PhantomPayment({
                             Refresh
                           </Button>
                         </div>
-                        
+
                         {/* Alternative URL Formats for Testing */}
                         <div className="border-t pt-2">
-                          <p className="text-xs text-gray-600 mb-2">Alternative formats (for debugging):</p>
+                          <p className="text-xs text-gray-600 mb-2">
+                            Alternative formats (for debugging):
+                          </p>
                           <div className="grid grid-cols-2 gap-1">
                             <Button
                               variant="ghost"
@@ -528,6 +555,31 @@ export function PhantomPayment({
                             >
                               Simple Solana
                             </Button>
+                          </div>
+                          
+                          {/* Alternative USDC Mint Addresses */}
+                          <div className="mt-2 pt-2 border-t">
+                            <p className="text-xs text-gray-600 mb-1">Try alternative USDC tokens:</p>
+                            <div className="grid grid-cols-1 gap-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  const amount = participant.amount_owed;
+                                  const amountInSmallestUnit = usdcToSmallestUnit(amount);
+                                  const recipient = split.creator.wallet;
+                                  const memo = `HydraPool: ${split.title}`;
+                                  // Standard devnet USDC mock token
+                                  const standardDevnetUSDC = 'Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr';
+                                  const solanaPayUrl = `solana:${recipient}?amount=${amountInSmallestUnit}&spl-token=${standardDevnetUSDC}&memo=${encodeURIComponent(memo)}`;
+                                  console.log('Trying standard devnet USDC:', solanaPayUrl);
+                                  window.open(solanaPayUrl, '_blank');
+                                }}
+                                className="text-xs"
+                              >
+                                📊 Standard Devnet USDC
+                              </Button>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -594,9 +646,12 @@ export function PhantomPayment({
 
           {/* Payment Error */}
           {(error || walletError) && (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{error || walletError}</AlertDescription>
+            <Alert variant={error?.includes('Warning:') ? 'default' : 'destructive'} 
+                  className={error?.includes('Warning:') ? 'border-yellow-200 bg-yellow-50' : ''}>
+              <AlertCircle className={`h-4 w-4 ${error?.includes('Warning:') ? 'text-yellow-600' : ''}`} />
+              <AlertDescription className={error?.includes('Warning:') ? 'text-yellow-800' : ''}>
+                {error || walletError}
+              </AlertDescription>
             </Alert>
           )}
         </CardContent>
