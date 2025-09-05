@@ -27,7 +27,15 @@ import {
 } from 'lucide-react';
 import { usePhantomWallet } from '@/hooks/use-phantom-wallet';
 import { detectPWAContext, openWalletApp } from '@/lib/pwa-utils';
-import { USDC_MINT_ADDRESS, usdcToSmallestUnit, checkTokenAccountExists, isValidSolanaAddress } from '@/lib/solana';
+import {
+  USDC_MINT_ADDRESS,
+  usdcToSmallestUnit,
+  checkTokenAccountExists,
+  isValidSolanaAddress,
+  getSolBalance,
+  getUsdcBalance,
+  createSolanaConnection,
+} from '@/lib/solana';
 import type { PaymentRequest, SplitWithParticipants, User } from '@/types';
 
 interface PhantomPaymentProps {
@@ -68,6 +76,8 @@ export function PhantomPayment({
   const [showQRCode, setShowQRCode] = useState(false);
   const [transactionData, setTransactionData] = useState<string | null>(null);
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
+  const [debugInfo, setDebugInfo] = useState<any>(null);
+  const [validationResults, setValidationResults] = useState<any>(null);
 
   useEffect(() => {
     if (isWalletConnected()) {
@@ -178,6 +188,8 @@ export function PhantomPayment({
     try {
       setPaymentLoading(true);
       setError(null);
+      setDebugInfo(null);
+      setValidationResults(null);
 
       // Validate recipient address
       const recipient = split.creator.wallet;
@@ -185,45 +197,127 @@ export function PhantomPayment({
         throw new Error('Invalid recipient wallet address');
       }
 
-      // Check if recipient has USDC token account
-      console.log('Checking recipient token account...');
-      const recipientHasAccount = await checkTokenAccountExists(recipient);
-      console.log('Recipient has USDC token account:', recipientHasAccount);
+      // Comprehensive validation and debugging
+      console.log('🔍 Starting comprehensive transaction validation...');
       
-      if (!recipientHasAccount) {
-        console.warn('⚠️ Recipient does not have a USDC token account. Transaction may fail.');
-        setError('Warning: Recipient wallet may not have a USDC token account. Transaction might fail. They need to create one first.');
-        // Don't return, still generate QR but show warning
+      const validationStart = Date.now();
+      const validation: any = {
+        timestamp: new Date().toISOString(),
+        recipient: {
+          address: recipient,
+          isValid: isValidSolanaAddress(recipient),
+          hasTokenAccount: false,
+          solBalance: 0,
+          usdcBalance: 0,
+        },
+        transaction: {
+          amount: participant.amount_owed,
+          amountInSmallestUnit: usdcToSmallestUnit(participant.amount_owed),
+          tokenMint: USDC_MINT_ADDRESS.toBase58(),
+          memo: `HydraPool: ${split.title}`,
+        },
+        network: {
+          cluster: 'devnet',
+          rpcEndpoint: 'devnet',
+        },
+        urls: {},
+        errors: [],
+        warnings: [],
+      };
+
+      try {
+        // Check recipient balances and account status
+        validation.recipient.hasTokenAccount = await checkTokenAccountExists(recipient);
+        validation.recipient.solBalance = await getSolBalance(recipient);
+        validation.recipient.usdcBalance = await getUsdcBalance(recipient);
+      } catch (balanceError) {
+        validation.errors.push(`Failed to check recipient balances: ${balanceError}`);
       }
 
-      // Create Solana Pay URL with transaction details
+      // Validate transaction amounts
+      if (validation.transaction.amount <= 0) {
+        validation.errors.push('Invalid transaction amount: must be greater than 0');
+      }
+
+      if (validation.transaction.amountInSmallestUnit <= 0) {
+        validation.errors.push('Invalid smallest unit amount: conversion failed');
+      }
+
+      // Check if recipient has token account
+      if (!validation.recipient.hasTokenAccount) {
+        validation.warnings.push('Recipient does not have a USDC token account - transaction will likely fail');
+        setError(
+          'Warning: Recipient wallet does not have a USDC token account. Transaction will likely fail. They need to create one first.',
+        );
+      }
+
+      // Check if recipient has SOL for potential account creation fees
+      if (validation.recipient.solBalance < 0.001) {
+        validation.warnings.push('Recipient has very low SOL balance - may not be able to receive tokens');
+      }
+
+      // Generate different URL formats for testing
       const amount = participant.amount_owed;
-      const amountInSmallestUnit = usdcToSmallestUnit(amount); // Convert to micro USDC
+      const amountInSmallestUnit = usdcToSmallestUnit(amount);
       const memo = `HydraPool: ${split.title}`;
       const tokenMint = USDC_MINT_ADDRESS.toBase58();
 
-      // Use standard Solana Pay format
+      // Primary Solana Pay URL
       const solanaPayUrl = `solana:${recipient}?amount=${amountInSmallestUnit}&spl-token=${tokenMint}&memo=${encodeURIComponent(memo)}`;
+      
+      // Alternative formats for testing
+      const phantomUrl = `https://phantom.app/ul/v1/transfer?recipient=${recipient}&amount=${amount}&spl-token=${tokenMint}&memo=${encodeURIComponent(memo)}&cluster=devnet`;
+      const simpleUrl = `solana:${recipient}?amount=${amount}&memo=${encodeURIComponent(memo)}`;
+      const standardDevnetUSDC = 'Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr';
+      const alternativeUrl = `solana:${recipient}?amount=${amountInSmallestUnit}&spl-token=${standardDevnetUSDC}&memo=${encodeURIComponent(memo)}`;
 
-      console.log('=== QR CODE DEBUG INFO ===');
-      console.log('Generated Solana Pay URL:', solanaPayUrl);
-      console.log('Amount in USDC:', amount);
-      console.log('Amount in smallest unit (micro USDC):', amountInSmallestUnit);
-      console.log('Token mint (devnet USDC):', tokenMint);
-      console.log('Recipient address:', recipient);
-      console.log('Recipient has token account:', recipientHasAccount);
-      console.log('========================');
+      validation.urls = {
+        primary: solanaPayUrl,
+        phantom: phantomUrl,
+        simple: simpleUrl,
+        alternative: alternativeUrl,
+      };
 
-      // Create QR code URL using qr-server.com API
+      // Create QR code URL
       const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(solanaPayUrl)}`;
+
+      const validationEnd = Date.now();
+      validation.validationTime = validationEnd - validationStart;
+
+      // Store debugging information
+      setDebugInfo({
+        generatedAt: new Date().toISOString(),
+        primaryUrl: solanaPayUrl,
+        qrCodeUrl,
+        validation,
+      });
+
+      setValidationResults(validation);
+
+      console.log('=== COMPREHENSIVE DEBUG INFO ===');
+      console.log('Validation Results:', validation);
+      console.log('Primary URL:', solanaPayUrl);
+      console.log('Alternative URLs:', validation.urls);
+      console.log('===============================');
 
       setTransactionData(solanaPayUrl);
       setQrCodeUrl(qrCodeUrl);
       setShowQRCode(true);
+
     } catch (err) {
       console.error('QR generation error:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Failed to generate transaction QR code';
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : 'Failed to generate transaction QR code';
       setError(errorMessage);
+      
+      // Store error in debug info
+      setDebugInfo({
+        error: errorMessage,
+        details: err,
+        timestamp: new Date().toISOString(),
+      });
     } finally {
       setPaymentLoading(false);
     }
@@ -460,11 +554,15 @@ export function PhantomPayment({
                             <strong>🔧 Troubleshooting "Send Error":</strong>
                             <br />• Make sure Phantom app is set to{' '}
                             <strong>devnet</strong> network
-                            <br />• Try "📊 Standard Devnet USDC" button below (different token)
-                            <br />• Recipient may need to create a USDC token account first
-                            <br />• Check if you have enough USDC balance for the amount
+                            <br />• Try "📊 Standard Devnet USDC" button below
+                            (different token)
+                            <br />• Recipient may need to create a USDC token
+                            account first
+                            <br />• Check if you have enough USDC balance for
+                            the amount
                             <br />• Try the "Test" button to open link directly
-                            <br />• Check browser console for detailed error info
+                            <br />• Check browser console for detailed error
+                            info
                           </p>
                         </div>
                       </div>
@@ -556,23 +654,30 @@ export function PhantomPayment({
                               Simple Solana
                             </Button>
                           </div>
-                          
+
                           {/* Alternative USDC Mint Addresses */}
                           <div className="mt-2 pt-2 border-t">
-                            <p className="text-xs text-gray-600 mb-1">Try alternative USDC tokens:</p>
+                            <p className="text-xs text-gray-600 mb-1">
+                              Try alternative USDC tokens:
+                            </p>
                             <div className="grid grid-cols-1 gap-1">
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => {
                                   const amount = participant.amount_owed;
-                                  const amountInSmallestUnit = usdcToSmallestUnit(amount);
+                                  const amountInSmallestUnit =
+                                    usdcToSmallestUnit(amount);
                                   const recipient = split.creator.wallet;
                                   const memo = `HydraPool: ${split.title}`;
                                   // Standard devnet USDC mock token
-                                  const standardDevnetUSDC = 'Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr';
+                                  const standardDevnetUSDC =
+                                    'Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr';
                                   const solanaPayUrl = `solana:${recipient}?amount=${amountInSmallestUnit}&spl-token=${standardDevnetUSDC}&memo=${encodeURIComponent(memo)}`;
-                                  console.log('Trying standard devnet USDC:', solanaPayUrl);
+                                  console.log(
+                                    'Trying standard devnet USDC:',
+                                    solanaPayUrl,
+                                  );
                                   window.open(solanaPayUrl, '_blank');
                                 }}
                                 className="text-xs"
@@ -584,14 +689,124 @@ export function PhantomPayment({
                         </div>
                       </div>
 
+                      {/* Detailed Debug Information */}
+                      {validationResults && (
+                        <div className="mt-4 p-4 bg-gray-50 rounded-lg border">
+                          <div className="flex items-center gap-2 mb-3">
+                            <Info className="h-4 w-4 text-blue-600" />
+                            <h4 className="text-sm font-semibold text-gray-900">
+                              Transaction Validation Results
+                            </h4>
+                          </div>
+                          
+                          {/* Validation Status */}
+                          <div className="space-y-3 text-sm">
+                            {/* Recipient Info */}
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <p className="font-medium text-gray-700">Recipient Status:</p>
+                                <div className="mt-1 space-y-1">
+                                  <div className="flex items-center gap-2">
+                                    {validationResults.recipient.hasTokenAccount ? (
+                                      <CheckCircle className="h-3 w-3 text-green-600" />
+                                    ) : (
+                                      <AlertCircle className="h-3 w-3 text-red-600" />
+                                    )}
+                                    <span className={validationResults.recipient.hasTokenAccount ? 'text-green-700' : 'text-red-700'}>
+                                      USDC Account: {validationResults.recipient.hasTokenAccount ? 'Yes' : 'No'}
+                                    </span>
+                                  </div>
+                                  <div className="text-gray-600">
+                                    SOL: {validationResults.recipient.solBalance.toFixed(4)}
+                                  </div>
+                                  <div className="text-gray-600">
+                                    USDC: {validationResults.recipient.usdcBalance.toFixed(2)}
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              <div>
+                                <p className="font-medium text-gray-700">Transaction:</p>
+                                <div className="mt-1 space-y-1 text-gray-600">
+                                  <div>Amount: ${validationResults.transaction.amount}</div>
+                                  <div>Micro USDC: {validationResults.transaction.amountInSmallestUnit}</div>
+                                  <div>Token: {validationResults.transaction.tokenMint.slice(0, 8)}...</div>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Errors and Warnings */}
+                            {validationResults.errors.length > 0 && (
+                              <div className="p-3 bg-red-50 border border-red-200 rounded">
+                                <p className="font-medium text-red-800 mb-2">❌ Errors:</p>
+                                {validationResults.errors.map((error: string, idx: number) => (
+                                  <p key={idx} className="text-red-700 text-xs">• {error}</p>
+                                ))}
+                              </div>
+                            )}
+
+                            {validationResults.warnings.length > 0 && (
+                              <div className="p-3 bg-yellow-50 border border-yellow-200 rounded">
+                                <p className="font-medium text-yellow-800 mb-2">⚠️ Warnings:</p>
+                                {validationResults.warnings.map((warning: string, idx: number) => (
+                                  <p key={idx} className="text-yellow-700 text-xs">• {warning}</p>
+                                ))}
+                              </div>
+                            )}
+
+                            {/* Alternative URLs for testing */}
+                            <div className="p-3 bg-blue-50 border border-blue-200 rounded">
+                              <p className="font-medium text-blue-800 mb-2">🔗 Test Different URLs:</p>
+                              <div className="space-y-1">
+                                <button
+                                  onClick={() => window.open(validationResults.urls.alternative, '_blank')}
+                                  className="block w-full text-left text-xs text-blue-700 hover:text-blue-900 underline"
+                                >
+                                  📊 Alternative USDC Token (Recommended)
+                                </button>
+                                <button
+                                  onClick={() => window.open(validationResults.urls.phantom, '_blank')}
+                                  className="block w-full text-left text-xs text-blue-700 hover:text-blue-900 underline"
+                                >
+                                  👻 Phantom Deep Link
+                                </button>
+                                <button
+                                  onClick={() => window.open(validationResults.urls.simple, '_blank')}
+                                  className="block w-full text-left text-xs text-blue-700 hover:text-blue-900 underline"
+                                >
+                                  🔄 Simple Solana Pay (No Token)
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Troubleshooting Steps */}
+                            <div className="p-3 bg-green-50 border border-green-200 rounded">
+                              <p className="font-medium text-green-800 mb-2">🔧 Next Steps:</p>
+                              <div className="text-green-700 text-xs space-y-1">
+                                {!validationResults.recipient.hasTokenAccount && (
+                                  <p>1. Recipient needs to create USDC token account in Phantom (switch to devnet, add USDC token)</p>
+                                )}
+                                {validationResults.recipient.solBalance < 0.001 && (
+                                  <p>2. Recipient needs devnet SOL for transaction fees</p>
+                                )}
+                                <p>3. Try the "Alternative USDC Token" button above</p>
+                                <p>4. Make sure both sender and recipient are on devnet network</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
                       <Button
                         variant="ghost"
                         onClick={() => {
                           setShowQRCode(false);
                           setQrCodeUrl(null);
                           setTransactionData(null);
+                          setDebugInfo(null);
+                          setValidationResults(null);
                         }}
-                        className="w-full h-10 text-sm"
+                        className="w-full h-10 text-sm mt-4"
                       >
                         Back to Options
                       </Button>
@@ -646,13 +861,46 @@ export function PhantomPayment({
 
           {/* Payment Error */}
           {(error || walletError) && (
-            <Alert variant={error?.includes('Warning:') ? 'default' : 'destructive'} 
-                  className={error?.includes('Warning:') ? 'border-yellow-200 bg-yellow-50' : ''}>
-              <AlertCircle className={`h-4 w-4 ${error?.includes('Warning:') ? 'text-yellow-600' : ''}`} />
-              <AlertDescription className={error?.includes('Warning:') ? 'text-yellow-800' : ''}>
+            <Alert
+              variant={error?.includes('Warning:') ? 'default' : 'destructive'}
+              className={
+                error?.includes('Warning:')
+                  ? 'border-yellow-200 bg-yellow-50'
+                  : ''
+              }
+            >
+              <AlertCircle
+                className={`h-4 w-4 ${error?.includes('Warning:') ? 'text-yellow-600' : ''}`}
+              />
+              <AlertDescription
+                className={error?.includes('Warning:') ? 'text-yellow-800' : ''}
+              >
                 {error || walletError}
               </AlertDescription>
             </Alert>
+          )}
+
+          {/* Debug Information Panel */}
+          {debugInfo && debugInfo.error && (
+            <Card className="border-red-200 bg-red-50">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-red-800 text-sm flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4" />
+                  Debug Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="text-sm text-red-700">
+                  <p className="font-medium">Error Details:</p>
+                  <code className="block mt-1 p-2 bg-red-100 rounded text-xs">
+                    {JSON.stringify(debugInfo.details, null, 2)}
+                  </code>
+                </div>
+                <div className="text-xs text-red-600">
+                  Timestamp: {debugInfo.timestamp}
+                </div>
+              </CardContent>
+            </Card>
           )}
         </CardContent>
       </Card>
