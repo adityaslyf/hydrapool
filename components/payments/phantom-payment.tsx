@@ -27,7 +27,7 @@ import {
 } from 'lucide-react';
 import { usePhantomWallet } from '@/hooks/use-phantom-wallet';
 import { detectPWAContext, openWalletApp } from '@/lib/pwa-utils';
-import { USDC_MINT_ADDRESS } from '@/lib/solana';
+import { USDC_MINT_ADDRESS, usdcToSmallestUnit } from '@/lib/solana';
 import type { PaymentRequest, SplitWithParticipants, User } from '@/types';
 
 interface PhantomPaymentProps {
@@ -178,13 +178,20 @@ export function PhantomPayment({
     try {
       setPaymentLoading(true);
 
-      // Create Solana Pay URL with transaction details (devnet USDC)
+      // Create Solana Pay URL with transaction details
       const amount = participant.amount_owed;
+      const amountInSmallestUnit = usdcToSmallestUnit(amount); // Convert to micro USDC
       const recipient = split.creator.wallet;
       const memo = `HydraPool: ${split.title}`;
-      
-      // Use proper Solana Pay transfer format
-      const solanaPayUrl = `https://phantom.app/ul/v1/transfer?recipient=${recipient}&amount=${amount}&spl-token=${USDC_MINT_ADDRESS.toBase58()}&memo=${encodeURIComponent(memo)}&cluster=devnet`;
+      const tokenMint = USDC_MINT_ADDRESS.toBase58();
+
+      // Try standard Solana Pay format (recommended)
+      const solanaPayUrl = `solana:${recipient}?amount=${amountInSmallestUnit}&spl-token=${tokenMint}&memo=${encodeURIComponent(memo)}`;
+
+      console.log('Generated Solana Pay URL:', solanaPayUrl);
+      console.log('Amount in USDC:', amount);
+      console.log('Amount in smallest unit:', amountInSmallestUnit);
+      console.log('Token mint:', tokenMint);
 
       // Create QR code URL using qr-server.com API
       const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(solanaPayUrl)}`;
@@ -193,6 +200,7 @@ export function PhantomPayment({
       setQrCodeUrl(qrCodeUrl);
       setShowQRCode(true);
     } catch (err) {
+      console.error('QR generation error:', err);
       setError('Failed to generate transaction QR code');
     } finally {
       setPaymentLoading(false);
@@ -392,7 +400,8 @@ export function PhantomPayment({
                               1
                             </div>
                             <p className="text-gray-700">
-                              Open your Phantom mobile app and ensure you're on <strong>devnet</strong>
+                              Open your Phantom mobile app and ensure you're on{' '}
+                              <strong>devnet</strong>
                             </p>
                           </div>
                           <div className="flex items-start gap-3">
@@ -400,7 +409,8 @@ export function PhantomPayment({
                               2
                             </div>
                             <p className="text-gray-700">
-                              Tap the <strong>scan QR</strong> icon (camera icon) in the top right
+                              Tap the <strong>scan QR</strong> icon (camera
+                              icon) in the top right
                             </p>
                           </div>
                           <div className="flex items-start gap-3">
@@ -408,7 +418,8 @@ export function PhantomPayment({
                               3
                             </div>
                             <p className="text-gray-700">
-                              Scan this QR code - it should open the transfer screen with details pre-filled
+                              Scan this QR code - it should open the transfer
+                              screen with details pre-filled
                             </p>
                           </div>
                           <div className="flex items-start gap-3">
@@ -416,66 +427,109 @@ export function PhantomPayment({
                               4
                             </div>
                             <p className="text-gray-700">
-                              Review the transaction details and confirm to send the payment
+                              Review the transaction details and confirm to send
+                              the payment
                             </p>
                           </div>
                         </div>
-                        
+
                         <div className="mt-3 p-3 bg-blue-50 rounded border-l-4 border-blue-400">
                           <p className="text-xs text-blue-800">
-                            <strong>Note:</strong> Make sure your Phantom app is set to devnet network. 
-                            If the QR code doesn't work, try copying the link and opening it directly in your browser, 
-                            which should redirect to Phantom.
+                            <strong>Troubleshooting:</strong> If QR code doesn't work:
+                            <br />• Make sure Phantom app is set to <strong>devnet</strong>
+                            <br />• Try the "Test" button to open the link directly
+                            <br />• Try the alternative format buttons below
+                            <br />• Check browser console for debugging info
                           </p>
                         </div>
                       </div>
 
                       {/* QR Actions */}
-                      <div className="grid grid-cols-3 gap-2">
-                        <Button
-                          variant="outline"
-                          onClick={async () => {
-                            if (transactionData) {
-                              try {
-                                await navigator.clipboard.writeText(transactionData);
-                                // Could add a toast notification here
-                              } catch (err) {
-                                // Fallback for older browsers
-                                const textArea = document.createElement('textarea');
-                                textArea.value = transactionData;
-                                document.body.appendChild(textArea);
-                                textArea.select();
-                                document.execCommand('copy');
-                                document.body.removeChild(textArea);
+                      <div className="space-y-2">
+                        <div className="grid grid-cols-3 gap-2">
+                          <Button
+                            variant="outline"
+                            onClick={async () => {
+                              if (transactionData) {
+                                try {
+                                  await navigator.clipboard.writeText(
+                                    transactionData,
+                                  );
+                                  // Could add a toast notification here
+                                } catch (err) {
+                                  // Fallback for older browsers
+                                  const textArea =
+                                    document.createElement('textarea');
+                                  textArea.value = transactionData;
+                                  document.body.appendChild(textArea);
+                                  textArea.select();
+                                  document.execCommand('copy');
+                                  document.body.removeChild(textArea);
+                                }
                               }
-                            }
-                          }}
-                          className="h-10 text-sm"
-                        >
-                          <Copy className="h-4 w-4 mr-1" />
-                          Copy
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => {
-                            if (transactionData) {
-                              window.open(transactionData, '_blank');
-                            }
-                          }}
-                          className="h-10 text-sm"
-                        >
-                          <ExternalLink className="h-4 w-4 mr-1" />
-                          Test
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={generateTransactionQR}
-                          disabled={paymentLoading}
-                          className="h-10 text-sm"
-                        >
-                          <RefreshCw className="h-4 w-4 mr-1" />
-                          Refresh
-                        </Button>
+                            }}
+                            className="h-10 text-sm"
+                          >
+                            <Copy className="h-4 w-4 mr-1" />
+                            Copy
+                          </Button>
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              if (transactionData) {
+                                window.open(transactionData, '_blank');
+                              }
+                            }}
+                            className="h-10 text-sm"
+                          >
+                            <ExternalLink className="h-4 w-4 mr-1" />
+                            Test
+                          </Button>
+                          <Button
+                            variant="outline"
+                            onClick={generateTransactionQR}
+                            disabled={paymentLoading}
+                            className="h-10 text-sm"
+                          >
+                            <RefreshCw className="h-4 w-4 mr-1" />
+                            Refresh
+                          </Button>
+                        </div>
+                        
+                        {/* Alternative URL Formats for Testing */}
+                        <div className="border-t pt-2">
+                          <p className="text-xs text-gray-600 mb-2">Alternative formats (for debugging):</p>
+                          <div className="grid grid-cols-2 gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                const amount = participant.amount_owed;
+                                const recipient = split.creator.wallet;
+                                const memo = `HydraPool: ${split.title}`;
+                                const phantomUrl = `https://phantom.app/ul/v1/transfer?recipient=${recipient}&amount=${amount}&spl-token=${USDC_MINT_ADDRESS.toBase58()}&memo=${encodeURIComponent(memo)}&cluster=devnet`;
+                                window.open(phantomUrl, '_blank');
+                              }}
+                              className="text-xs"
+                            >
+                              Phantom URL
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                const amount = participant.amount_owed;
+                                const recipient = split.creator.wallet;
+                                const memo = `HydraPool: ${split.title}`;
+                                const solanaPaySimple = `solana:${recipient}?amount=${amount}&memo=${encodeURIComponent(memo)}`;
+                                window.open(solanaPaySimple, '_blank');
+                              }}
+                              className="text-xs"
+                            >
+                              Simple Solana
+                            </Button>
+                          </div>
+                        </div>
                       </div>
 
                       <Button
